@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Log My Trip</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Main activity -->
+    <string name="tbSaveTripText">Save trip</string>
+    <string name="tvSaveTripDescText">Start/Stop saving the current trip</string>
+    <string name="tvSavedTripsDescText">Saved trips</string>
+
+    <!-- Preferences -->
+    <string name="pref_autoStartLogCategoryTitle">Auto save</string>
+    <string name="pref_autoStartLogTitle">Auto save trip</string>
+    <string name="pref_autoStartLogSummary">Start saving trip when connect or disconnect to a bluetooth device</string>
+    <string name="pref_autoStartLogModeTitle">Auto save mode</string>
+    <string name="pref_autoStartLogModeSummary">Auto start on connect or disconnect</string>
+
+    <string-array name="pref_autoStartLogModeEntries">
+        <item>On connect device</item>
+        <item>On disconnect device</item>
+    </string-array>
+    <string-array name="pref_autoStartLogModeValues">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
+    <string name="pref_bluetoothDeviceTitle">Bluetooth devices</string>
+    <string name="pref_bluetoothDeviceSummary">Select bluetooth devices to start saving the trip when connect</string>
+    <string name="pref_bluetoothDeviceListTitle">Bluetooth paired devices</string>
+    <string name="pref_bluetoothNotFound">Bluetooth adapter not found</string>
+
+    <!-- Notification -->
+    <string name="notif_Title">Log my trip</string>
+    <string name="notif_Tricker">Starting Log my trip service</string>
+    <string name="notif_ContentWaitingBluetooth">Waiting bluetooth</string>
+    <string name="notif_ContentSavingTrip">Saving the current trip</string>
+
+    <!-- Messages -->
+    <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>
+
+    <string-array name="empty_array" />
+
+</resources>

@@ -21,7 +21,6 @@ import com.cachirulop.logmytrip.util.ToastHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -32,15 +31,12 @@ public class LogMyTripService
                    GoogleApiClient.OnConnectionFailedListener,
                    LocationListener
 {
-    private static final long          LOCATION_UPDATE_INTERVAL         = 1000 * 60 * 5; // 5 minutes
-    private static final long          LOCATION_UPDATE_FASTEST_INTERVAL = 1000 * 60;
-
+    private static final long LOCATION_UPDATE_INTERVAL = 10000;
+    private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
+    private final Object _lckReceiver = new Object();
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
-
     private BluetoothBroadcastReceiver _btReceiver;
-    private final Object               _lckReceiver                     = new Object ();
-
     private Trip                       _currentTrip                     = null;
 
     @Override
@@ -64,10 +60,10 @@ public class LogMyTripService
     private void initLocation ()
     {
         _locationRequest = LocationRequest.create ();
-        // _locationRequest.setPriority (LocationRequest.PRIORITY_HIGH_ACCURACY);
-        _locationRequest.setPriority (LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        _locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        //_locationRequest.setPriority (LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         _locationRequest.setInterval (LOCATION_UPDATE_INTERVAL);
-        _locationRequest.setFastestInterval (LOCATION_UPDATE_FASTEST_INTERVAL);
+        _locationRequest.setFastestInterval(LOCATION_UPDATE_FASTEST_INTERVAL);
 
         ensureLocationClient ();
     }
@@ -109,7 +105,7 @@ public class LogMyTripService
         boolean logs;
 
         bluetooth = SettingsManager.getAutoStartLog (this);
-        logs = SettingsManager.getLogTrip (this);
+        logs = SettingsManager.isLogTrip(this);
 
         synchronized (_lckReceiver) {
             if (bluetooth) {
@@ -142,18 +138,17 @@ public class LogMyTripService
     {
         ensureLocationClient ();
         if (!_apiClient.isConnected () && !_apiClient.isConnecting ()) {
-            _apiClient.connect ();
+            _apiClient.connect();
         }
     }
 
     private void stopLog ()
     {
         if (_currentTrip != null) {
-            TripManager.finishTrip (this, _currentTrip);
             _currentTrip = null;
         }
 
-        ensureLocationClient ();
+        ensureLocationClient();
         if (_apiClient.isConnected () || _apiClient.isConnecting ()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(_apiClient, this);
         }
@@ -162,7 +157,7 @@ public class LogMyTripService
     private void stopForegroundService ()
     {
         stopForeground (true);
-        stopSelf ();
+        stopSelf();
     }
 
     private void startForegroundService (boolean bluetooth,
@@ -219,7 +214,11 @@ public class LogMyTripService
     public void onLocationChanged (Location loc)
     {
         if (_currentTrip == null) {
-            _currentTrip = TripManager.getCurrentTrip (this);            
+            _currentTrip = TripManager.getCurrentTrip(this);
+        }
+
+        if (_currentTrip != null) {
+            NotifyManager.showNotification(this, R.string.notif_ContentSavingTripWithDesc, _currentTrip.getDescription());
         }
 
         TripLocation tl;

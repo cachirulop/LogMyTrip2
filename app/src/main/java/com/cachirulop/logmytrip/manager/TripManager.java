@@ -1,9 +1,6 @@
 
 package com.cachirulop.logmytrip.manager;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -13,6 +10,9 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 public class TripManager
 {
@@ -40,8 +40,6 @@ public class TripManager
                 result.setTripDate (new Date ());
                 result.setDescription (getDefaultDescription (ctx,
                                                               result.getTripDate ()));
-                result.setFinishDate (null);
-
                 return saveTrip (ctx,
                                  result,
                                  true);
@@ -75,11 +73,6 @@ public class TripManager
                         t.getTripDate ().getTime ());
             values.put ("description",
                         t.getDescription ());
-
-            if (t.isFinished ()) {
-                values.put ("finish_date",
-                            t.getFinishDate ().getTime ());
-            }
 
             if (isInsert) {
                 db.insert (CONST_TRIP_TABLE_NAME,
@@ -144,16 +137,7 @@ public class TripManager
         }
     }
 
-    public static void finishTrip (Context ctx,
-                                   Trip t)
-    {
-        t.setFinishDate (new Date ());
-        saveTrip (ctx,
-                  t,
-                  false);
-    }
-
-    private static Trip createTrip (Cursor c)
+    private static Trip createTrip(Cursor c)
     {
         return null;
     }

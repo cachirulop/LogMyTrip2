@@ -20,7 +20,8 @@ public class NotifyManager
     }
 
     public static Notification createNotification (Context ctx,
-                                                   int contentId)
+                                                   int contentId,
+                                                   Object... params)
     {
         Notification.Builder builder;
         Intent notificationIntent;
@@ -30,7 +31,7 @@ public class NotifyManager
         builder.setSmallIcon (R.drawable.ic_launcher);
         builder.setContentTitle (ctx.getText (R.string.notif_Title));
         builder.setTicker (ctx.getText (R.string.notif_Tricker));
-        builder.setContentText (ctx.getText (contentId));
+        builder.setContentText(String.format(ctx.getText(contentId).toString(), params));
 
         notificationIntent = new Intent (ctx,
                                          MainActivity.class);
@@ -50,12 +51,14 @@ public class NotifyManager
     }
 
     public static void showNotification (Context ctx,
-                                         int contentId)
+                                         int contentId,
+                                         Object... params)
     {
         Notification note;
 
         note = createNotification (ctx,
-                                   contentId);
+                contentId,
+                params);
 
         getManager (ctx).notify (NOTIFICATION_ID,
                                  note);

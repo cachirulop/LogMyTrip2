@@ -11,8 +11,7 @@ public class Trip
     private long _id;
     private Date _tripDate;
     private String _description;
-    private Date _finishDate;
-    
+
     /**
      * @return the id
      */
@@ -59,20 +58,5 @@ public class Trip
     public void setDescription (String description)
     {
         this._description = description;
-    }
-    
-    public Date getFinishDate ()
-    {
-        return _finishDate;
-    }
-    
-    public void setFinishDate (Date value) 
-    {
-        _finishDate = value;
-    }
-    
-    public boolean isFinished ()
-    {
-        return _finishDate != null;
     }
 }

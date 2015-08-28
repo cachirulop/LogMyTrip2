@@ -6,8 +6,7 @@
     <string name="SQL_on_create" translatable="false">        
         CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         				   description TEXT NOT NULL, 
-        				   trip_date TIMESTAMP NOT NULL, 
-        				   finish_date TIMESTAMP);
+        				   trip_date TIMESTAMP NOT NULL);
         
         CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         							id_trip INTEGER NOT NULL,
@@ -30,8 +29,7 @@
         <![CDATA[
         	SELECT *
         	FROM trip
-        	WHERE trip_date >=  datetime (\'now\', \'-2 hours\') AND
-        	      finish_date is not null
+        	WHERE trip_date >=  date (\'now\')
         ]]>
     </string>
 

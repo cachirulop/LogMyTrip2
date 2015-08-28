@@ -3,6 +3,7 @@
 
     <string name="app_name">Log My Trip</string>
     <string name="action_settings">Settings</string>
+    <string name="action_save">Save trip</string>
 
     <!-- Main activity -->
     <string name="tbSaveTripText">Save trip</string>
@@ -35,6 +36,7 @@
     <string name="notif_Tricker">Starting Log my trip service</string>
     <string name="notif_ContentWaitingBluetooth">Waiting bluetooth</string>
     <string name="notif_ContentSavingTrip">Saving the current trip</string>
+    <string name="notif_ContentSavingTripWithDesc">Saving trip: %s</string>
 
     <!-- Messages -->
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>

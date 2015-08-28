@@ -17,7 +17,7 @@ public class SettingsManager
                                                 false);
     }
 
-    public static boolean getLogTrip (Context ctx)
+    public static boolean isLogTrip(Context ctx)
     {
         return getSharedPrefs (ctx).getBoolean (KEY_PREF_LOG_TRIP,
                                                 false);

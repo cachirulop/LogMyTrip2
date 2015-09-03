@@ -59,4 +59,22 @@ public class Trip
     {
         this._description = description;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Trip)) return false;
+
+        Trip trip = (Trip) o;
+
+        return this.hashCode() == trip.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (_id ^ (_id >>> 32));
+        result = 31 * result + _tripDate.hashCode();
+        result = 31 * result + _description.hashCode();
+        return result;
+    }
 }

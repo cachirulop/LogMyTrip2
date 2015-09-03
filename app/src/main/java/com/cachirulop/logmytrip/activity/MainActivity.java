@@ -18,17 +18,22 @@ public class MainActivity
 {
     private final static int ACTIVITY_RESULT_SETTINGS = 0;
 
+    MainFragment _frgMain;
+
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-        super.onCreate (savedInstanceState);
-        setContentView (R.layout.activity_main);
+        // Inflate the view
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
+            _frgMain = new MainFragment();
             getFragmentManager ().beginTransaction ().add (R.id.container,
-                                                           new MainFragment ()).commit ();
+                    _frgMain).commit();
         }
 
+        // Start the log service
         startService(new Intent(this, LogMyTripService.class));
     }
 
@@ -73,6 +78,8 @@ public class MainActivity
                 return true;
 
             case R.id.action_save:
+                _frgMain.reloadTrips();
+
                 if (SettingsManager.isLogTrip(this)) {
                     ServiceManager.stopSaveTrip(this);
                     item.setIcon(android.R.drawable.ic_menu_save);
@@ -90,8 +97,8 @@ public class MainActivity
 
     private void showPreferences ()
     {
-        startActivityForResult (new Intent (this,
-                                            SettingsActivity.class),
-                                ACTIVITY_RESULT_SETTINGS);
+        startActivityForResult(new Intent(this,
+                        SettingsActivity.class),
+                ACTIVITY_RESULT_SETTINGS);
     }
 }

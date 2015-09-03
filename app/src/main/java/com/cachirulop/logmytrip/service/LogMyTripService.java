@@ -164,18 +164,20 @@ public class LogMyTripService
                                          boolean logTrip)
     {
         Notification note;
-        int contentId;
+        CharSequence contentText;
+
+        _currentTrip = TripManager.getCurrentTrip(this);
 
         if (bluetooth) {
-            contentId = R.string.notif_ContentWaitingBluetooth;
+            contentText = this.getText(R.string.notif_ContentWaitingBluetooth);
         }
         else {
-            contentId = R.string.notif_ContentSavingTrip;
+            contentText = String.format(this.getText(R.string.notif_ContentSavingTrip).toString(), _currentTrip.getDescription());
         }
 
         // TODO: Specify the correct icon
         note = NotifyManager.createNotification (this,
-                                                 contentId);
+                contentText);
 
         startForeground (NotifyManager.NOTIFICATION_ID,
                          note);
@@ -213,14 +215,6 @@ public class LogMyTripService
     @Override
     public void onLocationChanged (Location loc)
     {
-        if (_currentTrip == null) {
-            _currentTrip = TripManager.getCurrentTrip(this);
-        }
-
-        if (_currentTrip != null) {
-            NotifyManager.showNotification(this, R.string.notif_ContentSavingTripWithDesc, _currentTrip.getDescription());
-        }
-
         TripLocation tl;
         
         tl = convertLocation (loc);

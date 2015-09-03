@@ -5,31 +5,37 @@
     <!-- Creates the database. -->
     <string name="SQL_on_create" translatable="false">        
         CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        				   description TEXT NOT NULL, 
-        				   trip_date TIMESTAMP NOT NULL);
+                           description TEXT NOT NULL,
+                           trip_date TIMESTAMP NOT NULL);
         
         CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        							id_trip INTEGER NOT NULL,
-        						    location_time TIMESTAMP NOT NULL,
-        						    latitude REAL NOT NULL, 
-        						    longitude REAL NOT NULL, 
-        						    altitude REAL, 
-        						    speed REAL, 
-        						    FOREIGN KEY(id_trip) REFERENCES trip(id));</string>
+                                    id_trip INTEGER NOT NULL,
+                                    location_time TIMESTAMP NOT NULL,
+                                    latitude REAL NOT NULL,
+                                    longitude REAL NOT NULL,
+                                    altitude REAL,
+                                    speed REAL,
+                                    FOREIGN KEY(id_trip) REFERENCES trip(id));</string>
 
     <!-- Drop all the tables. -->
     <string name="SQL_on_upgrade" translatable="false">
-	<![CDATA[
+    <![CDATA[
         DROP TABLE trip_location;
         DROP TABLE trip;
-	]]>
+    ]]>
     </string>
     
     <string name="SQL_get_last_active_trip">
         <![CDATA[
-        	SELECT *
-        	FROM trip
-        	WHERE trip_date >=  date (\'now\')
+            SELECT *
+            FROM trip
+            WHERE date(trip_date / 1000, \'unixepoch\', \'localtime\') =  date (\'now\')
+        ]]>
+    </string>
+
+    <string name="SQL_get_all_trips">
+        <![CDATA[
+            SELECT * FROM trip ORDER BY trip_date DESC
         ]]>
     </string>
 

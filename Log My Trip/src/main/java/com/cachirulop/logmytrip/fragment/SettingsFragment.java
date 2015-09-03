@@ -7,7 +7,6 @@ import android.preference.PreferenceFragment;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.manager.ServiceManager;
-import com.cachirulop.logmytrip.manager.SettingsManager;
 
 public class SettingsFragment
         extends PreferenceFragment

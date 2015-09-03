@@ -9,9 +9,9 @@
             android:title="@string/pref_autoStartLogTitle" />
 
         <ListPreference
+            android:dependency="pref_autoStartLog"
             android:entries="@array/pref_autoStartLogModeEntries"
             android:entryValues="@array/pref_autoStartLogModeValues"
-            android:dependency="pref_autoStartLog"
             android:key="pref_autoStartLogMode"
             android:summary="@string/pref_autoStartLogModeSummary"
             android:title="@string/pref_autoStartLogModeTitle" />

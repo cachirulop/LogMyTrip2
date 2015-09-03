@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/activity" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/data" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/entity" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/fragment" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/manager" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/preferences" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/receiver" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/service" charset="windows-1252" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/com/cachirulop/logmytrip/util" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/activity" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/data" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/entity" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/fragment" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/manager" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/preferences" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/receiver" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/service" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Log My Trip/src/main/java/com/cachirulop/logmytrip/util" charset="windows-1252" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

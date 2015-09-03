@@ -1,13 +1,13 @@
 
 package com.cachirulop.logmytrip.receiver;
 
-import com.cachirulop.logmytrip.manager.ServiceManager;
-
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+
+import com.cachirulop.logmytrip.manager.ServiceManager;
 
 public class BluetoothBroadcastReceiver
         extends BroadcastReceiver

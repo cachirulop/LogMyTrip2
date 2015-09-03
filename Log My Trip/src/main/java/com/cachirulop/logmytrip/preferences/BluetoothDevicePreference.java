@@ -1,8 +1,6 @@
 
 package com.cachirulop.logmytrip.preferences;
 
-import java.util.Set;
-
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -10,6 +8,8 @@ import android.preference.MultiSelectListPreference;
 import android.util.AttributeSet;
 
 import com.cachirulop.logmytrip.R;
+
+import java.util.Set;
 
 public class BluetoothDevicePreference
         extends MultiSelectListPreference

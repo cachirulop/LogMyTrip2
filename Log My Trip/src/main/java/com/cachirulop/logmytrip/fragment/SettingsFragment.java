@@ -26,7 +26,7 @@ public class SettingsFragment
     {
         // if (SettingsManager.KEY_PREF_AUTO_START_LOG.equals (key)) {
         //    if (SettingsManager.getAutoStartLog (this.getActivity ())) {
-                ServiceManager.startStopService (this.getActivity ());
+        ServiceManager.startStopService(this.getActivity(), null);
         //    }
         //    else {
         //        ServiceManager.stopBluetoothService (this.getActivity ());

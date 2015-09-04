@@ -3,6 +3,8 @@ package com.cachirulop.logmytrip.manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Messenger;
 
 import com.cachirulop.logmytrip.service.LogMyTripService;
 
@@ -16,23 +18,31 @@ public class ServiceManager
      * 
      * @param ctx Context to start the service
      */
-    public static void startStopService (Context ctx)
+    public static void startStopService(Context ctx, Handler h)
     {
-        ctx.startService (new Intent (ctx,
-                                      LogMyTripService.class));
-    }
-    
-    public static void startSaveTrip (Context ctx) 
-    {
-        SettingsManager.setLogTrip (ctx, true);
-        
-        startStopService (ctx);
+        Intent i;
+
+        i = new Intent(ctx,
+                LogMyTripService.class);
+
+        if (h != null) {
+            i.putExtra(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER, new Messenger(h));
+        }
+
+        ctx.startService(i);
     }
 
-    public static void stopSaveTrip (Context ctx) 
+    public static void startSaveTrip(Context ctx, Handler h)
+    {
+        SettingsManager.setLogTrip (ctx, true);
+
+        startStopService(ctx, h);
+    }
+
+    public static void stopSaveTrip(Context ctx, Handler h)
     {
         SettingsManager.setLogTrip (ctx, false);
-        
-        startStopService (ctx);
+
+        startStopService(ctx, h);
     }
 }

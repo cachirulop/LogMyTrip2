@@ -4,10 +4,13 @@ package com.cachirulop.logmytrip.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.MainFragment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -19,6 +22,12 @@ public class MainActivity
     private final static int ACTIVITY_RESULT_SETTINGS = 0;
 
     MainFragment _frgMain;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            _frgMain.updateSavingStatus((Trip) msg.obj);
+        }
+    };
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
@@ -78,13 +87,11 @@ public class MainActivity
                 return true;
 
             case R.id.action_save:
-                _frgMain.reloadTrips();
-
                 if (SettingsManager.isLogTrip(this)) {
-                    ServiceManager.stopSaveTrip(this);
+                    ServiceManager.stopSaveTrip(this, handler);
                     item.setIcon(android.R.drawable.ic_menu_save);
                 } else {
-                    ServiceManager.startSaveTrip(this);
+                    ServiceManager.startSaveTrip(this, handler);
                     item.setIcon(android.R.drawable.ic_media_pause);
                 }
 

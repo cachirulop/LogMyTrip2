@@ -30,13 +30,13 @@ public class BluetoothBroadcastReceiver
         // TODO: Test if the device is configured
         if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals (action)) {
             Toast.makeText (ctx, "Device disconnected", Toast.LENGTH_LONG).show ();
-            
-            ServiceManager.stopSaveTrip (ctx);
+
+            ServiceManager.stopSaveTrip(ctx, null);
         }
         else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals (action)) {
             Toast.makeText (ctx, "Device connected", Toast.LENGTH_LONG).show ();
 
-            ServiceManager.startSaveTrip (ctx);
+            ServiceManager.startSaveTrip(ctx, null);
         }        
     }
 }

@@ -29,17 +29,6 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         _items = items;
     }
 
-    /*
-        @Override
-        public Object getItem(int position) {
-            if (_items == null) {
-                return null;
-            }
-            else {
-                return _items.get(position);
-            }
-        }
-    */
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View rowView;
@@ -87,6 +76,21 @@ public class TripItemAdapter extends RecyclerView.Adapter {
             return 0;
         } else {
             return _items.size();
+        }
+    }
+
+    public void updateTripStatus() {
+        Trip current;
+        int position;
+
+        current = TripManager.getCurrentTrip(_ctx);
+        position = _items.indexOf(current);
+        if (position == -1) {
+            _items.add(0, current);
+
+            notifyItemInserted(0);
+        } else {
+            notifyItemChanged(position);
         }
     }
 

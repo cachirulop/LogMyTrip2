@@ -9,6 +9,9 @@ import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.util.Log;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -31,6 +34,7 @@ public class LogMyTripService
                    GoogleApiClient.OnConnectionFailedListener,
                    LocationListener
 {
+    public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName() + ".HANDLER";
     private static final long LOCATION_UPDATE_INTERVAL = 10000;
     private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
     private final Object _lckReceiver = new Object();
@@ -124,11 +128,24 @@ public class LogMyTripService
         }
 
         if (bluetooth || logs) {
-            startForegroundService (bluetooth,
-                                    logs);
+            startForegroundService(bluetooth,
+                    logs);
         }
         else {
             stopForegroundService();
+        }
+
+        if (intent.hasExtra(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
+            Messenger messenger = (Messenger) intent.getExtras().get(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
+            Message msg = Message.obtain();
+
+            // msg.obj = _currentTrip;
+
+            try {
+                messenger.send(msg);
+            } catch (android.os.RemoteException e1) {
+                Log.w(getClass().getName(), "Exception sending message", e1);
+            }
         }
 
         return START_STICKY;

@@ -60,4 +60,15 @@ public class MainFragment
     public void reloadTrips() {
         loadTrips();
     }
+
+    public void updateSavingStatus(Trip currentTrip) {
+        RecyclerView rvTrips;
+        TripItemAdapter adapter;
+        int position;
+
+        rvTrips = (RecyclerView) getView().findViewById(R.id.rvTrips);
+        adapter = (TripItemAdapter) rvTrips.getAdapter();
+
+        adapter.updateTripStatus();
+    }
 }

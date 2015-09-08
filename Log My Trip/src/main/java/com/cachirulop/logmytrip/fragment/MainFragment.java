@@ -2,6 +2,7 @@ package com.cachirulop.logmytrip.fragment;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -17,6 +18,8 @@ import java.util.List;
 
 public class MainFragment
         extends Fragment {
+    private RecyclerView recyclerView;
+
     public MainFragment() {
     }
 
@@ -39,9 +42,12 @@ public class MainFragment
             rvTrips = (RecyclerView) getView().findViewById(R.id.rvTrips);
             rvTrips.setLayoutManager(new LinearLayoutManager(getActivity()));
             rvTrips.setHasFixedSize(true);
-        }
 
-        loadTrips();
+            // this is the default; this call is actually only necessary with custom ItemAnimators
+            recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+            loadTrips();
+        }
     }
 
     private void loadTrips() {
@@ -57,10 +63,6 @@ public class MainFragment
         }
     }
 
-    public void reloadTrips() {
-        loadTrips();
-    }
-
     public void updateSavingStatus(Trip currentTrip) {
         RecyclerView rvTrips;
         TripItemAdapter adapter;
@@ -69,6 +71,11 @@ public class MainFragment
         rvTrips = (RecyclerView) getView().findViewById(R.id.rvTrips);
         adapter = (TripItemAdapter) rvTrips.getAdapter();
 
+        rvTrips.smoothScrollToPosition(0);
         adapter.updateTripStatus();
+    }
+
+    public RecyclerView getRecyclerView() {
+        return (RecyclerView) getView().findViewById(R.id.rvTrips);
     }
 }

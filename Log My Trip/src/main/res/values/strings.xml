@@ -39,6 +39,7 @@
 
     <!-- Messages -->
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>
+    <string name="selected_count">%1$s selected</string>
 
     <string-array name="empty_array" />
 

@@ -2,6 +2,7 @@ package com.cachirulop.logmytrip.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,10 +25,13 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
     Context _ctx;
     List<Trip> _items;
+    SparseBooleanArray _selectedItems;
 
     public TripItemAdapter(Context ctx, List<Trip> items) {
         _ctx = ctx;
         _items = items;
+
+        _selectedItems = new SparseBooleanArray();
     }
 
     @Override
@@ -63,6 +68,8 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         vh.getDuration().setText("10:10:10 - 100Km");
         vh.getDate().setText(new SimpleDateFormat("dd/MM/yyyy").format(t.getTripDate()));
         vh.getTime().setText(new SimpleDateFormat("hh:mm:ss").format(t.getTripDate()));
+
+        vh.itemView.setActivated(_selectedItems.get(position, false));
     }
 
     @Override
@@ -94,6 +101,40 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         }
     }
 
+    public void toggleSelection(int pos) {
+        if (_selectedItems.get(pos, false)) {
+            _selectedItems.delete(pos);
+        } else {
+            _selectedItems.put(pos, true);
+        }
+        notifyItemChanged(pos);
+    }
+
+    public void clearSelections() {
+        _selectedItems.clear();
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedItemCount() {
+        return _selectedItems.size();
+    }
+
+    public List<Integer> getSelectedItems() {
+        List<Integer> items =
+                new ArrayList<Integer>(_selectedItems.size());
+
+        for (int i = 0; i < _selectedItems.size(); i++) {
+            items.add(_selectedItems.keyAt(i));
+        }
+
+        return items;
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    // ViewHolder class
+    /////////////////////////////////////////////////////////////////////////////////////////////
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private ImageView _status;
         private TextView _description;
@@ -103,6 +144,9 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
         public ViewHolder(View parent) {
             super(parent);
+
+            parent.setClickable(true);
+            parent.setLongClickable(true);
 
             _status = (ImageView) parent.findViewById(R.id.ivTripItemStatus);
             _description = (TextView) parent.findViewById(R.id.tvTripItemDescription);

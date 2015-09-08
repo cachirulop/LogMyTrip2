@@ -27,7 +27,8 @@ public class NotifyManager
         PendingIntent pi;
 
         builder = new Notification.Builder (ctx);
-        builder.setSmallIcon (R.drawable.ic_launcher);
+        // builder.setSmallIcon (R.drawable.ic_launcher);
+        builder.setSmallIcon(R.mipmap.ic_trip_status_saving);
         builder.setContentTitle (ctx.getText (R.string.notif_Title));
         builder.setTicker (ctx.getText (R.string.notif_Tricker));
         builder.setContentText(contextText);

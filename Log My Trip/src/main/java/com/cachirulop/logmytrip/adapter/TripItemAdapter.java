@@ -1,6 +1,8 @@
 package com.cachirulop.logmytrip.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -25,7 +27,9 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
     Context _ctx;
     List<Trip> _items;
+
     SparseBooleanArray _selectedItems;
+    private boolean _actionMode;
 
     public TripItemAdapter(Context ctx, List<Trip> items) {
         _ctx = ctx;
@@ -70,6 +74,17 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         vh.getTime().setText(new SimpleDateFormat("hh:mm:ss").format(t.getTripDate()));
 
         vh.itemView.setActivated(_selectedItems.get(position, false));
+
+        Drawable background;
+
+        if (_actionMode) {
+            background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector_actionmode);
+        } else {
+            background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector);
+        }
+
+        vh.itemView.setBackground(background);
+        background.jumpToCurrentState();
     }
 
     @Override
@@ -112,6 +127,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
     public void clearSelections() {
         _selectedItems.clear();
+
         notifyDataSetChanged();
     }
 
@@ -130,6 +146,35 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         return items;
     }
 
+    public boolean isActionMode() {
+        return _actionMode;
+    }
+
+    public void setActionMode(boolean selectionMode) {
+        this._actionMode = selectionMode;
+/*
+        // Update existing holders
+        for (int i = 0; i < this.getItemCount(); i++) {
+            Drawable background;
+            ViewHolder h;
+
+            h = getHolder(i);
+
+            if (h != null) {
+                if (_actionMode) {
+                    background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector_actionmode);
+                } else {
+                    background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector);
+                }
+
+                h.itemView.setBackground(background);
+                background.jumpToCurrentState();
+
+                h.itemView.setActivated(_selectedItems.get(h.getAdapterPosition(), false));
+            }
+        }
+*/
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
     // ViewHolder class

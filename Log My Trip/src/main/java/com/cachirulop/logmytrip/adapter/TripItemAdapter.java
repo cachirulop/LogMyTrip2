@@ -122,6 +122,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         } else {
             _selectedItems.put(pos, true);
         }
+
         notifyItemChanged(pos);
     }
 
@@ -152,28 +153,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
     public void setActionMode(boolean selectionMode) {
         this._actionMode = selectionMode;
-/*
-        // Update existing holders
-        for (int i = 0; i < this.getItemCount(); i++) {
-            Drawable background;
-            ViewHolder h;
-
-            h = getHolder(i);
-
-            if (h != null) {
-                if (_actionMode) {
-                    background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector_actionmode);
-                } else {
-                    background = ContextCompat.getDrawable(_ctx, R.drawable.trip_list_selector);
-                }
-
-                h.itemView.setBackground(background);
-                background.jumpToCurrentState();
-
-                h.itemView.setActivated(_selectedItems.get(h.getAdapterPosition(), false));
-            }
-        }
-*/
+        this.notifyDataSetChanged();
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////

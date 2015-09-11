@@ -28,14 +28,27 @@ public class TripItemAdapter extends RecyclerView.Adapter {
     Context _ctx;
     List<Trip> _items;
 
-    SparseBooleanArray _selectedItems;
+    private SparseBooleanArray _selectedItems;
     private boolean _actionMode;
+    private OnTripItemClickListener _onTripItemClickListener;
 
     public TripItemAdapter(Context ctx, List<Trip> items) {
         _ctx = ctx;
         _items = items;
 
+        _onTripItemClickListener = null;
+
         _selectedItems = new SparseBooleanArray();
+    }
+
+    public OnTripItemClickListener getOnTripItemClickListener ()
+    {
+        return _onTripItemClickListener;
+    }
+
+    public void setOnTripItemClickListener (OnTripItemClickListener listener)
+    {
+        _onTripItemClickListener = listener;
     }
 
     @Override
@@ -45,7 +58,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rowView = inflater.inflate(R.layout.lv_trips_item, parent, false);
 
-        return new ViewHolder(rowView);
+        return new ViewHolder(this, rowView);
     }
 
     @Override
@@ -72,6 +85,8 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         vh.getDuration().setText("10:10:10 - 100Km");
         vh.getDate().setText(new SimpleDateFormat("dd/MM/yyyy").format(t.getTripDate()));
         vh.getTime().setText(new SimpleDateFormat("hh:mm:ss").format(t.getTripDate()));
+
+        vh.setOnTripItemClickListener(_onTripItemClickListener);
 
         vh.itemView.setActivated(_selectedItems.get(position, false));
 
@@ -156,28 +171,45 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         this.notifyDataSetChanged();
     }
 
+    public interface OnTripItemClickListener {
+        public void onLongClick (View v);
+        public void onClick (View v);
+    }
+
+
     /////////////////////////////////////////////////////////////////////////////////////////////
     // ViewHolder class
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder
+        implements View.OnClickListener, View.OnLongClickListener {
+        private TripItemAdapter _adapter;
         private ImageView _status;
         private TextView _description;
         private TextView _duration;
         private TextView _date;
         private TextView _time;
 
-        public ViewHolder(View parent) {
+        private OnTripItemClickListener _onTripItemClickListener;
+
+        public ViewHolder(TripItemAdapter adapter, View parent) {
             super(parent);
+
+            _adapter = adapter;
 
             parent.setClickable(true);
             parent.setLongClickable(true);
+
+            parent.setOnClickListener(this);
+            parent.setOnLongClickListener(this);
 
             _status = (ImageView) parent.findViewById(R.id.ivTripItemStatus);
             _description = (TextView) parent.findViewById(R.id.tvTripItemDescription);
             _duration = (TextView) parent.findViewById(R.id.tvTripItemDuration);
             _date = (TextView) parent.findViewById(R.id.tvTripItemDate);
             _time = (TextView) parent.findViewById(R.id.tvTripItemDatetime);
+
+            _onTripItemClickListener = null;
         }
 
         public ImageView getStatus() {
@@ -198,6 +230,40 @@ public class TripItemAdapter extends RecyclerView.Adapter {
 
         public TextView getTime() {
             return _time;
+        }
+
+        public OnTripItemClickListener getOnTripItemClickListener ()
+        {
+            return _onTripItemClickListener;
+        }
+
+        public void setOnTripItemClickListener (OnTripItemClickListener listener)
+        {
+            _onTripItemClickListener = listener;
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (_adapter.isActionMode()) {
+                _adapter.toggleSelection(this.getLayoutPosition());
+            }
+
+            if (_onTripItemClickListener != null) {
+                _onTripItemClickListener.onClick(v);
+            }
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            itemView.setBackground(ContextCompat.getDrawable(_adapter._ctx, R.drawable.trip_list_selector_actionmode));
+
+            _adapter.toggleSelection(this.getLayoutPosition());
+
+            if (_onTripItemClickListener != null) {
+                _onTripItemClickListener.onLongClick(v);
+            }
+
+            return false;
         }
     }
 

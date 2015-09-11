@@ -2,4 +2,6 @@
 <resources>
     <color name="activated">#009bd0</color>
     <color name="pressed">#54000000</color>
+
+    <color name="actionbar_text">#5416ff34</color>
 </resources>

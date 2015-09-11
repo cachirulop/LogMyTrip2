@@ -7,11 +7,9 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ActionMode;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,7 +22,9 @@ import java.util.List;
 
 public class MainFragment
         extends Fragment
-        implements RecyclerView.OnItemTouchListener, ActionMode.Callback {
+        implements TripItemAdapter.OnTripItemClickListener, ActionMode.Callback
+        // implements RecyclerView.OnItemTouchListener, ActionMode.Callback
+{
     private RecyclerView _recyclerView;
     private TripItemAdapter _adapter;
     private GestureDetectorCompat _detector;
@@ -48,15 +48,15 @@ public class MainFragment
 
         if (getView() != null) {
             // Detect gestures
-            _detector = new GestureDetectorCompat(getActivity(), new RecyclerViewDemoOnGestureListener());
-            _detector.setIsLongpressEnabled(true);
+            // _detector = new GestureDetectorCompat(getActivity(), new RecyclerViewDemoOnGestureListener());
+            // _detector.setIsLongpressEnabled(true);
 
             _recyclerView = (RecyclerView) getView().findViewById(R.id.rvTrips);
             _recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             _recyclerView.setHasFixedSize(true);
 
             _recyclerView.setItemAnimator(new DefaultItemAnimator());
-            _recyclerView.addOnItemTouchListener(this);
+            // _recyclerView.addOnItemTouchListener(this);
 
             loadTrips();
         }
@@ -70,6 +70,7 @@ public class MainFragment
             trips = TripManager.LoadTrips(getActivity());
 
             _adapter = new TripItemAdapter(getActivity(), trips);
+            _adapter.setOnTripItemClickListener(this);
             _recyclerView.setAdapter(_adapter);
         }
     }
@@ -85,46 +86,66 @@ public class MainFragment
         return _recyclerView;
     }
 
-    public void onClick(View view) {
-/*
-        if (view.getId() == R.id.fab_add) {
-            // fab click
-            addItemToList();
-        } else
-*/
-        if (view.getId() == R.id.tripListItemContainer) {   // Item click
-            int selected;
-
-            selected = _recyclerView.getChildAdapterPosition(view);
-            if (_actionMode != null) {
-                myToggleSelection(selected);
-            } else {
-/*
-            DemoModel data = adapter.getItem(idx);
-            View innerContainer = view.findViewById(R.id.container_inner_item);
-            innerContainer.setTransitionName(Constants.NAME_INNER_CONTAINER + "_" + data.id);
-            Intent startIntent = new Intent(this, CardViewDemoActivity.class);
-            startIntent.putExtra(Constants.KEY_ID, data.id);
-            ActivityOptions options = ActivityOptions
-                    .makeSceneTransitionAnimation(this, innerContainer, Constants.NAME_INNER_CONTAINER);
-            this.startActivity(startIntent, options.toBundle());
-*/
-            }
+    @Override
+    public void onLongClick(View v) {
+        if (_actionMode != null) {
+            return;
         }
+
+        _actionMode = getView().startActionMode(this);
+
+        updateActionModeTitle();
     }
 
-    private void myToggleSelection(int idx) {
-        TripItemAdapter adapter;
-
-        _adapter.toggleSelection(idx);
-
-        String title = getString(R.string.selected_count, _adapter.getSelectedItemCount());
-
-        _actionMode.setTitle(title);
+    private void updateActionModeTitle() {
+        _actionMode.setTitle(getString(R.string.selected_count, _adapter.getSelectedItemCount()));
     }
+
+    @Override
+    public void onClick(View view) {
+        updateActionModeTitle();
+    }
+
+//    public void onClickOld(View view) {
+///*
+//        if (view.getId() == R.id.fab_add) {
+//            // fab click
+//            addItemToList();
+//        } else
+//*/
+////        if (view.getId() == R.id.tripListItemContainer) {   // Item click
+////            int selected;
+////
+////            selected = _recyclerView.getChildAdapterPosition(view);
+////            if (_actionMode != null) {
+////                myToggleSelection(selected);
+////            } else {
+///*
+//            DemoModel data = adapter.getItem(idx);
+//            View innerContainer = view.findViewById(R.id.container_inner_item);
+//            innerContainer.setTransitionName(Constants.NAME_INNER_CONTAINER + "_" + data.id);
+//            Intent startIntent = new Intent(this, CardViewDemoActivity.class);
+//            startIntent.putExtra(Constants.KEY_ID, data.id);
+//            ActivityOptions options = ActivityOptions
+//                    .makeSceneTransitionAnimation(this, innerContainer, Constants.NAME_INNER_CONTAINER);
+//            this.startActivity(startIntent, options.toBundle());
+//*/
+////            }
+////        }
+//    }
+
+//    private void myToggleSelection(int idx) {
+//        TripItemAdapter adapter;
+//
+//        _adapter.toggleSelection(idx);
+//
+//        String title = getString(R.string.selected_count, _adapter.getSelectedItemCount());
+//
+//        _actionMode.setTitle(title);
+//    }
 
     /* OnItemTouchListener implementation */
-
+/*
     @Override
     public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
         _detector.onTouchEvent(e);
@@ -138,17 +159,17 @@ public class MainFragment
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
     }
-
+*/
     /*  ActionMode.Callback implementation */
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         _adapter.setActionMode(true);
-/*
-        MenuInflater inflater = _actionMode.getMenuInflater();
-        inflater.inflate(R.menu.menu_cab_recyclerviewdemoactivity, menu);
-        fab.setVisibility(View.GONE);
-*/
+
+//        MenuInflater inflater = _actionMode.getMenuInflater();
+//        inflater.inflate(R.menu.menu_cab_recyclerviewdemoactivity, menu);
+//        fab.setVisibility(View.GONE);
+
 
         return true;
     }
@@ -160,22 +181,22 @@ public class MainFragment
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-/*
-        switch (menuItem.getItemId()) {
-            case R.id.menu_delete:
-                List<Integer> selectedItemPositions = adapter.getSelectedItems();
-                int currPos;
-                for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-                    currPos = selectedItemPositions.get(i);
-                    RecyclerViewDemoApp.removeItemFromList(currPos);
-                    adapter.removeData(currPos);
-                }
-                actionMode.finish();
-                return true;
-            default:
-                return false;
-        }
-*/
+
+//        switch (menuItem.getItemId()) {
+//            case R.id.menu_delete:
+//                List<Integer> selectedItemPositions = adapter.getSelectedItems();
+//                int currPos;
+//                for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
+//                    currPos = selectedItemPositions.get(i);
+//                    RecyclerViewDemoApp.removeItemFromList(currPos);
+//                    adapter.removeData(currPos);
+//                }
+//                actionMode.finish();
+//                return true;
+//            default:
+//                return false;
+//        }
+
         return false;
     }
 
@@ -187,8 +208,10 @@ public class MainFragment
         // fab.setVisibility(View.VISIBLE);
     }
 
-    /* Gesture detection class */
 
+
+    /* Gesture detection class */
+/*
     private class RecyclerViewDemoOnGestureListener extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -218,4 +241,5 @@ public class MainFragment
             super.onLongPress(e);
         }
     }
+*/
 }

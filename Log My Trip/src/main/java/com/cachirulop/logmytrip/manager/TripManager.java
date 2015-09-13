@@ -199,5 +199,25 @@ public class TripManager {
             }
         }
     }
+
+    public static void deleteTrip(Context ctx, Trip t) {
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper(ctx).getWritableDatabase();
+
+            db.delete(CONST_LOCATION_TABLE_NAME,
+                    "id_trip = ?",
+                    new String[]{Long.toString(t.getId())});
+
+            db.delete(CONST_TRIP_TABLE_NAME,
+                    "id = ?",
+                    new String[]{Long.toString(t.getId())});
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
 }
 

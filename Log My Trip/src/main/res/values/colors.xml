@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="activated">#009bd0</color>
+    <color name="default_background">#53ce8c</color>
+    <color name="default_background_dark">#4cce4d</color>
+
+    <color name="activated">@color/default_background</color>
     <color name="pressed">#54000000</color>
 
-    <color name="actionbar_text">#5416ff34</color>
+    <color name="actionbar_text">#000000</color>
 </resources>

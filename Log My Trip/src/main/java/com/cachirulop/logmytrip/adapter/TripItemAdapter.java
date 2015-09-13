@@ -151,15 +151,16 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         return _selectedItems.size();
     }
 
-    public List<Integer> getSelectedItems() {
-        List<Integer> items =
-                new ArrayList<Integer>(_selectedItems.size());
+    public List<Trip> getSelectedItems() {
+        List<Trip> result;
+
+        result = new ArrayList<Trip>(_selectedItems.size());
 
         for (int i = 0; i < _selectedItems.size(); i++) {
-            items.add(_selectedItems.keyAt(i));
+            result.add(_items.get(_selectedItems.keyAt(i)));
         }
 
-        return items;
+        return result;
     }
 
     public boolean isActionMode() {
@@ -171,9 +172,14 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         this.notifyDataSetChanged();
     }
 
+    public void removeItem(Trip t) {
+        _items.remove(t);
+    }
+
     public interface OnTripItemClickListener {
-        public void onLongClick (View v);
-        public void onClick (View v);
+        void onLongClick(View v);
+
+        void onClick(View v);
     }
 
 

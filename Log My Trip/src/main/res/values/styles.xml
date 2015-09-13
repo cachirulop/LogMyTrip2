@@ -1,20 +1,32 @@
 <resources>
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="@style/LogMyTripTheme">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/default_background</item>
+        <item name="colorPrimaryDark">@color/default_background_dark</item>
+        <item name="android:textColorPrimary">@color/actionbar_text</item>
+
+        <item name="colorAccent">@color/default_background</item>
     </style>
 
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    <!-- ActionBar styles -->
+    <style name="LogMyTripActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="titleTextStyle">@style/LogMyTripActionBarTitleText</item>
+        <item name="background">@color/default_background</item>
+        <item name="backgroundStacked">@color/default_background</item>
+        <item name="backgroundSplit">@color/default_background</item>
+
     </style>
+
+    <!-- ActionBar title text -->
+    <style name="LogMyTripActionBarTitleText">
+        <item name="android:textColor">@color/actionbar_text</item>
+    </style>
+
+    <!-- ActionBar tabs text styles -->
+    <style name="LogMyTripActionBarTabText">
+        <item name="android:textColor">@color/actionbar_text</item>
+    </style>
+
 
 </resources>

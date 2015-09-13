@@ -1,13 +1,13 @@
 
 package com.cachirulop.logmytrip.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.cachirulop.logmytrip.fragment.SettingsFragment;
 
 public class SettingsActivity
-        extends Activity
+        extends AppCompatActivity
 {
     @Override
     protected void onCreate (Bundle savedInstanceState)

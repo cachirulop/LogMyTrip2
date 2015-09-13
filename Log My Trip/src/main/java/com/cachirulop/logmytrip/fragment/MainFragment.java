@@ -1,14 +1,19 @@
 package com.cachirulop.logmytrip.fragment;
 
-import android.app.Fragment;
+
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.view.GestureDetectorCompat;
+import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +21,8 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.ServiceManager;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.util.List;
@@ -23,12 +30,18 @@ import java.util.List;
 public class MainFragment
         extends Fragment
         implements TripItemAdapter.OnTripItemClickListener, ActionMode.Callback
-        // implements RecyclerView.OnItemTouchListener, ActionMode.Callback
 {
     private RecyclerView _recyclerView;
     private TripItemAdapter _adapter;
-    private GestureDetectorCompat _detector;
     private ActionMode _actionMode;
+    private FloatingActionButton _fabSaveTrip;
+    private Context _ctx;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            updateSavingStatus((Trip) msg.obj);
+        }
+    };
 
     public MainFragment() {
     }
@@ -47,29 +60,52 @@ public class MainFragment
         super.onViewCreated(view, savedInstanceState);
 
         if (getView() != null) {
-            // Detect gestures
-            // _detector = new GestureDetectorCompat(getActivity(), new RecyclerViewDemoOnGestureListener());
-            // _detector.setIsLongpressEnabled(true);
+            // Init context
+            _ctx = getActivity();
 
+            // Recyclerview
             _recyclerView = (RecyclerView) getView().findViewById(R.id.rvTrips);
-            _recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            _recyclerView.setLayoutManager(new LinearLayoutManager(_ctx));
             _recyclerView.setHasFixedSize(true);
 
             _recyclerView.setItemAnimator(new DefaultItemAnimator());
-            // _recyclerView.addOnItemTouchListener(this);
 
             loadTrips();
+
+            // Save button
+            _fabSaveTrip = (FloatingActionButton) getView().findViewById(R.id.fabSaveTrip);
+            _fabSaveTrip.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onSaveTripClick(v);
+                }
+            });
+
         }
     }
 
+    private void onSaveTripClick(View v) {
+        if (SettingsManager.isLogTrip(_ctx)) {
+            ServiceManager.stopSaveTrip(_ctx, handler);
+
+            _fabSaveTrip.setImageResource(R.mipmap.ic_button_save);
+        } else {
+            ServiceManager.startSaveTrip(_ctx, handler);
+
+            _fabSaveTrip.setImageResource(android.R.drawable.ic_media_pause);
+        }
+    }
+
+    /**
+     * Load existing trips
+     */
     private void loadTrips() {
-        // Load existing trips
         List<Trip> trips;
 
         if (getView() != null) {
-            trips = TripManager.LoadTrips(getActivity());
+            trips = TripManager.LoadTrips(_ctx);
 
-            _adapter = new TripItemAdapter(getActivity(), trips);
+            _adapter = new TripItemAdapter(_ctx, trips);
             _adapter.setOnTripItemClickListener(this);
             _recyclerView.setAdapter(_adapter);
         }
@@ -166,10 +202,10 @@ public class MainFragment
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         _adapter.setActionMode(true);
 
-//        MenuInflater inflater = _actionMode.getMenuInflater();
-//        inflater.inflate(R.menu.menu_cab_recyclerviewdemoactivity, menu);
-//        fab.setVisibility(View.GONE);
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate(R.menu.menu_trip_actionmode, menu);
 
+        _fabSaveTrip.hide();
 
         return true;
     }
@@ -181,23 +217,22 @@ public class MainFragment
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_delete_selected_trip:
+                List<Trip> selectedItems = _adapter.getSelectedItems();
 
-//        switch (menuItem.getItemId()) {
-//            case R.id.menu_delete:
-//                List<Integer> selectedItemPositions = adapter.getSelectedItems();
-//                int currPos;
-//                for (int i = selectedItemPositions.size() - 1; i >= 0; i--) {
-//                    currPos = selectedItemPositions.get(i);
-//                    RecyclerViewDemoApp.removeItemFromList(currPos);
-//                    adapter.removeData(currPos);
-//                }
-//                actionMode.finish();
-//                return true;
-//            default:
-//                return false;
-//        }
+                for (Trip t : selectedItems) {
+                    TripManager.deleteTrip(_ctx, t);
+                    _adapter.removeItem(t);
+                }
 
-        return false;
+                _actionMode.finish();
+                _adapter.notifyDataSetChanged();
+
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -205,7 +240,7 @@ public class MainFragment
         _actionMode = null;
         _adapter.setActionMode(false);
         _adapter.clearSelections();
-        // fab.setVisibility(View.VISIBLE);
+        _fabSaveTrip.show();
     }
 
 

@@ -5,6 +5,9 @@
     <string name="action_settings">Settings</string>
     <string name="action_save">Save trip</string>
 
+    <!-- Activity subtitles -->
+    <string name="main_activity_subtitle">Saved trips</string>
+
     <!-- Main activity -->
     <string name="tbSaveTripText">Save trip</string>
     <string name="tvSaveTripDescText">Start/Stop saving the current trip</string>
@@ -40,6 +43,7 @@
     <!-- Messages -->
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>
     <string name="selected_count">%1$s selected</string>
+    <string name="action_delete">Delete selected trips</string>
 
     <string-array name="empty_array" />
 

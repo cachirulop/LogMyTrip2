@@ -35,7 +35,6 @@ public class MainActivity
             bar.setLogo(R.drawable.ic_launcher);
             bar.setIcon(R.drawable.ic_launcher);
             bar.setTitle(R.string.app_name);
-            bar.setSubtitle(R.string.main_activity_subtitle);
         }
     }
 

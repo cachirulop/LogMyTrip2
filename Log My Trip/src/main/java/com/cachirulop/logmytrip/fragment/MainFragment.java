@@ -2,7 +2,6 @@ package com.cachirulop.logmytrip.fragment;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.activity.TripDetail;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -164,9 +162,11 @@ public class MainFragment
         if (_actionMode != null) {
             updateActionModeTitle();
         }
+/*
         else {
             startActivity(new Intent(_ctx, TripDetail.class));
         }
+*/
     }
 
 //    public void onClickOld(View view) {

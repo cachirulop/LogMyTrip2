@@ -6,7 +6,7 @@
     <string name="action_save">Save trip</string>
 
     <!-- Activity subtitles -->
-    <string name="main_activity_subtitle">Saved trips</string>
+    <string name="main_activity_subtitle">Saved trips - %1$s</string>
 
     <!-- Main activity -->
     <string name="tbSaveTripText">Save trip</string>

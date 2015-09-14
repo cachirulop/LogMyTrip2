@@ -173,7 +173,13 @@ public class TripItemAdapter extends RecyclerView.Adapter {
     }
 
     public void removeItem(Trip t) {
-        _items.remove(t);
+        int pos;
+
+        pos = _items.indexOf(t);
+        if (pos != -1) {
+            _items.remove(t);
+            notifyItemChanged(pos);
+        }
     }
 
     public interface OnTripItemClickListener {

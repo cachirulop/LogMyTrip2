@@ -2,11 +2,14 @@ package com.cachirulop.logmytrip.fragment;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.activity.TripDetail;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -36,6 +40,7 @@ public class MainFragment
     private ActionMode _actionMode;
     private FloatingActionButton _fabSaveTrip;
     private Context _ctx;
+
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -71,6 +76,7 @@ public class MainFragment
             _recyclerView.setItemAnimator(new DefaultItemAnimator());
 
             loadTrips();
+            updateActionBarSubtitle();
 
             // Save button
             _fabSaveTrip = (FloatingActionButton) getView().findViewById(R.id.fabSaveTrip);
@@ -81,7 +87,21 @@ public class MainFragment
                 }
             });
 
+            if (SettingsManager.isLogTrip(_ctx)) {
+                _fabSaveTrip.setImageResource(android.R.drawable.ic_media_pause);
+            }
+            else {
+                _fabSaveTrip.setImageResource(R.mipmap.ic_button_save);
+            }
         }
+    }
+
+    private void updateActionBarSubtitle ()
+    {
+        ActionBar bar;
+
+        bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        bar.setSubtitle(_ctx.getString(R.string.main_activity_subtitle, _adapter.getItemCount()));
     }
 
     private void onSaveTripClick(View v) {
@@ -93,6 +113,8 @@ public class MainFragment
             ServiceManager.startSaveTrip(_ctx, handler);
 
             _fabSaveTrip.setImageResource(android.R.drawable.ic_media_pause);
+
+            updateActionBarSubtitle();
         }
     }
 
@@ -139,7 +161,12 @@ public class MainFragment
 
     @Override
     public void onClick(View view) {
-        updateActionModeTitle();
+        if (_actionMode != null) {
+            updateActionModeTitle();
+        }
+        else {
+            startActivity(new Intent(_ctx, TripDetail.class));
+        }
     }
 
 //    public void onClickOld(View view) {
@@ -227,7 +254,6 @@ public class MainFragment
                 }
 
                 _actionMode.finish();
-                _adapter.notifyDataSetChanged();
 
                 return true;
             default:
@@ -241,6 +267,8 @@ public class MainFragment
         _adapter.setActionMode(false);
         _adapter.clearSelections();
         _fabSaveTrip.show();
+
+        updateActionBarSubtitle();
     }
 
 

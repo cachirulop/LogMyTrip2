@@ -6,5 +6,7 @@
     <color name="activated">@color/default_background</color>
     <color name="pressed">#54000000</color>
 
-    <color name="actionbar_text">#000000</color>
+    <color name="tab_selected">#FF0000</color>
+    <color name="tab_text_color">#000000</color>
+    <color name="tab_text_selected_color">#FFFFFF</color>
 </resources>

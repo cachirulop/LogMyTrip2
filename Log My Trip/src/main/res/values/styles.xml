@@ -4,28 +4,15 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/default_background</item>
         <item name="colorPrimaryDark">@color/default_background_dark</item>
-        <item name="android:textColorPrimary">@color/actionbar_text</item>
 
         <item name="colorAccent">@color/default_background</item>
     </style>
 
     <!-- ActionBar styles -->
     <style name="LogMyTripActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="titleTextStyle">@style/LogMyTripActionBarTitleText</item>
         <item name="background">@color/default_background</item>
         <item name="backgroundStacked">@color/default_background</item>
         <item name="backgroundSplit">@color/default_background</item>
-
-    </style>
-
-    <!-- ActionBar title text -->
-    <style name="LogMyTripActionBarTitleText">
-        <item name="android:textColor">@color/actionbar_text</item>
-    </style>
-
-    <!-- ActionBar tabs text styles -->
-    <style name="LogMyTripActionBarTabText">
-        <item name="android:textColor">@color/actionbar_text</item>
     </style>
 
 

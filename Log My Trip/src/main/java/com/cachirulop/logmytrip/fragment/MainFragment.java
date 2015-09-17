@@ -145,7 +145,7 @@ public class MainFragment
     }
 
     @Override
-    public void onLongClick(View v) {
+    public void onTripItemLongClick(View v, int position) {
         if (_actionMode != null) {
             return;
         }
@@ -160,12 +160,17 @@ public class MainFragment
     }
 
     @Override
-    public void onClick(View view) {
+    public void onTripItemClick(View view, int position) {
         if (_actionMode != null) {
             updateActionModeTitle();
         }
         else {
-            startActivity(new Intent(_ctx, TripDetailActivity.class));
+            Intent i;
+
+            i = new Intent(_ctx, TripDetailActivity.class);
+            i.putExtra(TabMapFragment.ARG_PARAM_TRIP, _adapter.getItem(position));
+
+            startActivity(i);
         }
     }
 
@@ -281,7 +286,7 @@ public class MainFragment
             View view;
 
             view = _recyclerView.findChildViewUnder(e.getX(), e.getY());
-            onClick(view);
+            onTripItemClick(view);
 
             return super.onSingleTapConfirmed(e);
         }

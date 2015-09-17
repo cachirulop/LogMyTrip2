@@ -182,10 +182,14 @@ public class TripItemAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public interface OnTripItemClickListener {
-        void onLongClick(View v);
+    public Trip getItem(int position) {
+        return _items.get(position);
+    }
 
-        void onClick(View v);
+    public interface OnTripItemClickListener {
+        void onTripItemLongClick(View v, int position);
+
+        void onTripItemClick(View v, int position);
     }
 
 
@@ -261,7 +265,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
             }
 
             if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onClick(v);
+                _onTripItemClickListener.onTripItemClick(v, this.getAdapterPosition());
             }
         }
 
@@ -272,7 +276,7 @@ public class TripItemAdapter extends RecyclerView.Adapter {
             _adapter.toggleSelection(this.getLayoutPosition());
 
             if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onLongClick(v);
+                _onTripItemClickListener.onTripItemLongClick(v, this.getAdapterPosition());
             }
 
             return false;

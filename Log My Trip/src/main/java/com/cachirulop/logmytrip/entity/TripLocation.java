@@ -1,6 +1,11 @@
 package com.cachirulop.logmytrip.entity;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.io.Serializable;
+
 public class TripLocation
+        implements Serializable
 {
     private long _id;
     private long _idTrip;
@@ -120,5 +125,13 @@ public class TripLocation
     public void setSpeed (float speed)
     {
         this._speed = speed;
-    }   
+    }
+
+    public LatLng toLatLng() {
+        LatLng result;
+
+        result = new LatLng(this.getLatitude(), this.getLongitude());
+
+        return result;
+    }
 }

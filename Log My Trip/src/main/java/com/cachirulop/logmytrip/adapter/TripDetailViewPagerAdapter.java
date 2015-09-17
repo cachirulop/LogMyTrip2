@@ -5,6 +5,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.TabMapFragment;
 import com.cachirulop.logmytrip.fragment.TabStatisticsFragment;
 
@@ -16,7 +17,7 @@ public class TripDetailViewPagerAdapter extends FragmentStatePagerAdapter {
     CharSequence[] _titles;
     Fragment[] _fragments;
 
-    public TripDetailViewPagerAdapter(FragmentActivity activity) {
+    public TripDetailViewPagerAdapter(FragmentActivity activity, Trip trip) {
         super(activity.getSupportFragmentManager());
 
         _titles = new CharSequence[2];
@@ -24,7 +25,7 @@ public class TripDetailViewPagerAdapter extends FragmentStatePagerAdapter {
         _titles[1] = activity.getString(R.string.tab_title_statistics);
 
         _fragments = new Fragment[2];
-        _fragments[0] = new TabMapFragment();
+        _fragments[0] = TabMapFragment.newInstance(trip);
         _fragments[1] = new TabStatisticsFragment();
     }
 

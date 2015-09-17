@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripDetailViewPagerAdapter;
+import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.view.SlidingTabLayout;
 
 /**
@@ -36,7 +37,7 @@ public class TripDetailFragment
         // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles fot the Tabs and Number Of Tabs.
         TripDetailViewPagerAdapter adapter;
 
-        adapter = new TripDetailViewPagerAdapter(getActivity());
+        adapter = new TripDetailViewPagerAdapter(getActivity(), (Trip) getArguments().getSerializable(TabMapFragment.ARG_PARAM_TRIP));
 
         // Assigning ViewPager View and setting the adapter
         ViewPager pager;

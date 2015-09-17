@@ -1,16 +1,26 @@
 package com.cachirulop.logmytrip.entity;
 
+import com.cachirulop.logmytrip.manager.TripManager;
+
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author david
  *
  */
 public class Trip
+        implements Serializable
 {
     private long _id;
     private Date _tripDate;
     private String _description;
+
+    private transient List<TripLocation> _locations = null;
+
+    public Trip() {
+    }
 
     /**
      * @return the id
@@ -58,6 +68,14 @@ public class Trip
     public void setDescription (String description)
     {
         this._description = description;
+    }
+
+    public List<TripLocation> getLocations() {
+        if (_locations == null) {
+            _locations = TripManager.getTripLocationList(this);
+        }
+
+        return _locations;
     }
 
     @Override

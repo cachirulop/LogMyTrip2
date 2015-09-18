@@ -281,7 +281,7 @@ public class TripManager {
                     new String[]{Long.toString(trip.getId())},
                     null,
                     null,
-                    "location_time ASC");
+                    "id ASC");
 
             return createLocationList(c);
         } finally {

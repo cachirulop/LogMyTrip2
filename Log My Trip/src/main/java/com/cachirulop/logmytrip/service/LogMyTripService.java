@@ -35,13 +35,21 @@ public class LogMyTripService
                    LocationListener
 {
     public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName() + ".HANDLER";
-    private static final long LOCATION_UPDATE_INTERVAL = 10000;
-    private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
+    // private static final long LOCATION_UPDATE_INTERVAL = 10000;
+    // private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
+    private static final long LOCATION_UPDATE_INTERVAL = 0;
+    private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 0;
     private final Object _lckReceiver = new Object();
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
     private BluetoothBroadcastReceiver _btReceiver;
     private Trip                       _currentTrip                     = null;
+
+    private static boolean isValidLocation(Location location) {
+        return (location.hasAccuracy() && location.getAccuracy() <= 50) &&
+                (location != null && Math.abs(location.getLatitude()) <= 90
+                        && Math.abs(location.getLongitude()) <= 180);
+    }
 
     @Override
     public void onCreate ()
@@ -68,8 +76,9 @@ public class LogMyTripService
         //_locationRequest.setPriority (LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         _locationRequest.setInterval (LOCATION_UPDATE_INTERVAL);
         _locationRequest.setFastestInterval(LOCATION_UPDATE_FASTEST_INTERVAL);
+        _locationRequest.setSmallestDisplacement(10);
 
-        ensureLocationClient ();
+        ensureLocationClient();
     }
 
     private void ensureLocationClient ()
@@ -89,49 +98,45 @@ public class LogMyTripService
                                int startId)
     {
 
-        if (!isGooglePlayServicesAvailable ()) {
-            ToastHelper.showLong (this,
-                                  getString (R.string.msg_GooglePlayServicesUnavailable));
+        if (!isGooglePlayServicesAvailable()) {
+            ToastHelper.showLong(this,
+                    getString(R.string.msg_GooglePlayServicesUnavailable));
 
             return Service.START_NOT_STICKY;
-        }
-        else {
-            ToastHelper.showDebug (this,
-                                   "LogMyTripService.onStartCommand: starting service");
+        } else {
+            ToastHelper.showDebug(this,
+                    "LogMyTripService.onStartCommand: starting service");
 
         }
 
-        super.onStartCommand (intent,
-                              flags,
-                              startId);
+        super.onStartCommand(intent,
+                flags,
+                startId);
 
         boolean bluetooth;
         boolean logs;
 
-        bluetooth = SettingsManager.getAutoStartLog (this);
+        bluetooth = SettingsManager.getAutoStartLog(this);
         logs = SettingsManager.isLogTrip(this);
 
         synchronized (_lckReceiver) {
             if (bluetooth) {
-                registerBluetoothReceiver ();
-            }
-            else {
-                unregisterBluetoothReceiver ();
+                registerBluetoothReceiver();
+            } else {
+                unregisterBluetoothReceiver();
             }
         }
 
         if (logs) {
-            startLog ();
-        }
-        else {
-            stopLog ();
+            startLog();
+        } else {
+            stopLog();
         }
 
         if (bluetooth || logs) {
             startForegroundService(bluetooth,
                     logs);
-        }
-        else {
+        } else {
             stopForegroundService();
         }
 
@@ -151,34 +156,34 @@ public class LogMyTripService
         return START_STICKY;
     }
 
-    private void startLog ()
+    private void startLog()
     {
-        ensureLocationClient ();
-        if (!_apiClient.isConnected () && !_apiClient.isConnecting ()) {
+        ensureLocationClient();
+        if (!_apiClient.isConnected() && !_apiClient.isConnecting()) {
             _apiClient.connect();
         }
     }
 
-    private void stopLog ()
+    private void stopLog()
     {
         if (_currentTrip != null) {
             _currentTrip = null;
         }
 
         ensureLocationClient();
-        if (_apiClient.isConnected () || _apiClient.isConnecting ()) {
+        if (_apiClient.isConnected() || _apiClient.isConnecting()) {
             LocationServices.FusedLocationApi.removeLocationUpdates(_apiClient, this);
         }
     }
 
-    private void stopForegroundService ()
+    private void stopForegroundService()
     {
-        stopForeground (true);
+        stopForeground(true);
         stopSelf();
     }
 
-    private void startForegroundService (boolean bluetooth,
-                                         boolean logTrip)
+    private void startForegroundService(boolean bluetooth,
+                                        boolean logTrip)
     {
         Notification note;
         CharSequence contentText;
@@ -187,70 +192,80 @@ public class LogMyTripService
 
         if (bluetooth) {
             contentText = this.getText(R.string.notif_ContentWaitingBluetooth);
-        }
-        else {
+        } else {
             contentText = String.format(this.getText(R.string.notif_ContentSavingTrip).toString(), _currentTrip.getDescription());
         }
 
         // TODO: Specify the correct icon
-        note = NotifyManager.createNotification (this,
+        note = NotifyManager.createNotification(this,
                 contentText);
 
-        startForeground (NotifyManager.NOTIFICATION_ID,
-                         note);
+        startForeground(NotifyManager.NOTIFICATION_ID,
+                note);
     }
 
-    private void registerBluetoothReceiver ()
+    private void registerBluetoothReceiver()
     {
         if (_btReceiver == null) {
-            _btReceiver = new BluetoothBroadcastReceiver ();
+            _btReceiver = new BluetoothBroadcastReceiver();
 
-            registerReceiver (_btReceiver,
+            registerReceiver(_btReceiver,
                     new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
 
-            registerReceiver (_btReceiver,
-                              new IntentFilter (BluetoothDevice.ACTION_ACL_CONNECTED));
+            registerReceiver(_btReceiver,
+                    new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
         }
     }
 
-    private void unregisterBluetoothReceiver ()
+    private void unregisterBluetoothReceiver()
     {
         if (_btReceiver != null) {
-            unregisterReceiver (_btReceiver);
+            unregisterReceiver(_btReceiver);
 
             _btReceiver = null;
         }
     }
 
-    private boolean isGooglePlayServicesAvailable ()
+    private boolean isGooglePlayServicesAvailable()
     {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable (this);
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
         return (ConnectionResult.SUCCESS == resultCode);
     }
 
     @Override
-    public void onLocationChanged (Location loc)
+    public void onLocationChanged(Location loc)
     {
         TripLocation tl;
-        
-        tl = convertLocation (loc);
-        TripManager.saveTripLocation (this, tl);
 
-        ToastHelper.showShortDebug (this,
-                "LogMyTripService.onLocationChanged: " +
-                        loc.getLatitude() + "-.-" +
-                        loc.getLongitude());
+        if (isValidLocation(loc)) {
+            tl = convertLocation(loc);
+            TripManager.saveTripLocation(this, tl);
+
+            ToastHelper.showShortDebug(this,
+                    "LogMyTripService.onLocationChanged: " +
+                            loc.getLatitude() + "-.-" +
+                            loc.getLongitude());
+        } else {
+            ToastHelper.showShortDebug(this,
+                    "LogMyTripService.onLocationChanged: ignoring location, bad accuracy");
+        }
 
     }
-    
-    private TripLocation convertLocation (Location loc)
-    {
+
+    private TripLocation convertLocation(Location loc) {
         TripLocation result;
-        
+
         result = new TripLocation();
-        result.setIdTrip (_currentTrip.getId ());
-        result.setLocationTime (loc.getTime ());
+        result.setIdTrip(_currentTrip.getId());
+
+        if (loc.getTime() == 0L) {
+            // Some devices don't set the time field
+            result.setLocationTime(System.currentTimeMillis());
+        } else {
+            result.setLocationTime(loc.getTime());
+        }
+
         result.setLatitude (loc.getLatitude ());
         result.setLongitude (loc.getLongitude ());
         result.setAltitude (loc.getAltitude ());

@@ -3,6 +3,7 @@ package com.cachirulop.logmytrip.entity;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class TripLocation
         implements Serializable
@@ -54,7 +55,7 @@ public class TripLocation
     {
         return _locationTime;
     }
-    
+
     /**
      * @param time the time to set
      */
@@ -62,7 +63,11 @@ public class TripLocation
     {
         this._locationTime = time;
     }
-    
+
+    public Date getLocationTimeAsDate() {
+        return new Date(_locationTime);
+    }
+
     /**
      * @return the latitude
      */

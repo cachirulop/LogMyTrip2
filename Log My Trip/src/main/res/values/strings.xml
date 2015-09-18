@@ -52,5 +52,8 @@
     <string name="action_trip_detail">Trip details</string>
     <string name="tab_title_map">Map</string>
     <string name="tab_title_statistics">Statistics</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="action_export">Export selected trips</string>
+    <string name="exporting_trips">Exporting trips</string>
 
 </resources>

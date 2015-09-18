@@ -1,9 +1,11 @@
 package com.cachirulop.logmytrip.fragment;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,10 +29,14 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 public class MainFragment
@@ -145,7 +153,7 @@ public class MainFragment
     }
 
     @Override
-    public void onLongClick(View v) {
+    public void onTripItemLongClick(View v, int position) {
         if (_actionMode != null) {
             return;
         }
@@ -160,69 +168,20 @@ public class MainFragment
     }
 
     @Override
-    public void onClick(View view) {
+    public void onTripItemClick(View view, int position) {
         if (_actionMode != null) {
             updateActionModeTitle();
         }
         else {
-            startActivity(new Intent(_ctx, TripDetailActivity.class));
+            Intent i;
+
+            i = new Intent(_ctx, TripDetailActivity.class);
+            i.putExtra(TabMapFragment.ARG_PARAM_TRIP, _adapter.getItem(position));
+
+            startActivity(i);
         }
     }
 
-//    public void onClickOld(View view) {
-///*
-//        if (view.getId() == R.id.fab_add) {
-//            // fab click
-//            addItemToList();
-//        } else
-//*/
-////        if (view.getId() == R.id.tripListItemContainer) {   // Item click
-////            int selected;
-////
-////            selected = _recyclerView.getChildAdapterPosition(view);
-////            if (_actionMode != null) {
-////                myToggleSelection(selected);
-////            } else {
-///*
-//            DemoModel data = adapter.getItem(idx);
-//            View innerContainer = view.findViewById(R.id.container_inner_item);
-//            innerContainer.setTransitionName(Constants.NAME_INNER_CONTAINER + "_" + data.id);
-//            Intent startIntent = new Intent(this, CardViewDemoActivity.class);
-//            startIntent.putExtra(Constants.KEY_ID, data.id);
-//            ActivityOptions options = ActivityOptions
-//                    .makeSceneTransitionAnimation(this, innerContainer, Constants.NAME_INNER_CONTAINER);
-//            this.startActivity(startIntent, options.toBundle());
-//*/
-////            }
-////        }
-//    }
-
-//    private void myToggleSelection(int idx) {
-//        TripItemAdapter adapter;
-//
-//        _adapter.toggleSelection(idx);
-//
-//        String title = getString(R.string.selected_count, _adapter.getSelectedItemCount());
-//
-//        _actionMode.setTitle(title);
-//    }
-
-    /* OnItemTouchListener implementation */
-/*
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        _detector.onTouchEvent(e);
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-    }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-    }
-*/
     /*  ActionMode.Callback implementation */
 
     @Override
@@ -246,19 +205,119 @@ public class MainFragment
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_delete_selected_trip:
-                List<Trip> selectedItems = _adapter.getSelectedItems();
+                deleteSelectedTrips();
 
-                for (Trip t : selectedItems) {
-                    TripManager.deleteTrip(_ctx, t);
-                    _adapter.removeItem(t);
-                }
+                return true;
 
-                _actionMode.finish();
+            case R.id.action_export_selected_trip:
+                exportSelectedTrips();
 
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void deleteSelectedTrips() {
+        List<Trip> selectedItems = _adapter.getSelectedItems();
+
+        for (Trip t : selectedItems) {
+            TripManager.deleteTrip(_ctx, t);
+            _adapter.removeItem(t);
+        }
+
+        _actionMode.finish();
+    }
+
+    private void exportSelectedTrips() {
+        List<Trip> selectedItems = _adapter.getSelectedItems();
+
+        for (Trip t : selectedItems) {
+            exportTrip(t);
+        }
+
+        _actionMode.finish();
+    }
+
+    private void exportTrip(final Trip t) {
+        File folder;
+        final String filename;
+
+        folder = new File(Environment.getExternalStorageDirectory() + "/" + _ctx.getText(R.string.app_name));
+
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+
+        filename = folder.toString() + "/" + DateFormat.format("yyyy-MM-dd", t.getTripDate()) + ".csv";
+
+        // show waiting screen
+        final ProgressDialog progDialog;
+
+        progDialog = ProgressDialog.show(_ctx,
+                getString(R.string.app_name),
+                _ctx.getString(R.string.exporting_trips),
+                true);
+
+        Log.d(MainFragment.class.getCanonicalName(), "Writing file: " + filename);
+
+        final Handler handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+            }
+        };
+
+        new Thread() {
+            public void run() {
+                try {
+                    FileWriter fw = new FileWriter(filename);
+
+                    writeFileLine(fw, new String[]{"Trip ID", "Date", "Time", "Description"});
+                    writeFileLine(fw, new String[]{
+                            String.format("%d", t.getId()),
+                            DateFormat.getMediumDateFormat(_ctx).format(t.getTripDate()),
+                            DateFormat.getTimeFormat(_ctx).format(t.getTripDate()),
+                            t.getDescription()
+                    });
+
+                    writeFileLine(fw, new String[]{" "});
+
+                    writeFileLine(fw, new String[]{"Loc. ID", "Trip ID", "Date", "Time", "Latitude", "Longitude", "Altitude", "Speed", "Accuracy", "Bearing"});
+                    for (TripLocation l : t.getLocations()) {
+                        writeFileLine(fw, new String[]{
+                                String.format("%d", l.getId()),
+                                String.format("%d", l.getIdTrip()),
+                                DateFormat.getMediumDateFormat(_ctx).format(l.getLocationTimeAsDate()),
+                                DateFormat.getTimeFormat(_ctx).format(l.getLocationTimeAsDate()),
+                                String.format("%f", l.getLatitude()),
+                                String.format("%f", l.getLongitude()),
+                                String.format("%f", l.getAltitude()),
+                                String.format("%f", l.getSpeed()),
+                                String.format("%f", l.getAccuracy()),
+                                String.format("%f", l.getBearing())
+                        });
+                    }
+
+                    fw.flush();
+                    fw.close();
+                } catch (Exception e) {
+                    Log.d(MainFragment.class.getCanonicalName(), "Error writing file: " + e.getLocalizedMessage());
+                }
+
+                handler.sendEmptyMessage(0);
+                progDialog.dismiss();
+            }
+        }.start();
+    }
+
+    private void writeFileLine(FileWriter fw, String[] values)
+            throws IOException {
+        for (String s : values) {
+            fw.append(s);
+            fw.append(";");
+        }
+
+        fw.append("\n");
     }
 
     @Override
@@ -270,39 +329,4 @@ public class MainFragment
 
         updateActionBarSubtitle();
     }
-
-
-
-    /* Gesture detection class */
-/*
-    private class RecyclerViewDemoOnGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            View view;
-
-            view = _recyclerView.findChildViewUnder(e.getX(), e.getY());
-            onClick(view);
-
-            return super.onSingleTapConfirmed(e);
-        }
-
-        public void onLongPress(MotionEvent e) {
-            int selected;
-            View view;
-
-            if (_actionMode != null) {
-                return;
-            }
-
-            _actionMode = getView().startActionMode(MainFragment.this);
-            view = _recyclerView.findChildViewUnder(e.getX(), e.getY());
-
-            selected = _recyclerView.getChildAdapterPosition(view);
-
-            myToggleSelection(selected);
-
-            super.onLongPress(e);
-        }
-    }
-*/
 }

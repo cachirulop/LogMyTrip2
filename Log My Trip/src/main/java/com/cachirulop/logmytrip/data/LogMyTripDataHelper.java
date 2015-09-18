@@ -23,7 +23,7 @@ public class LogMyTripDataHelper
     private static final String DATABASE_NAME    = "logmytrip.db";
 
     /** Current version */
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     /** Context where the object is created */
     private final Context       _ctx;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="default_background">#53ce8c</color>
-    <color name="default_background_dark">#4aceb5</color>
+    <color name="default_background_dark">#209b59</color>
 
     <color name="activated">@color/default_background</color>
     <color name="pressed">#54000000</color>

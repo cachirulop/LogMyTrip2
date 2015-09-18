@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -115,6 +116,10 @@ public class TripManager {
                     tl.getAltitude());
             values.put("speed",
                     tl.getSpeed());
+            values.put("accuracy",
+                    tl.getAccuracy());
+            values.put("bearing",
+                    tl.getBearing());
 
             db.insert(CONST_LOCATION_TABLE_NAME,
                     null,
@@ -128,6 +133,24 @@ public class TripManager {
                 db.close();
             }
         }
+    }
+
+    private static TripLocation createTripLocation(Cursor c) {
+        TripLocation result;
+
+        result = new TripLocation();
+
+        result.setId(c.getLong(c.getColumnIndex("id")));
+        result.setIdTrip(c.getLong(c.getColumnIndex("id_trip")));
+        result.setLocationTime(c.getLong(c.getColumnIndex("location_time")));
+        result.setLatitude(c.getDouble(c.getColumnIndex("latitude")));
+        result.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
+        result.setAltitude(c.getDouble(c.getColumnIndex("altitude")));
+        result.setSpeed(c.getFloat(c.getColumnIndex("speed")));
+        result.setAccuracy(c.getFloat(c.getColumnIndex("accuracy")));
+        result.setBearing(c.getFloat(c.getColumnIndex("bearing")));
+
+        return result;
     }
 
     private static Trip createTrip(Cursor c) {
@@ -218,6 +241,81 @@ public class TripManager {
                 db.close();
             }
         }
+    }
+
+    public static Trip getTrip(Context ctx, long idTrip) {
+        SQLiteDatabase db = null;
+        Cursor c = null;
+
+        try {
+            db = new LogMyTripDataHelper(ctx).getReadableDatabase();
+
+            c = db.query(CONST_TRIP_TABLE_NAME,
+                    null,
+                    "id = ?",
+                    new String[]{Long.toString(idTrip)},
+                    null,
+                    null,
+                    null);
+
+            if (c != null && c.moveToFirst()) {
+                return createTrip(c);
+            } else {
+                return null;
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
+    public static List<TripLocation> getTripLocationList(Trip trip) {
+        Cursor c = null;
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper(LogMyTripApplication.getAppContext()).getReadableDatabase();
+
+            c = db.query(CONST_LOCATION_TABLE_NAME,
+                    null,
+                    "id_trip = ?",
+                    new String[]{Long.toString(trip.getId())},
+                    null,
+                    null,
+                    "id ASC");
+
+            return createLocationList(c);
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+
+            if (db != null) {
+                db.close();
+            }
+        }
+    }
+
+    private static List<TripLocation> createLocationList(Cursor c) {
+        ArrayList<TripLocation> result;
+
+        result = new ArrayList<TripLocation>();
+
+        if (c != null) {
+            if (c.moveToFirst()) {
+                do {
+                    result.add(createTripLocation(c));
+                }
+                while (c.moveToNext());
+            }
+        }
+
+        return result;
     }
 }
 

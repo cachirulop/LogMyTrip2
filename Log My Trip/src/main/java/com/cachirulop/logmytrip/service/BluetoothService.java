@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.service;
 
 import android.app.Notification;
@@ -14,7 +13,6 @@ import android.os.Messenger;
 import android.util.Log;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -23,92 +21,33 @@ import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
 import com.cachirulop.logmytrip.util.ToastHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-public class LogMyTripService
-        extends Service
-        implements GoogleApiClient.ConnectionCallbacks,
-                   GoogleApiClient.OnConnectionFailedListener,
-                   LocationListener
-{
-    public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName() + ".HANDLER";
-    // private static final long LOCATION_UPDATE_INTERVAL = 10000;
-    // private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
-    private static final long LOCATION_UPDATE_INTERVAL = 0;
-    private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 0;
-    private static final long LOCATION_SMALLEST_DISPLACEMENT = 10;
-
+/**
+ * Created by dmagro on 18/09/2015.
+ */
+public class BluetoothService extends Service {
     private final Object _lckReceiver = new Object();
-    private GoogleApiClient            _apiClient;
-    private LocationRequest            _locationRequest;
     private BluetoothBroadcastReceiver _btReceiver;
-    private Trip                       _currentTrip                     = null;
 
-    private static boolean isValidLocation(Location location) {
-        return (location.hasAccuracy() && location.getAccuracy() <= 50) &&
-                (location != null && Math.abs(location.getLatitude()) <= 90
-                        && Math.abs(location.getLongitude()) <= 180);
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
-    public void onCreate ()
-    {
-        super.onCreate ();
-
-        initLocation();
-    }
-
-    @Override
-    public void onDestroy ()
-    {
-        if (_apiClient != null) {
-            stopLog ();
-        }
-
+    public void onDestroy() {
         super.onDestroy();
     }
 
-    private void initLocation ()
-    {
-        _locationRequest = LocationRequest.create ();
-        _locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        _locationRequest.setInterval (LOCATION_UPDATE_INTERVAL);
-        _locationRequest.setFastestInterval(LOCATION_UPDATE_FASTEST_INTERVAL);
-        _locationRequest.setSmallestDisplacement(LOCATION_SMALLEST_DISPLACEMENT);
-
-        ensureLocationClient();
-    }
-
-    private void ensureLocationClient ()
-    {
-        if (_apiClient == null) {
-            _apiClient = new GoogleApiClient.Builder(this)
-                            .addConnectionCallbacks(this)
-                            .addOnConnectionFailedListener(this)
-                            .addApi(LocationServices.API)
-                            .build();
-        }
-    }
-
     @Override
-    public int onStartCommand (Intent intent,
-                               int flags,
-                               int startId)
-    {
+    public int onStartCommand(Intent intent,
+                              int flags,
+                              int startId) {
 
-        if (!isGooglePlayServicesAvailable()) {
-            ToastHelper.showLong(this,
-                    getString(R.string.msg_GooglePlayServicesUnavailable));
+        ToastHelper.showDebug(this,
+                "BluetoothService.onStartCommand: starting service");
 
-            return Service.START_NOT_STICKY;
-        } else {
-            ToastHelper.showDebug(this,
-                    "LogMyTripService.onStartCommand: starting service");
-
-        }
 
         super.onStartCommand(intent,
                 flags,
@@ -126,12 +65,6 @@ public class LogMyTripService
             } else {
                 unregisterBluetoothReceiver();
             }
-        }
-
-        if (logs) {
-            startLog();
-        } else {
-            stopLog();
         }
 
         if (bluetooth || logs) {
@@ -157,16 +90,14 @@ public class LogMyTripService
         return START_STICKY;
     }
 
-    private void startLog()
-    {
+    private void startLog() {
         ensureLocationClient();
         if (!_apiClient.isConnected() && !_apiClient.isConnecting()) {
             _apiClient.connect();
         }
     }
 
-    private void stopLog()
-    {
+    private void stopLog() {
         if (_currentTrip != null) {
             _currentTrip = null;
         }
@@ -177,15 +108,13 @@ public class LogMyTripService
         }
     }
 
-    private void stopForegroundService()
-    {
+    private void stopForegroundService() {
         stopForeground(true);
         stopSelf();
     }
 
     private void startForegroundService(boolean bluetooth,
-                                        boolean logTrip)
-    {
+                                        boolean logTrip) {
         Notification note;
         CharSequence contentText;
 
@@ -205,8 +134,7 @@ public class LogMyTripService
                 note);
     }
 
-    private void registerBluetoothReceiver()
-    {
+    private void registerBluetoothReceiver() {
         if (_btReceiver == null) {
             _btReceiver = new BluetoothBroadcastReceiver();
 
@@ -218,8 +146,7 @@ public class LogMyTripService
         }
     }
 
-    private void unregisterBluetoothReceiver()
-    {
+    private void unregisterBluetoothReceiver() {
         if (_btReceiver != null) {
             unregisterReceiver(_btReceiver);
 
@@ -227,16 +154,14 @@ public class LogMyTripService
         }
     }
 
-    private boolean isGooglePlayServicesAvailable()
-    {
+    private boolean isGooglePlayServicesAvailable() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
 
         return (ConnectionResult.SUCCESS == resultCode);
     }
 
     @Override
-    public void onLocationChanged(Location loc)
-    {
+    public void onLocationChanged(Location loc) {
         TripLocation tl;
 
         if (isValidLocation(loc)) {
@@ -267,7 +192,7 @@ public class LogMyTripService
             result.setLocationTime(loc.getTime());
         }
 
-        result.setLatitude (loc.getLatitude ());
+        result.setLatitude(loc.getLatitude());
         result.setLongitude(loc.getLongitude());
         result.setAltitude(loc.getAltitude());
         result.setSpeed(loc.getSpeed());
@@ -278,14 +203,12 @@ public class LogMyTripService
     }
 
     @Override
-    public void onConnectionFailed (ConnectionResult arg0)
-    {
+    public void onConnectionFailed(ConnectionResult arg0) {
         // TODO Auto-generated method stub
     }
 
     @Override
-    public void onConnected (Bundle arg0)
-    {
+    public void onConnected(Bundle arg0) {
         LocationServices.FusedLocationApi.requestLocationUpdates(_apiClient,
                 _locationRequest,
                 this);
@@ -297,8 +220,7 @@ public class LogMyTripService
     }
 
     @Override
-    public IBinder onBind (Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         return null;
     }
 

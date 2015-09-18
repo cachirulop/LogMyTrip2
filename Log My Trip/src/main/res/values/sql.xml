@@ -15,6 +15,8 @@
                                     longitude REAL NOT NULL,
                                     altitude REAL,
                                     speed REAL,
+                                    accuracy REAL,
+                                    bearing REAL,
                                     FOREIGN KEY(id_trip) REFERENCES trip(id));</string>
 
     <!-- Drop all the tables. -->

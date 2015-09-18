@@ -2,22 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cachirulop.logmytrip" >
 
+    <uses-sdk />
+
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- <uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /> -->
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <uses-sdk />
-
     <application
+        android:name="com.cachirulop.logmytrip.LogMyTripApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -27,34 +26,35 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name="com.cachirulop.logmytrip.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="com.cachirulop.logmytrip.activity.SettingsActivity"
+            android:name=".activity.SettingsActivity"
             android:label="@string/action_settings"
-            android:parentActivityName="com.cachirulop.logmytrip.activity.MainActivity" >
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cachirulop.logmytrip.activity.MainActivity" />
         </activity>
         <activity
-            android:name="com.cachirulop.logmytrip.activity.TripDetailActivity"
+            android:name=".activity.TripDetailActivity"
             android:label="@string/action_trip_detail"
-            android:parentActivityName="com.cachirulop.logmytrip.activity.MainActivity">
+            android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cachirulop.logmytrip.activity.MainActivity" />
         </activity>
 
-        <service android:name="com.cachirulop.logmytrip.service.LogMyTripService" />
+        <service android:name=".service.LogMyTripService" />
 
         <receiver
-            android:name="com.cachirulop.logmytrip.receiver.BootCompletedBroadcastReceiver"
+            android:name=".receiver.BootCompletedBroadcastReceiver"
             android:enabled="true"
             android:exported="false"
             android:label="BootCompletedBroadcastReceiver" >
@@ -62,6 +62,11 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_key" />
+
     </application>
 
 </manifest>

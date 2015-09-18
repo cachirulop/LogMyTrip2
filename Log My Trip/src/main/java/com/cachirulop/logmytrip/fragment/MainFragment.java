@@ -182,60 +182,6 @@ public class MainFragment
         }
     }
 
-//    public void onClickOld(View view) {
-///*
-//        if (view.getId() == R.id.fab_add) {
-//            // fab click
-//            addItemToList();
-//        } else
-//*/
-////        if (view.getId() == R.id.tripListItemContainer) {   // Item click
-////            int selected;
-////
-////            selected = _recyclerView.getChildAdapterPosition(view);
-////            if (_actionMode != null) {
-////                myToggleSelection(selected);
-////            } else {
-///*
-//            DemoModel data = adapter.getItem(idx);
-//            View innerContainer = view.findViewById(R.id.container_inner_item);
-//            innerContainer.setTransitionName(Constants.NAME_INNER_CONTAINER + "_" + data.id);
-//            Intent startIntent = new Intent(this, CardViewDemoActivity.class);
-//            startIntent.putExtra(Constants.KEY_ID, data.id);
-//            ActivityOptions options = ActivityOptions
-//                    .makeSceneTransitionAnimation(this, innerContainer, Constants.NAME_INNER_CONTAINER);
-//            this.startActivity(startIntent, options.toBundle());
-//*/
-////            }
-////        }
-//    }
-
-//    private void myToggleSelection(int idx) {
-//        TripItemAdapter adapter;
-//
-//        _adapter.toggleSelection(idx);
-//
-//        String title = getString(R.string.selected_count, _adapter.getSelectedItemCount());
-//
-//        _actionMode.setTitle(title);
-//    }
-
-    /* OnItemTouchListener implementation */
-/*
-    @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-        _detector.onTouchEvent(e);
-        return false;
-    }
-
-    @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-    }
-
-    @Override
-    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-    }
-*/
     /*  ActionMode.Callback implementation */
 
     @Override
@@ -336,7 +282,7 @@ public class MainFragment
 
                     writeFileLine(fw, new String[]{" "});
 
-                    writeFileLine(fw, new String[]{"Loc. ID", "Trip ID", "Date", "Time", "Latitude", "Longitude", "Altitude", "Speed"});
+                    writeFileLine(fw, new String[]{"Loc. ID", "Trip ID", "Date", "Time", "Latitude", "Longitude", "Altitude", "Speed", "Accuracy", "Bearing"});
                     for (TripLocation l : t.getLocations()) {
                         writeFileLine(fw, new String[]{
                                 String.format("%d", l.getId()),
@@ -346,7 +292,9 @@ public class MainFragment
                                 String.format("%f", l.getLatitude()),
                                 String.format("%f", l.getLongitude()),
                                 String.format("%f", l.getAltitude()),
-                                String.format("%f", l.getSpeed())
+                                String.format("%f", l.getSpeed()),
+                                String.format("%f", l.getAccuracy()),
+                                String.format("%f", l.getBearing())
                         });
                     }
 
@@ -381,39 +329,4 @@ public class MainFragment
 
         updateActionBarSubtitle();
     }
-
-
-
-    /* Gesture detection class */
-/*
-    private class RecyclerViewDemoOnGestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            View view;
-
-            view = _recyclerView.findChildViewUnder(e.getX(), e.getY());
-            onTripItemClick(view);
-
-            return super.onSingleTapConfirmed(e);
-        }
-
-        public void onLongPress(MotionEvent e) {
-            int selected;
-            View view;
-
-            if (_actionMode != null) {
-                return;
-            }
-
-            _actionMode = getView().startActionMode(MainFragment.this);
-            view = _recyclerView.findChildViewUnder(e.getX(), e.getY());
-
-            selected = _recyclerView.getChildAdapterPosition(view);
-
-            myToggleSelection(selected);
-
-            super.onLongPress(e);
-        }
-    }
-*/
 }

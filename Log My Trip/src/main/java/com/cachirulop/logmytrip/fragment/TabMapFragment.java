@@ -101,51 +101,53 @@ public class TabMapFragment extends Fragment {
 
         points = _trip.getLocations();
 
-        track = new ArrayList<LatLng>();
-        builder = new LatLngBounds.Builder();
+        if (!points.isEmpty()) {
+            track = new ArrayList<LatLng>();
+            builder = new LatLngBounds.Builder();
 
-        for (TripLocation p : points) {
-            LatLng current;
+            for (TripLocation p : points) {
+                LatLng current;
 
-            current = p.toLatLng();
+                current = p.toLatLng();
 
-            track.add(current);
-            builder.include(current);
-        }
-
-        Polyline route;
-        PolylineOptions routeOptions;
-        Polyline border;
-        PolylineOptions borderOptions;
-
-        routeOptions = new PolylineOptions();
-        routeOptions.width(5);
-        routeOptions.color(Color.RED);
-        routeOptions.geodesic(true);
-
-        borderOptions = new PolylineOptions();
-        borderOptions.width(10);
-        borderOptions.color(Color.GRAY);
-        borderOptions.geodesic(true);
-
-        border = _map.addPolyline(borderOptions);
-        route = _map.addPolyline(routeOptions);
-
-        route.setPoints(track);
-        border.setPoints(track);
-
-        // camera = CameraUpdateFactory.newLatLngBounds(builder.build(), 25, 25, 5);
-        // _map.animateCamera(camera);
-        _map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-
-            @Override
-            public void onCameraChange(CameraPosition arg0) {
-                // Move camera.
-                _map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 20));
-
-                // Remove listener to prevent position reset on camera move.
-                _map.setOnCameraChangeListener(null);
+                track.add(current);
+                builder.include(current);
             }
-        });
+
+            Polyline route;
+            PolylineOptions routeOptions;
+            Polyline border;
+            PolylineOptions borderOptions;
+
+            routeOptions = new PolylineOptions();
+            routeOptions.width(5);
+            routeOptions.color(Color.RED);
+            routeOptions.geodesic(true);
+
+            borderOptions = new PolylineOptions();
+            borderOptions.width(10);
+            borderOptions.color(Color.GRAY);
+            borderOptions.geodesic(true);
+
+            border = _map.addPolyline(borderOptions);
+            route = _map.addPolyline(routeOptions);
+
+            route.setPoints(track);
+            border.setPoints(track);
+
+            // camera = CameraUpdateFactory.newLatLngBounds(builder.build(), 25, 25, 5);
+            // _map.animateCamera(camera);
+            _map.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                @Override
+                public void onCameraChange(CameraPosition arg0) {
+                    // Move camera.
+                    _map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 20));
+
+                    // Remove listener to prevent position reset on camera move.
+                    _map.setOnCameraChangeListener(null);
+                }
+            });
+        }
     }
 }

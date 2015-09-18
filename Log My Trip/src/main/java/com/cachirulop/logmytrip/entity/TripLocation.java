@@ -15,7 +15,25 @@ public class TripLocation
     private double _longitude;
     private double _altitude;
     private float _speed;
-    
+    private float _accuracy;
+    private float _bearing;
+
+    public float getAccuracy() {
+        return _accuracy;
+    }
+
+    public void setAccuracy(float _accuracy) {
+        this._accuracy = _accuracy;
+    }
+
+    public float getBearing() {
+        return _bearing;
+    }
+
+    public void setBearing(float _bearing) {
+        this._bearing = _bearing;
+    }
+
     /**
      * @return the id
      */

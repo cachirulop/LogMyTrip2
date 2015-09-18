@@ -39,6 +39,8 @@ public class LogMyTripService
     // private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 5000;
     private static final long LOCATION_UPDATE_INTERVAL = 0;
     private static final long LOCATION_UPDATE_FASTEST_INTERVAL = 0;
+    private static final long LOCATION_SMALLEST_DISPLACEMENT = 10;
+
     private final Object _lckReceiver = new Object();
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
@@ -73,10 +75,9 @@ public class LogMyTripService
     {
         _locationRequest = LocationRequest.create ();
         _locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        //_locationRequest.setPriority (LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         _locationRequest.setInterval (LOCATION_UPDATE_INTERVAL);
         _locationRequest.setFastestInterval(LOCATION_UPDATE_FASTEST_INTERVAL);
-        _locationRequest.setSmallestDisplacement(10);
+        _locationRequest.setSmallestDisplacement(LOCATION_SMALLEST_DISPLACEMENT);
 
         ensureLocationClient();
     }
@@ -267,10 +268,12 @@ public class LogMyTripService
         }
 
         result.setLatitude (loc.getLatitude ());
-        result.setLongitude (loc.getLongitude ());
-        result.setAltitude (loc.getAltitude ());
-        result.setSpeed (loc.getSpeed ());
-        
+        result.setLongitude(loc.getLongitude());
+        result.setAltitude(loc.getAltitude());
+        result.setSpeed(loc.getSpeed());
+        result.setAccuracy(loc.getAccuracy());
+        result.setBearing(loc.getBearing());
+
         return result;
     }
 

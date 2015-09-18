@@ -116,6 +116,10 @@ public class TripManager {
                     tl.getAltitude());
             values.put("speed",
                     tl.getSpeed());
+            values.put("accuracy",
+                    tl.getAccuracy());
+            values.put("bearing",
+                    tl.getBearing());
 
             db.insert(CONST_LOCATION_TABLE_NAME,
                     null,
@@ -143,6 +147,8 @@ public class TripManager {
         result.setLongitude(c.getDouble(c.getColumnIndex("longitude")));
         result.setAltitude(c.getDouble(c.getColumnIndex("altitude")));
         result.setSpeed(c.getFloat(c.getColumnIndex("speed")));
+        result.setAccuracy(c.getFloat(c.getColumnIndex("accuracy")));
+        result.setBearing(c.getFloat(c.getColumnIndex("bearing")));
 
         return result;
     }

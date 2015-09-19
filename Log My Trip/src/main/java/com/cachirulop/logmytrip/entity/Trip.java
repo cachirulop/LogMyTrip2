@@ -8,7 +8,6 @@ import java.util.List;
 
 /**
  * @author david
- *
  */
 public class Trip
         implements Serializable
@@ -19,7 +18,8 @@ public class Trip
 
     private transient List<TripLocation> _locations = null;
 
-    public Trip() {
+    public Trip ()
+    {
     }
 
     /**
@@ -29,7 +29,7 @@ public class Trip
     {
         return _id;
     }
-    
+
     /**
      * @param id the id to set
      */
@@ -37,7 +37,7 @@ public class Trip
     {
         this._id = id;
     }
-    
+
     /**
      * @return the tripDate
      */
@@ -45,7 +45,7 @@ public class Trip
     {
         return _tripDate;
     }
-    
+
     /**
      * @param tripDate the tripDate to set
      */
@@ -53,7 +53,7 @@ public class Trip
     {
         this._tripDate = tripDate;
     }
-    
+
     /**
      * @return the _description
      */
@@ -61,7 +61,7 @@ public class Trip
     {
         return _description;
     }
-    
+
     /**
      * @param description the _description to set
      */
@@ -70,29 +70,36 @@ public class Trip
         this._description = description;
     }
 
-    public List<TripLocation> getLocations() {
+    public List<TripLocation> getLocations ()
+    {
         if (_locations == null) {
-            _locations = TripManager.getTripLocationList(this);
+            _locations = TripManager.getTripLocationList (this);
         }
 
         return _locations;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Trip)) return false;
+    public boolean equals (Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Trip)) {
+            return false;
+        }
 
         Trip trip = (Trip) o;
 
-        return this.hashCode() == trip.hashCode();
+        return this.hashCode () == trip.hashCode ();
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode ()
+    {
         int result = (int) (_id ^ (_id >>> 32));
-        result = 31 * result + _tripDate.hashCode();
-        result = 31 * result + _description.hashCode();
+        result = 31 * result + _tripDate.hashCode ();
+        result = 31 * result + _description.hashCode ();
         return result;
     }
 }

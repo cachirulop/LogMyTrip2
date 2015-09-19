@@ -41,66 +41,86 @@ import java.util.List;
 
 public class MainFragment
         extends Fragment
-        implements TripItemAdapter.OnTripItemClickListener, ActionMode.Callback
+        implements TripItemAdapter.OnTripItemClickListener,
+                   ActionMode.Callback
 {
-    private RecyclerView _recyclerView;
-    private TripItemAdapter _adapter;
-    private ActionMode _actionMode;
+    private RecyclerView         _recyclerView;
+    private TripItemAdapter      _adapter;
+    private ActionMode           _actionMode;
     private FloatingActionButton _fabSaveTrip;
-    private Context _ctx;
+    private Context              _ctx;
 
-    private Handler handler = new Handler() {
+    private Handler handler = new Handler ()
+    {
         @Override
-        public void handleMessage(Message msg) {
-            updateSavingStatus((Trip) msg.obj);
+        public void handleMessage (Message msg)
+        {
+            updateSavingStatus ((Trip) msg.obj);
         }
     };
 
-    public MainFragment() {
+    public MainFragment ()
+    {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_main,
-                container,
-                false);
+    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        return inflater.inflate (R.layout.fragment_main, container, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewCreated (View view, Bundle savedInstanceState)
+    {
+        super.onViewCreated (view, savedInstanceState);
 
-        if (getView() != null) {
+        if (getView () != null) {
             // Init context
-            _ctx = getActivity();
+            _ctx = getActivity ();
 
             // Recyclerview
-            _recyclerView = (RecyclerView) getView().findViewById(R.id.rvTrips);
-            _recyclerView.setLayoutManager(new LinearLayoutManager(_ctx));
-            _recyclerView.setHasFixedSize(true);
+            _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
+            _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
+            _recyclerView.setHasFixedSize (true);
 
-            _recyclerView.setItemAnimator(new DefaultItemAnimator());
+            _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
-            loadTrips();
-            updateActionBarSubtitle();
+            loadTrips ();
+            updateActionBarSubtitle ();
 
             // Save button
-            _fabSaveTrip = (FloatingActionButton) getView().findViewById(R.id.fabSaveTrip);
-            _fabSaveTrip.setOnClickListener(new View.OnClickListener() {
+            _fabSaveTrip = (FloatingActionButton) getView ().findViewById (R.id.fabSaveTrip);
+            _fabSaveTrip.setOnClickListener (new View.OnClickListener ()
+            {
                 @Override
-                public void onClick(View v) {
-                    onSaveTripClick(v);
+                public void onClick (View v)
+                {
+                    onSaveTripClick (v);
                 }
             });
 
-            if (SettingsManager.isLogTrip(_ctx)) {
-                _fabSaveTrip.setImageResource(android.R.drawable.ic_media_pause);
+            if (SettingsManager.isLogTrip (_ctx)) {
+                _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
             }
             else {
-                _fabSaveTrip.setImageResource(R.mipmap.ic_button_save);
+                _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
             }
+        }
+    }
+
+    /**
+     * Load existing trips
+     */
+    private void loadTrips ()
+    {
+        List<Trip> trips;
+
+        if (getView () != null) {
+            trips = TripManager.LoadTrips (_ctx);
+
+            _adapter = new TripItemAdapter (_ctx, trips);
+            _adapter.setOnTripItemClickListener (this);
+            _recyclerView.setAdapter (_adapter);
         }
     }
 
@@ -108,109 +128,106 @@ public class MainFragment
     {
         ActionBar bar;
 
-        bar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        bar.setSubtitle(_ctx.getString(R.string.main_activity_subtitle, _adapter.getItemCount()));
+        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
+        bar.setSubtitle (
+                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
-    private void onSaveTripClick(View v) {
-        if (SettingsManager.isLogTrip(_ctx)) {
-            ServiceManager.stopSaveTrip(_ctx, handler);
+    private void onSaveTripClick (View v)
+    {
+        if (SettingsManager.isLogTrip (_ctx)) {
+            ServiceManager.stopSaveTrip (_ctx, handler);
 
-            _fabSaveTrip.setImageResource(R.mipmap.ic_button_save);
-        } else {
-            ServiceManager.startSaveTrip(_ctx, handler);
+            _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
+        }
+        else {
+            ServiceManager.startSaveTrip (_ctx, handler);
 
-            _fabSaveTrip.setImageResource(android.R.drawable.ic_media_pause);
+            _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
 
-            updateActionBarSubtitle();
+            updateActionBarSubtitle ();
         }
     }
 
-    /**
-     * Load existing trips
-     */
-    private void loadTrips() {
-        List<Trip> trips;
-
-        if (getView() != null) {
-            trips = TripManager.LoadTrips(_ctx);
-
-            _adapter = new TripItemAdapter(_ctx, trips);
-            _adapter.setOnTripItemClickListener(this);
-            _recyclerView.setAdapter(_adapter);
-        }
-    }
-
-    public void updateSavingStatus(Trip currentTrip) {
+    public void updateSavingStatus (Trip currentTrip)
+    {
         int position;
 
-        _recyclerView.smoothScrollToPosition(0);
-        _adapter.updateTripStatus();
+        _recyclerView.smoothScrollToPosition (0);
+        _adapter.updateTripStatus ();
     }
 
-    public RecyclerView getRecyclerView() {
+    public RecyclerView getRecyclerView ()
+    {
         return _recyclerView;
     }
 
     @Override
-    public void onTripItemLongClick(View v, int position) {
+    public void onTripItemLongClick (View v, int position)
+    {
         if (_actionMode != null) {
             return;
         }
 
-        _actionMode = getView().startActionMode(this);
+        _actionMode = getView ().startActionMode (this);
 
-        updateActionModeTitle();
+        updateActionModeTitle ();
     }
 
-    private void updateActionModeTitle() {
-        _actionMode.setTitle(getString(R.string.selected_count, _adapter.getSelectedItemCount()));
+    private void updateActionModeTitle ()
+    {
+        _actionMode.setTitle (
+                getString (R.string.selected_count, _adapter.getSelectedItemCount ()));
     }
 
     @Override
-    public void onTripItemClick(View view, int position) {
+    public void onTripItemClick (View view, int position)
+    {
         if (_actionMode != null) {
-            updateActionModeTitle();
+            updateActionModeTitle ();
         }
         else {
             Intent i;
 
-            i = new Intent(_ctx, TripDetailActivity.class);
-            i.putExtra(TabMapFragment.ARG_PARAM_TRIP, _adapter.getItem(position));
+            i = new Intent (_ctx, TripDetailActivity.class);
+            i.putExtra (TabMapFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
 
-            startActivity(i);
+            startActivity (i);
         }
     }
 
     /*  ActionMode.Callback implementation */
 
     @Override
-    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-        _adapter.setActionMode(true);
+    public boolean onCreateActionMode (ActionMode mode, Menu menu)
+    {
+        _adapter.setActionMode (true);
 
-        MenuInflater inflater = mode.getMenuInflater();
-        inflater.inflate(R.menu.menu_trip_actionmode, menu);
+        MenuInflater inflater = mode.getMenuInflater ();
+        inflater.inflate (R.menu.menu_trip_actionmode, menu);
 
-        _fabSaveTrip.hide();
+        _fabSaveTrip.hide ();
 
         return true;
     }
 
     @Override
-    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+    public boolean onPrepareActionMode (ActionMode mode, Menu menu)
+    {
         return false;
     }
 
     @Override
-    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        switch (item.getItemId()) {
+    public boolean onActionItemClicked (ActionMode mode, MenuItem item)
+    {
+        switch (item.getItemId ()) {
             case R.id.action_delete_selected_trip:
-                deleteSelectedTrips();
+                deleteSelectedTrips ();
 
                 return true;
 
             case R.id.action_export_selected_trip:
-                exportSelectedTrips();
+                exportSelectedTrips ();
 
                 return true;
             default:
@@ -218,115 +235,131 @@ public class MainFragment
         }
     }
 
-    private void deleteSelectedTrips() {
-        List<Trip> selectedItems = _adapter.getSelectedItems();
+    private void deleteSelectedTrips ()
+    {
+        List<Trip> selectedItems = _adapter.getSelectedItems ();
 
         for (Trip t : selectedItems) {
-            TripManager.deleteTrip(_ctx, t);
-            _adapter.removeItem(t);
+            TripManager.deleteTrip (_ctx, t);
+            _adapter.removeItem (t);
         }
 
-        _actionMode.finish();
+        _actionMode.finish ();
     }
 
-    private void exportSelectedTrips() {
-        List<Trip> selectedItems = _adapter.getSelectedItems();
+    private void exportSelectedTrips ()
+    {
+        List<Trip> selectedItems = _adapter.getSelectedItems ();
 
         for (Trip t : selectedItems) {
-            exportTrip(t);
+            exportTrip (t);
         }
 
-        _actionMode.finish();
+        _actionMode.finish ();
     }
 
-    private void exportTrip(final Trip t) {
+    private void exportTrip (final Trip t)
+    {
         File folder;
         final String filename;
 
-        folder = new File(Environment.getExternalStorageDirectory() + "/" + _ctx.getText(R.string.app_name));
+        folder = new File (Environment.getExternalStorageDirectory () + "/" + _ctx.getText (
+                R.string.app_name));
 
-        if (!folder.exists()) {
-            folder.mkdir();
+        if (!folder.exists ()) {
+            folder.mkdir ();
         }
 
-        filename = folder.toString() + "/" + DateFormat.format("yyyy-MM-dd", t.getTripDate()) + ".csv";
+        filename = folder.toString () + "/" + DateFormat.format ("yyyy-MM-dd",
+                                                                 t.getTripDate ()) + ".csv";
 
         // show waiting screen
         final ProgressDialog progDialog;
 
-        progDialog = ProgressDialog.show(_ctx,
-                getString(R.string.app_name),
-                _ctx.getString(R.string.exporting_trips),
-                true);
+        progDialog = ProgressDialog.show (_ctx, getString (R.string.app_name),
+                                          _ctx.getString (R.string.exporting_trips), true);
 
-        Log.d(MainFragment.class.getCanonicalName(), "Writing file: " + filename);
+        Log.d (MainFragment.class.getCanonicalName (), "Writing file: " + filename);
 
-        final Handler handler = new Handler() {
+        final Handler handler = new Handler ()
+        {
             @Override
-            public void handleMessage(Message msg) {
+            public void handleMessage (Message msg)
+            {
             }
         };
 
-        new Thread() {
-            public void run() {
+        new Thread ()
+        {
+            public void run ()
+            {
                 try {
-                    FileWriter fw = new FileWriter(filename);
+                    FileWriter fw = new FileWriter (filename);
 
-                    writeFileLine(fw, new String[]{"Trip ID", "Date", "Time", "Description"});
-                    writeFileLine(fw, new String[]{
-                            String.format("%d", t.getId()),
-                            DateFormat.getMediumDateFormat(_ctx).format(t.getTripDate()),
-                            DateFormat.getTimeFormat(_ctx).format(t.getTripDate()),
-                            t.getDescription()
-                    });
+                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Description" });
+                    writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
+                                                     DateFormat.getMediumDateFormat (_ctx)
+                                                               .format (t.getTripDate ()),
+                                                     DateFormat.getTimeFormat (_ctx)
+                                                               .format (t.getTripDate ()),
+                                                     t.getDescription () });
 
-                    writeFileLine(fw, new String[]{" "});
+                    writeFileLine (fw, new String[]{ " " });
 
-                    writeFileLine(fw, new String[]{"Loc. ID", "Trip ID", "Date", "Time", "Latitude", "Longitude", "Altitude", "Speed", "Accuracy", "Bearing"});
-                    for (TripLocation l : t.getLocations()) {
-                        writeFileLine(fw, new String[]{
-                                String.format("%d", l.getId()),
-                                String.format("%d", l.getIdTrip()),
-                                DateFormat.getMediumDateFormat(_ctx).format(l.getLocationTimeAsDate()),
-                                DateFormat.getTimeFormat(_ctx).format(l.getLocationTimeAsDate()),
-                                String.format("%f", l.getLatitude()),
-                                String.format("%f", l.getLongitude()),
-                                String.format("%f", l.getAltitude()),
-                                String.format("%f", l.getSpeed()),
-                                String.format("%f", l.getAccuracy()),
-                                String.format("%f", l.getBearing())
-                        });
+                    writeFileLine (fw,
+                                   new String[]{ "Loc. ID", "Trip ID", "Date", "Time", "Latitude",
+                                                 "Longitude", "Altitude", "Speed", "Accuracy",
+                                                 "Bearing" });
+                    for (TripLocation l : t.getLocations ()) {
+                        writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
+                                                         String.format ("%d", l.getIdTrip ()),
+                                                         DateFormat.getMediumDateFormat (_ctx)
+                                                                   .format (
+                                                                           l.getLocationTimeAsDate ()),
+                                                         DateFormat.getTimeFormat (_ctx)
+                                                                   .format (
+                                                                           l.getLocationTimeAsDate ()),
+                                                         String.format ("%f", l.getLatitude ()),
+                                                         String.format ("%f", l.getLongitude ()),
+                                                         String.format ("%f", l.getAltitude ()),
+                                                         String.format ("%f", l.getSpeed ()),
+                                                         String.format ("%f", l.getAccuracy ()),
+                                                         String.format ("%f", l.getBearing ()) });
                     }
 
-                    fw.flush();
-                    fw.close();
-                } catch (Exception e) {
-                    Log.d(MainFragment.class.getCanonicalName(), "Error writing file: " + e.getLocalizedMessage());
+                    fw.flush ();
+                    fw.close ();
+                }
+                catch (Exception e) {
+                    Log.d (MainFragment.class.getCanonicalName (),
+                           "Error writing file: " + e.getLocalizedMessage ());
                 }
 
-                handler.sendEmptyMessage(0);
-                progDialog.dismiss();
+                handler.sendEmptyMessage (0);
+                progDialog.dismiss ();
             }
-        }.start();
+        }.start ();
     }
 
-    private void writeFileLine(FileWriter fw, String[] values)
-            throws IOException {
+    private void writeFileLine (FileWriter fw, String[] values)
+            throws IOException
+    {
         for (String s : values) {
-            fw.append(s);
-            fw.append(";");
+            fw.append (s);
+            fw.append (";");
         }
 
-        fw.append("\n");
+        fw.append ("\n");
     }
 
     @Override
-    public void onDestroyActionMode(ActionMode mode) {
+    public void onDestroyActionMode (ActionMode mode)
+    {
         _actionMode = null;
-        _adapter.setActionMode(false);
-        _adapter.clearSelections();
-        _fabSaveTrip.show();
+        _adapter.setActionMode (false);
+        _adapter.clearSelections ();
+        _fabSaveTrip.show ();
 
-        updateActionBarSubtitle();
+        updateActionBarSubtitle ();
     }
 }

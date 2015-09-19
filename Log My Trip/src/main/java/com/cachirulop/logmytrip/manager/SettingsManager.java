@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.manager;
 
 import android.content.Context;
@@ -16,19 +15,17 @@ public class SettingsManager
 
     public static boolean getAutoStartLog (Context ctx)
     {
-        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG,
-                                                false);
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG, false);
     }
 
     private static SharedPreferences getSharedPrefs (Context ctx)
     {
         return PreferenceManager.getDefaultSharedPreferences (ctx);
     }
-    
-    public static boolean isLogTrip(Context ctx)
+
+    public static boolean isLogTrip (Context ctx)
     {
-        return getSharedPrefs (ctx).getBoolean (KEY_PREF_LOG_TRIP,
-                                                false);
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_LOG_TRIP, false);
     }
 
     public static void setLogTrip (Context ctx, boolean value)

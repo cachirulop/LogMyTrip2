@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.service;
 
 import android.app.Notification;
@@ -35,13 +34,13 @@ public class LogMyTripService
                    GoogleApiClient.OnConnectionFailedListener,
                    LocationListener
 {
-    public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName() + ".HANDLER";
+    public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName () + ".HANDLER";
 
-    private final Object _lckReceiver = new Object();
+    private final Object _lckReceiver = new Object ();
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
     private BluetoothBroadcastReceiver _btReceiver;
-    private Trip                       _currentTrip                     = null;
+    private Trip _currentTrip = null;
 
     @Override
     public void onCreate ()
@@ -95,63 +94,62 @@ public class LogMyTripService
     }
 
     @Override
-    public int onStartCommand (Intent intent,
-                               int flags,
-                               int startId)
+    public int onStartCommand (Intent intent, int flags, int startId)
     {
 
-        if (!isGooglePlayServicesAvailable()) {
-            ToastHelper.showLong(this,
-                    getString(R.string.msg_GooglePlayServicesUnavailable));
+        if (!isGooglePlayServicesAvailable ()) {
+            ToastHelper.showLong (this, getString (R.string.msg_GooglePlayServicesUnavailable));
 
             return Service.START_NOT_STICKY;
-        } else {
-            ToastHelper.showDebug(this,
-                    "LogMyTripService.onStartCommand: starting service");
+        }
+        else {
+            ToastHelper.showDebug (this, "LogMyTripService.onStartCommand: starting service");
 
         }
 
-        super.onStartCommand(intent,
-                flags,
-                startId);
+        super.onStartCommand (intent, flags, startId);
 
         boolean bluetooth;
         boolean logs;
 
-        bluetooth = SettingsManager.getAutoStartLog(this);
-        logs = SettingsManager.isLogTrip(this);
+        bluetooth = SettingsManager.getAutoStartLog (this);
+        logs = SettingsManager.isLogTrip (this);
 
         synchronized (_lckReceiver) {
             if (bluetooth) {
-                registerBluetoothReceiver();
-            } else {
-                unregisterBluetoothReceiver();
+                registerBluetoothReceiver ();
+            }
+            else {
+                unregisterBluetoothReceiver ();
             }
         }
 
         if (logs) {
-            startLog();
-        } else {
-            stopLog();
+            startLog ();
+        }
+        else {
+            stopLog ();
         }
 
         if (bluetooth || logs) {
-            startForegroundService(bluetooth,
-                    logs);
-        } else {
-            stopForegroundService();
+            startForegroundService (bluetooth, logs);
+        }
+        else {
+            stopForegroundService ();
         }
 
-        if (intent.hasExtra(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
-            Messenger messenger = (Messenger) intent.getExtras().get(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
-            Message msg = Message.obtain();
+        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
+            Messenger messenger = (Messenger) intent.getExtras ()
+                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
+            Message msg = Message.obtain ();
 
             // msg.obj = _currentTrip;
 
             try {
-                messenger.send(msg);
-            } catch (android.os.RemoteException e1) {
-                Log.w(getClass().getName(), "Exception sending message", e1);
+                messenger.send (msg);
+            }
+            catch (android.os.RemoteException e1) {
+                Log.w (getClass ().getName (), "Exception sending message", e1);
             }
         }
 
@@ -222,15 +220,15 @@ public class LogMyTripService
     }
 
     @Override
-    public void onLocationChanged(Location loc)
+    public void onLocationChanged (Location loc)
     {
         final TripLocation tl;
         final Context      ctx;
 
         ctx = this;
 
-        if (isValidLocation(loc)) {
-            tl = convertLocation(loc);
+        if (isValidLocation (loc)) {
+            tl = convertLocation (loc);
 
             new Thread ()
             {
@@ -240,13 +238,13 @@ public class LogMyTripService
                 }
             }.start ();
 
-            ToastHelper.showShortDebug(this,
-                    "LogMyTripService.onLocationChanged: " +
-                            loc.getLatitude() + "-.-" +
-                            loc.getLongitude());
-        } else {
-            ToastHelper.showShortDebug(this,
-                    "LogMyTripService.onLocationChanged: ignoring location, bad accuracy");
+            ToastHelper.showShortDebug (this, "LogMyTripService.onLocationChanged: " +
+                    loc.getLatitude () + "-.-" +
+                    loc.getLongitude ());
+        }
+        else {
+            ToastHelper.showShortDebug (this,
+                                        "LogMyTripService.onLocationChanged: ignoring location, bad accuracy");
         }
 
     }
@@ -258,25 +256,27 @@ public class LogMyTripService
                 location.getLatitude ()) <= 90 && Math.abs (location.getLongitude ()) <= 180);
     }
 
-    private TripLocation convertLocation(Location loc) {
+    private TripLocation convertLocation (Location loc)
+    {
         TripLocation result;
 
-        result = new TripLocation();
-        result.setIdTrip(_currentTrip.getId());
+        result = new TripLocation ();
+        result.setIdTrip (_currentTrip.getId ());
 
-        if (loc.getTime() == 0L) {
+        if (loc.getTime () == 0L) {
             // Some devices don't set the time field
-            result.setLocationTime(System.currentTimeMillis());
-        } else {
-            result.setLocationTime(loc.getTime());
+            result.setLocationTime (System.currentTimeMillis ());
+        }
+        else {
+            result.setLocationTime (loc.getTime ());
         }
 
         result.setLatitude (loc.getLatitude ());
-        result.setLongitude(loc.getLongitude());
-        result.setAltitude(loc.getAltitude());
-        result.setSpeed(loc.getSpeed());
-        result.setAccuracy(loc.getAccuracy());
-        result.setBearing(loc.getBearing());
+        result.setLongitude (loc.getLongitude ());
+        result.setAltitude (loc.getAltitude ());
+        result.setSpeed (loc.getSpeed ());
+        result.setAccuracy (loc.getAccuracy ());
+        result.setBearing (loc.getBearing ());
 
         return result;
     }
@@ -290,13 +290,13 @@ public class LogMyTripService
     @Override
     public void onConnected (Bundle arg0)
     {
-        LocationServices.FusedLocationApi.requestLocationUpdates(_apiClient,
-                _locationRequest,
-                this);
+        LocationServices.FusedLocationApi.requestLocationUpdates (_apiClient, _locationRequest,
+                                                                  this);
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
+    public void onConnectionSuspended (int i)
+    {
 
     }
 

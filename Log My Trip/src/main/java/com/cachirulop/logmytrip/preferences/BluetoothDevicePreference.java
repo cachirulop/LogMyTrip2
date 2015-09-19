@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.preferences;
 
 import android.bluetooth.BluetoothAdapter;
@@ -15,11 +14,14 @@ public class BluetoothDevicePreference
         extends MultiSelectListPreference
 {
 
-    public BluetoothDevicePreference (Context context,
-                                      AttributeSet attrs)
+    public BluetoothDevicePreference (Context context)
     {
-        super (context,
-               attrs);
+        this (context, null);
+    }
+
+    public BluetoothDevicePreference (Context context, AttributeSet attrs)
+    {
+        super (context, attrs);
 
         CharSequence[] entries;
         CharSequence[] entryValues;
@@ -29,7 +31,7 @@ public class BluetoothDevicePreference
         if (bta != null) {
             Set<BluetoothDevice> pairedDevices;
             int i;
-            
+
             // TODO: Show dialog when no paired devices found
 
             pairedDevices = bta.getBondedDevices ();
@@ -37,12 +39,13 @@ public class BluetoothDevicePreference
             entryValues = new CharSequence[pairedDevices.size ()];
             i = 0;
             for (BluetoothDevice dev : pairedDevices) {
-                entries [i] = dev.getName ();
-                if (entries [i].toString ().equals ("")) {
-                    entries [i] = dev.getAddress ();
+                entries[i] = dev.getName ();
+                if (entries[i].toString ()
+                              .equals ("")) {
+                    entries[i] = dev.getAddress ();
                 }
 
-                entryValues [i] = dev.getAddress ();
+                entryValues[i] = dev.getAddress ();
 
                 i++;
             }
@@ -50,17 +53,11 @@ public class BluetoothDevicePreference
         else {
             entries = new CharSequence[1];
             entryValues = new CharSequence[1];
-            entries [0] = context.getText (R.string.pref_bluetoothNotFound);
-            entryValues [0] = entries [0];
+            entries[0] = context.getText (R.string.pref_bluetoothNotFound);
+            entryValues[0] = entries[0];
         }
 
         setEntries (entries);
         setEntryValues (entryValues);
-    }
-
-    public BluetoothDevicePreference (Context context)
-    {
-        this (context,
-              null);
     }
 }

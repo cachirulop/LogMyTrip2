@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.fragment;
 
 import android.content.Context;
@@ -44,12 +43,11 @@ public class SettingsFragment
         p.setValue (Integer.toString (SettingsManager.getGpsAccuracy (ctx)));
     }
 
-    public void onSharedPreferenceChanged (SharedPreferences sharedPreferences,
-                                           String key)
+    public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key)
     {
         // if (SettingsManager.KEY_PREF_AUTO_START_LOG.equals (key)) {
         //    if (SettingsManager.getAutoStartLog (this.getActivity ())) {
-        ServiceManager.startStopService(this.getActivity(), null);
+        ServiceManager.startStopService (this.getActivity (), null);
         //    }
         //    else {
         //        ServiceManager.stopBluetoothService (this.getActivity ());
@@ -61,13 +59,15 @@ public class SettingsFragment
     public void onResume ()
     {
         super.onResume ();
-        getPreferenceManager ().getSharedPreferences ().registerOnSharedPreferenceChangeListener (this);
+        getPreferenceManager ().getSharedPreferences ()
+                               .registerOnSharedPreferenceChangeListener (this);
     }
 
     @Override
     public void onPause ()
     {
         super.onPause ();
-        getPreferenceScreen ().getSharedPreferences ().unregisterOnSharedPreferenceChangeListener (this);
+        getPreferenceScreen ().getSharedPreferences ()
+                              .unregisterOnSharedPreferenceChangeListener (this);
     }
 }

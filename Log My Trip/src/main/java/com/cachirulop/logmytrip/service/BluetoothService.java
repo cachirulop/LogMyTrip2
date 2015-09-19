@@ -19,85 +19,89 @@ import com.cachirulop.logmytrip.util.ToastHelper;
 /**
  * Created by dmagro on 18/09/2015.
  */
-public class BluetoothService extends Service {
-    private final Object _lckReceiver = new Object();
+public class BluetoothService
+        extends Service
+{
+    private final Object _lckReceiver = new Object ();
     private BluetoothBroadcastReceiver _btReceiver;
 
     @Override
-    public void onCreate() {
+    public void onCreate ()
+    {
         super.onCreate ();
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy ()
+    {
         super.onDestroy ();
     }
 
     @Override
-    public int onStartCommand(Intent intent,
-                              int flags,
-                              int startId) {
+    public int onStartCommand (Intent intent, int flags, int startId)
+    {
 
-        ToastHelper.showDebug(this,
-                "BluetoothService.onStartCommand: starting service");
+        ToastHelper.showDebug (this, "BluetoothService.onStartCommand: starting service");
 
 
-        super.onStartCommand(intent,
-                flags,
-                startId);
+        super.onStartCommand (intent, flags, startId);
 
         boolean bluetooth;
         boolean logs;
 
-        bluetooth = SettingsManager.getAutoStartLog(this);
+        bluetooth = SettingsManager.getAutoStartLog (this);
         logs = SettingsManager.isLogTrip (this);
 
         synchronized (_lckReceiver) {
             if (bluetooth) {
-                registerBluetoothReceiver();
-            } else {
-                unregisterBluetoothReceiver();
+                registerBluetoothReceiver ();
+            }
+            else {
+                unregisterBluetoothReceiver ();
             }
         }
 
         if (bluetooth || logs) {
-            startForegroundService(bluetooth,
-                    logs);
-        } else {
-            stopForegroundService();
+            startForegroundService (bluetooth, logs);
+        }
+        else {
+            stopForegroundService ();
         }
 
-        if (intent.hasExtra(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
-            Messenger messenger = (Messenger) intent.getExtras().get(LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
-            Message msg = Message.obtain();
+        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
+            Messenger messenger = (Messenger) intent.getExtras ()
+                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
+            Message msg = Message.obtain ();
 
             // msg.obj = _currentTrip;
 
             try {
-                messenger.send(msg);
-            } catch (android.os.RemoteException e1) {
-                Log.w(getClass().getName(), "Exception sending message", e1);
+                messenger.send (msg);
+            }
+            catch (android.os.RemoteException e1) {
+                Log.w (getClass ().getName (), "Exception sending message", e1);
             }
         }
 
         return START_STICKY;
     }
 
-    private void registerBluetoothReceiver() {
+    private void registerBluetoothReceiver ()
+    {
         if (_btReceiver == null) {
-            _btReceiver = new BluetoothBroadcastReceiver();
+            _btReceiver = new BluetoothBroadcastReceiver ();
 
-            registerReceiver(_btReceiver,
-                    new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
+            registerReceiver (_btReceiver,
+                              new IntentFilter (BluetoothDevice.ACTION_ACL_DISCONNECTED));
 
-            registerReceiver(_btReceiver,
-                    new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+            registerReceiver (_btReceiver, new IntentFilter (BluetoothDevice.ACTION_ACL_CONNECTED));
         }
     }
 
-    private void unregisterBluetoothReceiver() {
+    private void unregisterBluetoothReceiver ()
+    {
         if (_btReceiver != null) {
-            unregisterReceiver(_btReceiver);
+            unregisterReceiver (_btReceiver);
 
             _btReceiver = null;
         }
@@ -123,7 +127,8 @@ public class BluetoothService extends Service {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind (Intent intent)
+    {
         return null;
     }
 

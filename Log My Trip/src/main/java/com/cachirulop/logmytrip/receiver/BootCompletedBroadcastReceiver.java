@@ -1,4 +1,3 @@
-
 package com.cachirulop.logmytrip.receiver;
 
 import android.content.BroadcastReceiver;
@@ -14,8 +13,7 @@ public class BootCompletedBroadcastReceiver
         extends BroadcastReceiver
 {
     @Override
-    public void onReceive (Context context,
-                           Intent intent)
+    public void onReceive (Context context, Intent intent)
     {
         if (Intent.ACTION_BOOT_COMPLETED.equals (intent.getAction ())) {
             if (SettingsManager.getAutoStartLog (context)) {

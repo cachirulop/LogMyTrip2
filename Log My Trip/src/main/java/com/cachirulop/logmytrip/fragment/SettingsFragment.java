@@ -1,12 +1,15 @@
 
 package com.cachirulop.logmytrip.fragment;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.manager.ServiceManager;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 
 public class SettingsFragment
         extends PreferenceFragment
@@ -19,6 +22,26 @@ public class SettingsFragment
 
         // Load the preferences from an XML resource
         addPreferencesFromResource (R.xml.preferences);
+    }
+
+    @Override
+    public void onActivityCreated (Bundle savedInstanceState)
+    {
+        super.onActivityCreated (savedInstanceState);
+
+        ListPreference p;
+        Context        ctx;
+
+        ctx = getActivity ();
+
+        p = (ListPreference) findPreference (SettingsManager.KEY_PREF_GPS_TIME_INTERVAL);
+        p.setValue (Integer.toString (SettingsManager.getGpsTimeInterval (ctx)));
+
+        p = (ListPreference) findPreference (SettingsManager.KEY_PREF_GPS_DISTANCE_INTERVAL);
+        p.setValue (Integer.toString (SettingsManager.getGpsDistanceInterval (ctx)));
+
+        p = (ListPreference) findPreference (SettingsManager.KEY_PREF_GPS_ACCURACY);
+        p.setValue (Integer.toString (SettingsManager.getGpsAccuracy (ctx)));
     }
 
     public void onSharedPreferenceChanged (SharedPreferences sharedPreferences,

@@ -25,4 +25,26 @@
             android:title="@string/pref_bluetoothDeviceTitle" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/pref_gpsCategoryTitle">
+        <ListPreference
+            android:entries="@array/pref_gpsTimeIntervalEntries"
+            android:entryValues="@array/pref_gpsTimeIntervalValues"
+            android:key="pref_gpsTimeInterval"
+            android:summary="@string/pref_gpsTimeIntervalSummary"
+            android:title="@string/pref_gpsTimeIntervalTitle" />
+        <ListPreference
+            android:entries="@array/pref_gpsDistanceIntervalEntries"
+            android:entryValues="@array/pref_gpsDistanceIntervalValues"
+            android:key="pref_gpsDistanceInterval"
+            android:summary="@string/pref_gpsDistanceIntervalSummary"
+            android:title="@string/pref_gpsDistanceIntervalTitle" />
+        <ListPreference
+            android:entries="@array/pref_gpsAccuracyEntries"
+            android:entryValues="@array/pref_gpsAccuracyValues"
+            android:key="pref_gpsAccuracy"
+            android:summary="@string/pref_gpsAccuracySummary"
+            android:title="@string/pref_gpsAccuracyTitle" />
+    </PreferenceCategory>
+
+
 </PreferenceScreen>

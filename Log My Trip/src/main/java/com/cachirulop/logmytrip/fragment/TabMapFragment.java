@@ -1,10 +1,18 @@
 package com.cachirulop.logmytrip.fragment;
 
 
+import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +20,8 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +41,35 @@ public class TabMapFragment
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
     private GoogleMap _map;
     private Trip _trip;
+    private LogMyTripService _service;
+    private LogMyTripService.OnTripLocationSavedListener _locationSavedListener = new LogMyTripService.OnTripLocationSavedListener ()
+    {
+        @Override
+        public void onTripLocationSaved (TripLocation tl)
+        {
+            _trip = TripManager.getTrip (_service, _trip.getId ());
+            drawTrackMainThread ();
+        }
+    };
+    private ServiceConnection                            _connection            = new ServiceConnection ()
+    {
+
+        @Override
+        public void onServiceConnected (ComponentName className, IBinder service)
+        {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            LogMyTripService.LogMyTripServiceBinder binder = (LogMyTripService.LogMyTripServiceBinder) service;
+
+            _service = binder.getService ();
+            _service.registerTripLocationSavedListener (_locationSavedListener);
+        }
+
+        @Override
+        public void onServiceDisconnected (ComponentName arg0)
+        {
+            _service.unregisterTripLocationSavedListener (_locationSavedListener);
+        }
+    };
 
     public TabMapFragment ()
     {
@@ -49,10 +88,10 @@ public class TabMapFragment
         TabMapFragment fragment;
         Bundle args;
 
-        fragment = new TabMapFragment ();
         args = new Bundle ();
-
         args.putSerializable (ARG_PARAM_TRIP, trip);
+
+        fragment = new TabMapFragment ();
         fragment.setArguments (args);
 
         return fragment;
@@ -75,33 +114,35 @@ public class TabMapFragment
     }
 
     @Override
-    public void onViewCreated (View view, Bundle savedInstanceState)
+    public void onActivityCreated (Bundle savedInstanceState)
     {
-        super.onViewCreated (view, savedInstanceState);
+        super.onActivityCreated (savedInstanceState);
 
-        setUpMapIfNeeded ();
-    }
+        setUpMap ();
+        drawTrack ();
 
-    private void setUpMapIfNeeded ()
-    {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (_map == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            FragmentManager fm;
+        Activity activity;
 
-            fm = getFragmentManager ();
+        activity = getActivity ();
 
-            _map = ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
-                    R.id.gmTripDetail)).getMap ();
-
-            // Check if we were successful in obtaining the map.
-            if (_map != null) {
-                setUpMap ();
-            }
-        }
+        Intent intent = new Intent (activity, LogMyTripService.class);
+        activity.bindService (intent, _connection, Context.BIND_AUTO_CREATE);
     }
 
     private void setUpMap ()
+    {
+        FragmentManager fm;
+
+        fm = getFragmentManager ();
+
+        _map = ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
+                R.id.gmTripDetail)).getMap ();
+
+        _map.setMyLocationEnabled (true);
+
+    }
+
+    private void drawTrack ()
     {
         List<LatLng>       track;
         List<TripLocation> points;
@@ -144,8 +185,6 @@ public class TabMapFragment
             route.setPoints (track);
             border.setPoints (track);
 
-            // camera = CameraUpdateFactory.newLatLngBounds(builder.build(), 25, 25, 5);
-            // _map.animateCamera(camera);
             _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
             {
 
@@ -159,6 +198,31 @@ public class TabMapFragment
                     _map.setOnCameraChangeListener (null);
                 }
             });
+        }
+    }
+
+    private void drawTrackMainThread ()
+    {
+        Handler  main;
+        Runnable runInMain;
+        Activity parent;
+
+        parent = getActivity ();
+        if (parent != null) {
+            Log.d (TabMapFragment.class.getCanonicalName (), "Redrawing map");
+
+            main = new Handler (getActivity ().getMainLooper ());
+
+            runInMain = new Runnable ()
+            {
+                @Override
+                public void run ()
+                {
+                    drawTrack ();
+                }
+            };
+
+            main.post (runInMain);
         }
     }
 }

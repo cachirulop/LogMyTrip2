@@ -6,13 +6,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.util.Log;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.manager.NotifyManager;
-import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
 import com.cachirulop.logmytrip.util.ToastHelper;
 
@@ -43,45 +39,13 @@ public class BluetoothService
 
         ToastHelper.showDebug (this, "BluetoothService.onStartCommand: starting service");
 
-
         super.onStartCommand (intent, flags, startId);
 
-        boolean bluetooth;
-        boolean logs;
+        registerBluetoothReceiver ();
+        // unregisterBluetoothReceiver ();
 
-        bluetooth = SettingsManager.getAutoStartLog (this);
-        logs = SettingsManager.isLogTrip (this);
-
-        synchronized (_lckReceiver) {
-            if (bluetooth) {
-                registerBluetoothReceiver ();
-            }
-            else {
-                unregisterBluetoothReceiver ();
-            }
-        }
-
-        if (bluetooth || logs) {
-            startForegroundService (bluetooth, logs);
-        }
-        else {
-            stopForegroundService ();
-        }
-
-        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
-            Messenger messenger = (Messenger) intent.getExtras ()
-                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
-            Message msg = Message.obtain ();
-
-            // msg.obj = _currentTrip;
-
-            try {
-                messenger.send (msg);
-            }
-            catch (android.os.RemoteException e1) {
-                Log.w (getClass ().getName (), "Exception sending message", e1);
-            }
-        }
+        startForegroundService ();
+        // stopForegroundService ();
 
         return START_STICKY;
     }
@@ -98,6 +62,18 @@ public class BluetoothService
         }
     }
 
+    private void startForegroundService ()
+    {
+        Notification note;
+        CharSequence contentText;
+
+        contentText = this.getText (R.string.notif_ContentWaitingBluetooth);
+
+        note = NotifyManager.createWaitingBluetooth (this, contentText);
+
+        startForeground (NotifyManager.NOTIFICATION_WAITING_BLUETOOTH, note);
+    }
+
     private void unregisterBluetoothReceiver ()
     {
         if (_btReceiver != null) {
@@ -105,19 +81,6 @@ public class BluetoothService
 
             _btReceiver = null;
         }
-    }
-
-    private void startForegroundService (boolean bluetooth, boolean logTrip)
-    {
-        Notification note;
-        CharSequence contentText;
-
-        contentText = this.getText (R.string.notif_ContentWaitingBluetooth);
-
-        // TODO: Specify the correct icon
-        note = NotifyManager.createNotification (this, contentText);
-
-        startForeground (NotifyManager.NOTIFICATION_ID, note);
     }
 
     private void stopForegroundService ()

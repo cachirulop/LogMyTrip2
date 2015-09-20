@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
@@ -28,6 +29,9 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LogMyTripService
         extends Service
         implements GoogleApiClient.ConnectionCallbacks,
@@ -40,7 +44,10 @@ public class LogMyTripService
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
     private BluetoothBroadcastReceiver _btReceiver;
-    private Trip _currentTrip = null;
+    private Trip                              _currentTrip                  = null;
+    private List<OnTripLocationSavedListener> _onTripLocationSavedListeners = new ArrayList<> ();
+
+    private LogMyTripServiceBinder _binder = new LogMyTripServiceBinder ();
 
     @Override
     public void onCreate ()
@@ -207,10 +214,9 @@ public class LogMyTripService
                                              .toString (), _currentTrip.getDescription ());
         }
 
-        // TODO: Specify the correct icon
-        note = NotifyManager.createNotification (this, contentText);
+        note = NotifyManager.createSavingTrip (this, contentText);
 
-        startForeground (NotifyManager.NOTIFICATION_ID, note);
+        startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
     }
 
     private void stopForegroundService ()
@@ -235,6 +241,10 @@ public class LogMyTripService
                 public void run ()
                 {
                     TripManager.saveTripLocation (ctx, tl);
+
+                    for (OnTripLocationSavedListener l : _onTripLocationSavedListeners) {
+                        l.onTripLocationSaved (tl);
+                    }
                 }
             }.start ();
 
@@ -281,6 +291,16 @@ public class LogMyTripService
         return result;
     }
 
+    public void registerTripLocationSavedListener (OnTripLocationSavedListener listener)
+    {
+        _onTripLocationSavedListeners.add (listener);
+    }
+
+    public void unregisterTripLocationSavedListener (OnTripLocationSavedListener listener)
+    {
+        _onTripLocationSavedListeners.remove (listener);
+    }
+
     @Override
     public void onConnectionFailed (ConnectionResult arg0)
     {
@@ -303,7 +323,21 @@ public class LogMyTripService
     @Override
     public IBinder onBind (Intent intent)
     {
-        return null;
+        return _binder;
+    }
+
+    public interface OnTripLocationSavedListener
+    {
+        void onTripLocationSaved (TripLocation tl);
+    }
+
+    public class LogMyTripServiceBinder
+            extends Binder
+    {
+        public LogMyTripService getService ()
+        {
+            return LogMyTripService.this;
+        }
     }
 
 }

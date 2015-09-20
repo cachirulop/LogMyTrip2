@@ -50,7 +50,7 @@ public class MainFragment
     private FloatingActionButton _fabSaveTrip;
     private Context              _ctx;
 
-    private Handler handler = new Handler ()
+    private Handler _handler = new Handler ()
     {
         @Override
         public void handleMessage (Message msg)
@@ -136,12 +136,12 @@ public class MainFragment
     private void onSaveTripClick (View v)
     {
         if (SettingsManager.isLogTrip (_ctx)) {
-            ServiceManager.stopSaveTrip (_ctx, handler);
+            ServiceManager.stopSaveTrip (_ctx, _handler);
 
             _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
         }
         else {
-            ServiceManager.startSaveTrip (_ctx, handler);
+            ServiceManager.startSaveTrip (_ctx, _handler);
 
             _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
 
@@ -300,8 +300,9 @@ public class MainFragment
                     writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
                                                      DateFormat.getMediumDateFormat (_ctx)
                                                                .format (t.getTripDate ()),
-                                                     DateFormat.getTimeFormat (_ctx)
-                                                               .format (t.getTripDate ()),
+                                                     DateFormat.format ("HH:mm:ss",
+                                                                        t.getTripDate ())
+                                                               .toString (),
                                                      t.getDescription () });
 
                     writeFileLine (fw, new String[]{ " " });
@@ -309,22 +310,24 @@ public class MainFragment
                     writeFileLine (fw,
                                    new String[]{ "Loc. ID", "Trip ID", "Date", "Time", "Latitude",
                                                  "Longitude", "Altitude", "Speed", "Accuracy",
-                                                 "Bearing" });
+                                                 "Bearing", "Time as number" });
                     for (TripLocation l : t.getLocations ()) {
                         writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
                                                          String.format ("%d", l.getIdTrip ()),
                                                          DateFormat.getMediumDateFormat (_ctx)
                                                                    .format (
                                                                            l.getLocationTimeAsDate ()),
-                                                         DateFormat.getTimeFormat (_ctx)
-                                                                   .format (
-                                                                           l.getLocationTimeAsDate ()),
+                                                         DateFormat.format ("HH:mm:ss",
+                                                                            l.getLocationTimeAsDate ())
+                                                                   .toString (),
                                                          String.format ("%f", l.getLatitude ()),
                                                          String.format ("%f", l.getLongitude ()),
                                                          String.format ("%f", l.getAltitude ()),
                                                          String.format ("%f", l.getSpeed ()),
                                                          String.format ("%f", l.getAccuracy ()),
-                                                         String.format ("%f", l.getBearing ()) });
+                                                         String.format ("%f", l.getBearing ()),
+                                                         String.format ("%d",
+                                                                        l.getLocationTime ()) });
                     }
 
                     fw.flush ();

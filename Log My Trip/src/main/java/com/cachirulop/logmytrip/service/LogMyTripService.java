@@ -2,10 +2,8 @@ package com.cachirulop.logmytrip.service;
 
 import android.app.Notification;
 import android.app.Service;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
@@ -20,7 +18,6 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
 import com.cachirulop.logmytrip.util.ToastHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -40,10 +37,8 @@ public class LogMyTripService
 {
     public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName () + ".HANDLER";
 
-    private final Object _lckReceiver = new Object ();
     private GoogleApiClient            _apiClient;
     private LocationRequest            _locationRequest;
-    private BluetoothBroadcastReceiver _btReceiver;
     private Trip                              _currentTrip                  = null;
     private List<OnTripLocationSavedListener> _onTripLocationSavedListeners = new ArrayList<> ();
 
@@ -111,26 +106,13 @@ public class LogMyTripService
         }
         else {
             ToastHelper.showDebug (this, "LogMyTripService.onStartCommand: starting service");
-
         }
 
         super.onStartCommand (intent, flags, startId);
 
-        boolean bluetooth;
         boolean logs;
 
-        bluetooth = SettingsManager.getAutoStartLog (this);
         logs = SettingsManager.isLogTrip (this);
-
-        synchronized (_lckReceiver) {
-            if (bluetooth) {
-                registerBluetoothReceiver ();
-            }
-            else {
-                unregisterBluetoothReceiver ();
-            }
-        }
-
         if (logs) {
             startLog ();
         }
@@ -138,8 +120,8 @@ public class LogMyTripService
             stopLog ();
         }
 
-        if (bluetooth || logs) {
-            startForegroundService (bluetooth, logs);
+        if (logs) {
+            startForegroundService ();
         }
         else {
             stopForegroundService ();
@@ -170,27 +152,6 @@ public class LogMyTripService
         return (ConnectionResult.SUCCESS == resultCode);
     }
 
-    private void registerBluetoothReceiver ()
-    {
-        if (_btReceiver == null) {
-            _btReceiver = new BluetoothBroadcastReceiver ();
-
-            registerReceiver (_btReceiver,
-                              new IntentFilter (BluetoothDevice.ACTION_ACL_DISCONNECTED));
-
-            registerReceiver (_btReceiver, new IntentFilter (BluetoothDevice.ACTION_ACL_CONNECTED));
-        }
-    }
-
-    private void unregisterBluetoothReceiver ()
-    {
-        if (_btReceiver != null) {
-            unregisterReceiver (_btReceiver);
-
-            _btReceiver = null;
-        }
-    }
-
     private void startLog ()
     {
         ensureLocationClient ();
@@ -199,20 +160,15 @@ public class LogMyTripService
         }
     }
 
-    private void startForegroundService (boolean bluetooth, boolean logTrip)
+    private void startForegroundService ()
     {
         Notification note;
         CharSequence contentText;
 
         _currentTrip = TripManager.getCurrentTrip (this);
 
-        if (bluetooth) {
-            contentText = this.getText (R.string.notif_ContentWaitingBluetooth);
-        }
-        else {
-            contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)
-                                             .toString (), _currentTrip.getDescription ());
-        }
+        contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)
+                                         .toString (), _currentTrip.getDescription ());
 
         note = NotifyManager.createSavingTrip (this, contentText);
 

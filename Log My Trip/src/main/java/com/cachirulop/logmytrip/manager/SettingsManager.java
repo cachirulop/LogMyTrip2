@@ -13,7 +13,7 @@ public class SettingsManager
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY          = "pref_gpsAccuracy";
 
-    public static boolean getAutoStartLog (Context ctx)
+    public static boolean isAutoStartLog (Context ctx)
     {
         return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG, false);
     }

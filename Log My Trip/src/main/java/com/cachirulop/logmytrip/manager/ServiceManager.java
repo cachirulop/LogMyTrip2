@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Messenger;
 
+import com.cachirulop.logmytrip.service.BluetoothService;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 
 public class ServiceManager
@@ -42,5 +43,15 @@ public class ServiceManager
         SettingsManager.setLogTrip (ctx, false);
 
         startStopService (ctx, h);
+    }
+
+    public static void startBluetooth (Context ctx)
+    {
+        ctx.startService (new Intent (ctx, BluetoothService.class));
+    }
+
+    public static void stopBluetooth (Context ctx)
+    {
+        ctx.stopService (new Intent (ctx, BluetoothService.class));
     }
 }

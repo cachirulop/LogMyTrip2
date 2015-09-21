@@ -8,7 +8,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.cachirulop.logmytrip.manager.ServiceManager;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 
 public class MainActivity
         extends AppCompatActivity
@@ -23,7 +24,11 @@ public class MainActivity
         setContentView (R.layout.activity_main);
 
         // Start the log service
-        startService (new Intent (this, LogMyTripService.class));
+        // startService (new Intent (this, LogMyTripService.class));
+        ServiceManager.startStopService (this, null);
+        if (SettingsManager.isAutoStartLog (this)) {
+            ServiceManager.startBluetooth (this);
+        }
 
         // Configure action bar
         ActionBar bar;

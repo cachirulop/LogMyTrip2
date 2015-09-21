@@ -31,6 +31,24 @@ public class BluetoothService
     public void onDestroy ()
     {
         super.onDestroy ();
+
+        unregisterBluetoothReceiver ();
+        stopForegroundService ();
+    }
+
+    private void unregisterBluetoothReceiver ()
+    {
+        if (_btReceiver != null) {
+            unregisterReceiver (_btReceiver);
+
+            _btReceiver = null;
+        }
+    }
+
+    private void stopForegroundService ()
+    {
+        stopForeground (true);
+        stopSelf ();
     }
 
     @Override
@@ -42,10 +60,7 @@ public class BluetoothService
         super.onStartCommand (intent, flags, startId);
 
         registerBluetoothReceiver ();
-        // unregisterBluetoothReceiver ();
-
         startForegroundService ();
-        // stopForegroundService ();
 
         return START_STICKY;
     }
@@ -72,21 +87,6 @@ public class BluetoothService
         note = NotifyManager.createWaitingBluetooth (this, contentText);
 
         startForeground (NotifyManager.NOTIFICATION_WAITING_BLUETOOTH, note);
-    }
-
-    private void unregisterBluetoothReceiver ()
-    {
-        if (_btReceiver != null) {
-            unregisterReceiver (_btReceiver);
-
-            _btReceiver = null;
-        }
-    }
-
-    private void stopForegroundService ()
-    {
-        stopForeground (true);
-        stopSelf ();
     }
 
     @Override

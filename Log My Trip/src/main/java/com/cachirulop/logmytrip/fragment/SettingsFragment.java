@@ -45,14 +45,14 @@ public class SettingsFragment
 
     public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key)
     {
-        // if (SettingsManager.KEY_PREF_AUTO_START_LOG.equals (key)) {
-        //    if (SettingsManager.getAutoStartLog (this.getActivity ())) {
-        ServiceManager.startStopService (this.getActivity (), null);
-        //    }
-        //    else {
-        //        ServiceManager.stopBluetoothService (this.getActivity ());
-        //    }
-        //}
+        if (SettingsManager.KEY_PREF_AUTO_START_LOG.equals (key)) {
+            if (SettingsManager.isAutoStartLog (this.getActivity ())) {
+                ServiceManager.startBluetooth (this.getActivity ());
+            }
+            else {
+                ServiceManager.stopBluetooth (this.getActivity ());
+            }
+        }
     }
 
     @Override

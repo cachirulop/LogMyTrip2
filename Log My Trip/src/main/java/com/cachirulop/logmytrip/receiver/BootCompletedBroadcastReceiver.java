@@ -16,7 +16,7 @@ public class BootCompletedBroadcastReceiver
     public void onReceive (Context context, Intent intent)
     {
         if (Intent.ACTION_BOOT_COMPLETED.equals (intent.getAction ())) {
-            if (SettingsManager.getAutoStartLog (context)) {
+            if (SettingsManager.isAutoStartLog (context)) {
                 ComponentName comp = new ComponentName (context.getPackageName (),
                                                         LogMyTripService.class.getName ());
                 ComponentName service = context.startService (new Intent ().setComponent (comp));

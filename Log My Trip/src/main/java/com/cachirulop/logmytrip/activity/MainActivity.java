@@ -25,7 +25,10 @@ public class MainActivity
 
         // Start the log service
         // startService (new Intent (this, LogMyTripService.class));
-        ServiceManager.startStopService (this, null);
+        if (SettingsManager.isLogTrip (this)) {
+            ServiceManager.startSaveTrip (this, null);
+        }
+
         if (SettingsManager.isAutoStartLog (this)) {
             ServiceManager.startBluetooth (this);
         }

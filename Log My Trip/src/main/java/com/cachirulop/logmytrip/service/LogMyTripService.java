@@ -78,6 +78,7 @@ public class LogMyTripService
     {
         if (_apiClient != null) {
             stopLog ();
+            stopForegroundService ();
         }
 
         super.onDestroy ();
@@ -95,10 +96,15 @@ public class LogMyTripService
         }
     }
 
+    private void stopForegroundService ()
+    {
+        stopForeground (true);
+        stopSelf ();
+    }
+
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
     {
-
         if (!isGooglePlayServicesAvailable ()) {
             ToastHelper.showLong (this, getString (R.string.msg_GooglePlayServicesUnavailable));
 
@@ -112,35 +118,10 @@ public class LogMyTripService
 
         boolean logs;
 
-        logs = SettingsManager.isLogTrip (this);
-        if (logs) {
-            startLog ();
-        }
-        else {
-            stopLog ();
-        }
+        startLog ();
+        startForegroundService ();
 
-        if (logs) {
-            startForegroundService ();
-        }
-        else {
-            stopForegroundService ();
-        }
-
-        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
-            Messenger messenger = (Messenger) intent.getExtras ()
-                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
-            Message msg = Message.obtain ();
-
-            // msg.obj = _currentTrip;
-
-            try {
-                messenger.send (msg);
-            }
-            catch (android.os.RemoteException e1) {
-                Log.w (getClass ().getName (), "Exception sending message", e1);
-            }
-        }
+        sendMessageToHandler (intent);
 
         return START_STICKY;
     }
@@ -175,10 +156,20 @@ public class LogMyTripService
         startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
     }
 
-    private void stopForegroundService ()
+    private void sendMessageToHandler (Intent intent)
     {
-        stopForeground (true);
-        stopSelf ();
+        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
+            Messenger messenger = (Messenger) intent.getExtras ()
+                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
+            Message msg = Message.obtain ();
+
+            try {
+                messenger.send (msg);
+            }
+            catch (android.os.RemoteException e1) {
+                Log.w (getClass ().getName (), "Exception sending message", e1);
+            }
+        }
     }
 
     @Override

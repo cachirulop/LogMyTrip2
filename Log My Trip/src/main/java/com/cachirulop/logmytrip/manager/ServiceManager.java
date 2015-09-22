@@ -13,25 +13,11 @@ public class ServiceManager
     public static void startSaveTrip (Context ctx, Handler h)
     {
         SettingsManager.setLogTrip (ctx, true);
-
-        startStopService (ctx, h);
+        Intent i;
 
         if (SettingsManager.isAutoStartLog (ctx)) {
             ServiceManager.stopBluetooth (ctx);
         }
-    }
-
-    /**
-     * Starts or stops the service.
-     * <p/>
-     * The service itself decide if it should start or it should stop in the
-     * OnStartService event.
-     *
-     * @param ctx Context to start the service
-     */
-    public static void startStopService (Context ctx, Handler h)
-    {
-        Intent i;
 
         i = new Intent (ctx, LogMyTripService.class);
 
@@ -50,8 +36,14 @@ public class ServiceManager
     public static void stopSaveTrip (Context ctx, Handler h)
     {
         SettingsManager.setLogTrip (ctx, false);
+        Intent i;
 
-        startStopService (ctx, h);
+        i = new Intent (ctx, LogMyTripService.class);
+        if (h != null) {
+            i.putExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER, new Messenger (h));
+        }
+
+        ctx.stopService (i);
 
         if (SettingsManager.isAutoStartLog (ctx)) {
             ServiceManager.startBluetooth (ctx);
@@ -60,6 +52,8 @@ public class ServiceManager
 
     public static void startBluetooth (Context ctx)
     {
-        ctx.startService (new Intent (ctx, BluetoothService.class));
+        if (!SettingsManager.isLogTrip (ctx)) {
+            ctx.startService (new Intent (ctx, BluetoothService.class));
+        }
     }
 }

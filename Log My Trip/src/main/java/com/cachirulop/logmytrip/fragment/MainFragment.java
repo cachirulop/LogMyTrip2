@@ -33,6 +33,7 @@ import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
@@ -339,23 +340,28 @@ public class MainFragment
                                    new String[]{ "Loc. ID", "Trip ID", "Date", "Time", "Latitude",
                                                  "Longitude", "Altitude", "Speed", "Accuracy",
                                                  "Bearing", "Time as number" });
-                    for (TripLocation l : t.getLocations ()) {
-                        writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
-                                                         String.format ("%d", l.getIdTrip ()),
-                                                         DateFormat.getMediumDateFormat (_ctx)
-                                                                   .format (
-                                                                           l.getLocationTimeAsDate ()),
-                                                         DateFormat.format ("HH:mm:ss",
-                                                                            l.getLocationTimeAsDate ())
-                                                                   .toString (),
-                                                         String.format ("%f", l.getLatitude ()),
-                                                         String.format ("%f", l.getLongitude ()),
-                                                         String.format ("%f", l.getAltitude ()),
-                                                         String.format ("%f", l.getSpeed ()),
-                                                         String.format ("%f", l.getAccuracy ()),
-                                                         String.format ("%f", l.getBearing ()),
-                                                         String.format ("%d",
-                                                                        l.getLocationTime ()) });
+                    for (TripSegment s : t.getSegments ()) {
+                        for (TripLocation l : s.getLocations ()) {
+                            writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
+                                                             String.format ("%d", l.getIdTrip ()),
+                                                             DateFormat.getMediumDateFormat (_ctx)
+                                                                       .format (
+                                                                               l.getLocationTimeAsDate ()),
+                                                             DateFormat.format ("HH:mm:ss",
+                                                                                l.getLocationTimeAsDate ())
+                                                                       .toString (),
+                                                             String.format ("%f", l.getLatitude ()),
+                                                             String.format ("%f",
+                                                                            l.getLongitude ()),
+                                                             String.format ("%f", l.getAltitude ()),
+                                                             String.format ("%f", l.getSpeed ()),
+                                                             String.format ("%f", l.getAccuracy ()),
+                                                             String.format ("%f", l.getBearing ()),
+                                                             String.format ("%d",
+                                                                            l.getLocationTime ()) });
+                        }
+
+                        writeFileLine (fw, new String[]{ " " });
                     }
 
                     fw.flush ();

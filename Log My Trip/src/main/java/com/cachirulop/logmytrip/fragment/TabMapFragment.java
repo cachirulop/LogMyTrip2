@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.maps.CameraUpdate;
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -145,13 +147,31 @@ public class TabMapFragment
     private void drawTrack ()
     {
         List<LatLng>       track;
-        List<TripLocation> points;
-        final LatLngBounds.Builder builder;
+        List<TripSegment> segments;
         CameraUpdate       camera;
 
-        points = _trip.getLocations ();
+        segments = _trip.getSegments ();
 
-        if (!points.isEmpty ()) {
+        for (TripSegment s : segments) {
+            final LatLngBounds.Builder builder;
+            List<TripLocation> points;
+            MarkerOptions markerOptions;
+
+            points = s.getLocations ();
+
+            markerOptions = new MarkerOptions ();
+            markerOptions.position (points.get (0)
+                                          .toLatLng ());
+
+            // TODO: set markeroptions title
+
+            _map.addMarker (markerOptions);
+
+            markerOptions = new MarkerOptions ();
+            markerOptions.position (points.get (points.size () - 1)
+                                          .toLatLng ());
+            _map.addMarker (markerOptions);
+
             track = new ArrayList<LatLng> ();
             builder = new LatLngBounds.Builder ();
 

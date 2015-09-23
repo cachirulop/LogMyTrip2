@@ -3,6 +3,8 @@ package com.cachirulop.logmytrip.entity;
 import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class Trip
     private Date _tripDate;
     private String _description;
 
-    private transient List<TripLocation> _locations = null;
+    private transient List<TripSegment> _segments = null;
 
     public Trip ()
     {
@@ -70,13 +72,51 @@ public class Trip
         this._description = description;
     }
 
-    public List<TripLocation> getLocations ()
+    public List<TripSegment> getSegments ()
     {
-        if (_locations == null) {
-            _locations = TripManager.getTripLocationList (this);
+        if (_segments == null) {
+            List<TripLocation> all;
+            TripLocation last;
+            Calendar cal;
+            TripSegment current = null;
+
+            cal = Calendar.getInstance ();
+
+            _segments = new ArrayList<> ();
+
+            all = TripManager.getTripLocationList (this);
+            last = null;
+            for (TripLocation l : all) {
+                if (last == null) {
+                    current = new TripSegment ();
+
+                    current.getLocations ()
+                           .add (l);
+                    _segments.add (current);
+                }
+                else {
+                    cal.setTime (last.getLocationTimeAsDate ());
+                    cal.add (Calendar.HOUR, 2);
+
+                    if (l.getLocationTimeAsDate ()
+                         .after (cal.getTime ())) {
+                        current = new TripSegment ();
+                        current.getLocations ()
+                               .add (l);
+
+                        _segments.add (current);
+                    }
+                    else {
+                        current.getLocations ()
+                               .add (l);
+                    }
+                }
+
+                last = l;
+            }
         }
 
-        return _locations;
+        return _segments;
     }
 
     @Override

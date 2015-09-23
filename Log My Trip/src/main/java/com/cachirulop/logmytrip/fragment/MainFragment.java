@@ -89,6 +89,15 @@ public class MainFragment
     }
 
     @Override
+    public void onDestroyView ()
+    {
+        LocalBroadcastManager.getInstance (_ctx)
+                             .unregisterReceiver (_onSaveTripStateChangeReceiver);
+
+        super.onDestroyView ();
+    }
+
+    @Override
     public void onViewCreated (View view, Bundle savedInstanceState)
     {
         super.onViewCreated (view, savedInstanceState);
@@ -387,15 +396,6 @@ public class MainFragment
         }
 
         fw.append ("\n");
-    }
-
-    @Override
-    public void onDestroy ()
-    {
-        LocalBroadcastManager.getInstance (_ctx)
-                             .unregisterReceiver (_onSaveTripStateChangeReceiver);
-
-        super.onDestroy ();
     }
 
     @Override

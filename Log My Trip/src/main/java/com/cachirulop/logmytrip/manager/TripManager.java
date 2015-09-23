@@ -21,51 +21,15 @@ public class TripManager
     private static final String CONST_TRIP_TABLE_NAME = "trip";
     private static final String CONST_LOCATION_TABLE_NAME = "trip_location";
 
-    public static Trip getCurrentTrip (Context ctx)
-    {
-        SQLiteDatabase db = null;
-        Cursor c = null;
-
-        try {
-            db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
-
-            c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_trip), null);
-
-            if (c != null && c.moveToFirst ()) {
-                return createTrip (c);
-            }
-            else {
-                Trip result;
-
-                result = new Trip ();
-                result.setTripDate (new Date ());
-                result.setDescription (getDefaultDescription (ctx, result.getTripDate ()));
-
-                return saveTrip (ctx, result, true);
-            }
-        }
-        finally {
-            if (c != null) {
-                c.close ();
-            }
-
-            if (db != null) {
-                db.close ();
-            }
-        }
-    }
-
-    private static Trip createTrip (Cursor c)
+    public static Trip createTodayTrip (Context ctx)
     {
         Trip result;
 
         result = new Trip ();
+        result.setTripDate (new Date ());
+        result.setDescription (getDefaultDescription (ctx, result.getTripDate ()));
 
-        result.setId (c.getLong (c.getColumnIndex ("id")));
-        result.setDescription (c.getString (c.getColumnIndex ("description")));
-        result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
-
-        return result;
+        return saveTrip (ctx, result, true);
     }
 
     private static String getDefaultDescription (Context ctx, Date d)
@@ -123,6 +87,47 @@ public class TripManager
         return new LogMyTripDataHelper (ctx).getLastId (CONST_TRIP_TABLE_NAME);
     }
 
+    public static Trip getTodayTrip (Context ctx)
+    {
+        SQLiteDatabase db = null;
+        Cursor c = null;
+
+        try {
+            db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
+
+            c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_trip), null);
+
+            if (c != null && c.moveToFirst ()) {
+                return createTripFromCursor (c);
+            }
+            else {
+                return null;
+            }
+        }
+        finally {
+            if (c != null) {
+                c.close ();
+            }
+
+            if (db != null) {
+                db.close ();
+            }
+        }
+    }
+
+    private static Trip createTripFromCursor (Cursor c)
+    {
+        Trip result;
+
+        result = new Trip ();
+
+        result.setId (c.getLong (c.getColumnIndex ("id")));
+        result.setDescription (c.getString (c.getColumnIndex ("description")));
+        result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
+
+        return result;
+    }
+
     public static TripLocation saveTripLocation (Context ctx, TripLocation tl)
     {
         SQLiteDatabase db = null;
@@ -176,7 +181,7 @@ public class TripManager
 
             if (c.moveToFirst ()) {
                 while (!c.isAfterLast ()) {
-                    result.add (createTrip (c));
+                    result.add (createTripFromCursor (c));
 
                     c.moveToNext ();
                 }
@@ -226,7 +231,7 @@ public class TripManager
                           new String[]{ Long.toString (idTrip) }, null, null, null);
 
             if (c != null && c.moveToFirst ()) {
-                return createTrip (c);
+                return createTripFromCursor (c);
             }
             else {
                 return null;

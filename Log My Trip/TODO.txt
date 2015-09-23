@@ -13,5 +13,8 @@ then start saving trip
 * Add actions to notification icon: stop autosave, stop saving
 * Add option to menu to autosave in main activity
 
+X When go to the map and return produces an exception:
+    Activity com.cachirulop.logmytrip.activity.TripDetailActivity has leaked ServiceConnection
+    com.cachirulop.logmytrip.fragment.TabMapFragment$2@b13eb178 that was originally bound here
 X Broadcast messages on start and stop save trip
 X Change the currenttrip algorithm

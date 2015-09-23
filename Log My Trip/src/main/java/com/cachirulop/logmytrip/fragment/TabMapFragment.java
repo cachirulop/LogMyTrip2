@@ -43,7 +43,7 @@ public class TabMapFragment
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
     private GoogleMap _map;
     private Trip _trip;
-    private LogMyTripService _service;
+    private LogMyTripService  _service    = null;
     private LogMyTripService.OnTripLocationSavedListener _locationSavedListener = new LogMyTripService.OnTripLocationSavedListener ()
     {
         @Override
@@ -53,9 +53,8 @@ public class TabMapFragment
             drawTrackMainThread ();
         }
     };
-    private ServiceConnection                            _connection            = new ServiceConnection ()
+    private ServiceConnection _connection = new ServiceConnection ()
     {
-
         @Override
         public void onServiceConnected (ComponentName className, IBinder service)
         {
@@ -88,7 +87,7 @@ public class TabMapFragment
     public static TabMapFragment newInstance (Trip trip)
     {
         TabMapFragment fragment;
-        Bundle args;
+        Bundle         args;
 
         args = new Bundle ();
         args.putSerializable (ARG_PARAM_TRIP, trip);
@@ -97,6 +96,16 @@ public class TabMapFragment
         fragment.setArguments (args);
 
         return fragment;
+    }
+
+    @Override
+    public void onDestroyView ()
+    {
+        if (_service != null) {
+            getActivity ().unbindService (_connection);
+        }
+
+        super.onDestroyView ();
     }
 
     @Override
@@ -146,9 +155,9 @@ public class TabMapFragment
 
     private void drawTrack ()
     {
-        List<LatLng>       track;
+        List<LatLng> track;
         List<TripSegment> segments;
-        CameraUpdate       camera;
+        CameraUpdate camera;
 
         segments = _trip.getSegments ();
 

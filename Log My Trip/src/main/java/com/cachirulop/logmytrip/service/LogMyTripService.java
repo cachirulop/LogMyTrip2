@@ -8,9 +8,7 @@ import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.util.Log;
+import android.support.v4.content.LocalBroadcastManager;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -35,10 +33,12 @@ public class LogMyTripService
                    GoogleApiClient.OnConnectionFailedListener,
                    LocationListener
 {
-    public static final String EXTRA_SERVICE_MESSAGE_HANDLER = LogMyTripService.class.getCanonicalName () + ".HANDLER";
+    public static final String BROADCAST_ACTION_SAVE_TRIP_START = "com.cachirulop.logmytrip.saveTripStatusChange.start";
+    public static final String BROADCAST_ACTION_SAVE_TRIP_STOP  = "com.cachirulop.logmytrip.saveTripStatusChange.stop";
+    public static final String BROADCAST_EXTRA_TRIP             = "com.cachirulop.logmytrip.saveTripStatusChange.trip";
 
-    private GoogleApiClient            _apiClient;
-    private LocationRequest            _locationRequest;
+    private GoogleApiClient _apiClient;
+    private LocationRequest _locationRequest;
     private Trip                              _currentTrip                  = null;
     private List<OnTripLocationSavedListener> _onTripLocationSavedListeners = new ArrayList<> ();
 
@@ -86,6 +86,7 @@ public class LogMyTripService
 
     private void stopLog ()
     {
+        sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_STOP);
         if (_currentTrip != null) {
             _currentTrip = null;
         }
@@ -100,6 +101,17 @@ public class LogMyTripService
     {
         stopForeground (true);
         stopSelf ();
+    }
+
+    private void sendBroadcastMessage (String action)
+    {
+        Intent intent;
+
+        intent = new Intent (action);
+        intent.putExtra (BROADCAST_EXTRA_TRIP, _currentTrip);
+
+        LocalBroadcastManager.getInstance (this)
+                             .sendBroadcast (intent);
     }
 
     @Override
@@ -120,8 +132,6 @@ public class LogMyTripService
 
         startLog ();
         startForegroundService ();
-
-        sendMessageToHandler (intent);
 
         return START_STICKY;
     }
@@ -147,6 +157,7 @@ public class LogMyTripService
         CharSequence contentText;
 
         _currentTrip = TripManager.getCurrentTrip (this);
+        sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_START);
 
         contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)
                                          .toString (), _currentTrip.getDescription ());
@@ -154,22 +165,6 @@ public class LogMyTripService
         note = NotifyManager.createSavingTrip (this, contentText);
 
         startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
-    }
-
-    private void sendMessageToHandler (Intent intent)
-    {
-        if (intent.hasExtra (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER)) {
-            Messenger messenger = (Messenger) intent.getExtras ()
-                                                    .get (LogMyTripService.EXTRA_SERVICE_MESSAGE_HANDLER);
-            Message msg = Message.obtain ();
-
-            try {
-                messenger.send (msg);
-            }
-            catch (android.os.RemoteException e1) {
-                Log.w (getClass ().getName (), "Exception sending message", e1);
-            }
-        }
     }
 
     @Override

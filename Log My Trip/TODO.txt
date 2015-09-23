@@ -1,0 +1,17 @@
+* Make trip segments
+* Make trip statistics tab
+* Change the currenttrip algorithm
+* Filter bluetooth device to start save
+* Autostart on boot
+* If autostart on boot and autosave bluetooth is active and the bluetooth is connected,
+then start saving trip
+* New autostart option 'Always'
+* Add map layers
+* Add a button in the map view to stop saving
+* Follow the current trip better in the map view
+* Change the bluetooth icon
+* Change the notification messages
+* Add actions to notification icon: stop autosave, stop saving
+* Add option to menu to autosave in main activity
+
+X Broadcast messages on start and stop save trip

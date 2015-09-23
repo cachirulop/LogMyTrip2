@@ -2,14 +2,17 @@ package com.cachirulop.logmytrip.fragment;
 
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -33,6 +36,7 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.service.LogMyTripService;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -49,13 +53,27 @@ public class MainFragment
     private ActionMode           _actionMode;
     private FloatingActionButton _fabSaveTrip;
     private Context              _ctx;
-
-    private Handler _handler = new Handler ()
+    private BroadcastReceiver _onSaveTripStateChangeReceiver = new BroadcastReceiver ()
     {
         @Override
-        public void handleMessage (Message msg)
+        public void onReceive (Context context, Intent intent)
         {
-            updateSavingStatus ((Trip) msg.obj);
+            String action;
+            Trip   trip;
+
+            trip = (Trip) intent.getSerializableExtra (LogMyTripService.BROADCAST_EXTRA_TRIP);
+            action = intent.getAction ();
+            switch (action) {
+                case LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_START:
+                    updateSavingStatus (trip);
+                    break;
+
+                case LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_STOP:
+                    updateSavingStatus (trip);
+                    break;
+            }
+
+            Log.d (MainFragment.class.getCanonicalName (), "Action: " + action);
         }
     };
 
@@ -105,6 +123,16 @@ public class MainFragment
             else {
                 _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
             }
+
+            // Receive the broadcast of the LogMyTripService class
+            LocalBroadcastManager.getInstance (_ctx)
+                                 .registerReceiver (_onSaveTripStateChangeReceiver,
+                                                    new IntentFilter (
+                                                            LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_START));
+            LocalBroadcastManager.getInstance (_ctx)
+                                 .registerReceiver (_onSaveTripStateChangeReceiver,
+                                                    new IntentFilter (
+                                                            LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_STOP));
         }
     }
 
@@ -136,12 +164,12 @@ public class MainFragment
     private void onSaveTripClick (View v)
     {
         if (SettingsManager.isLogTrip (_ctx)) {
-            ServiceManager.stopSaveTrip (_ctx, _handler);
+            ServiceManager.stopSaveTrip (_ctx);
 
             _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
         }
         else {
-            ServiceManager.startSaveTrip (_ctx, _handler);
+            ServiceManager.startSaveTrip (_ctx);
 
             _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
 
@@ -180,6 +208,8 @@ public class MainFragment
                 getString (R.string.selected_count, _adapter.getSelectedItemCount ()));
     }
 
+    /*  ActionMode.Callback implementation */
+
     @Override
     public void onTripItemClick (View view, int position)
     {
@@ -195,8 +225,6 @@ public class MainFragment
             startActivity (i);
         }
     }
-
-    /*  ActionMode.Callback implementation */
 
     @Override
     public boolean onCreateActionMode (ActionMode mode, Menu menu)
@@ -353,6 +381,15 @@ public class MainFragment
         }
 
         fw.append ("\n");
+    }
+
+    @Override
+    public void onDestroy ()
+    {
+        LocalBroadcastManager.getInstance (_ctx)
+                             .unregisterReceiver (_onSaveTripStateChangeReceiver);
+
+        super.onDestroy ();
     }
 
     @Override

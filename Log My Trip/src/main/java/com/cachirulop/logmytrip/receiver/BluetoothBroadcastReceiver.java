@@ -31,13 +31,13 @@ public class BluetoothBroadcastReceiver
             Toast.makeText (ctx, "Device disconnected", Toast.LENGTH_LONG)
                  .show ();
 
-            ServiceManager.stopSaveTrip (ctx, null);
+            ServiceManager.stopSaveTrip (ctx);
         }
         else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals (action)) {
             Toast.makeText (ctx, "Device connected", Toast.LENGTH_LONG)
                  .show ();
 
-            ServiceManager.startSaveTrip (ctx, null);
+            ServiceManager.startSaveTrip (ctx);
         }
     }
 }

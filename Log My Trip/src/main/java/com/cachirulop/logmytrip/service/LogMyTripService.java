@@ -156,7 +156,11 @@ public class LogMyTripService
         Notification note;
         CharSequence contentText;
 
-        _currentTrip = TripManager.getCurrentTrip (this);
+        _currentTrip = TripManager.getTodayTrip (this);
+        if (_currentTrip == null) {
+            _currentTrip = TripManager.createTodayTrip (this);
+        }
+
         sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_START);
 
         contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)

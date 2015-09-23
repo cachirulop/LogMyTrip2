@@ -1,6 +1,5 @@
-* Make trip segments
+- Make trip segments - in progress
 * Make trip statistics tab
-* Change the currenttrip algorithm
 * Filter bluetooth device to start save
 * Autostart on boot
 * If autostart on boot and autosave bluetooth is active and the bluetooth is connected,
@@ -15,3 +14,4 @@ then start saving trip
 * Add option to menu to autosave in main activity
 
 X Broadcast messages on start and stop save trip
+X Change the currenttrip algorithm

@@ -41,6 +41,8 @@ public class TabMapFragment
         extends Fragment
 {
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
+    private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
+                                                           Color.MAGENTA, Color.YELLOW };
     private GoogleMap _map;
     private Trip _trip;
     private LogMyTripService  _service    = null;
@@ -155,14 +157,17 @@ public class TabMapFragment
 
     private void drawTrack ()
     {
+        final LatLngBounds.Builder builder;
         List<LatLng> track;
         List<TripSegment> segments;
         CameraUpdate camera;
+        int                        currentColor;
 
         segments = _trip.getSegments ();
+        currentColor = 0;
+        builder = new LatLngBounds.Builder ();
 
         for (TripSegment s : segments) {
-            final LatLngBounds.Builder builder;
             List<TripLocation> points;
             MarkerOptions markerOptions;
 
@@ -182,7 +187,6 @@ public class TabMapFragment
             _map.addMarker (markerOptions);
 
             track = new ArrayList<LatLng> ();
-            builder = new LatLngBounds.Builder ();
 
             for (TripLocation p : points) {
                 LatLng current;
@@ -200,7 +204,7 @@ public class TabMapFragment
 
             routeOptions = new PolylineOptions ();
             routeOptions.width (5);
-            routeOptions.color (Color.RED);
+            routeOptions.color (SEGMENT_COLORS[currentColor % SEGMENT_COLORS.length]);
             routeOptions.geodesic (true);
 
             borderOptions = new PolylineOptions ();
@@ -213,6 +217,8 @@ public class TabMapFragment
 
             route.setPoints (track);
             border.setPoints (track);
+
+            currentColor++;
 
             _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
             {

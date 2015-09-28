@@ -1,12 +1,21 @@
 package com.cachirulop.logmytrip.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.adapter.TripItemAdapter;
+import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.TripManager;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,7 +32,9 @@ public class TabStatisticsFragment
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private RecyclerView    _recyclerView;
+    private TripItemAdapter _adapter;
+    private Context         _ctx;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -67,5 +78,34 @@ public class TabStatisticsFragment
     {
         // Inflate the layout for this fragment
         return inflater.inflate (R.layout.fragment_tab_statistics, container, false);
+    }
+
+    @Override
+    public void onViewCreated (View view, Bundle savedInstanceState)
+    {
+        super.onViewCreated (view, savedInstanceState);
+
+        _ctx = getActivity ();
+
+        _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
+        _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
+        _recyclerView.setHasFixedSize (true);
+
+        _recyclerView.setItemAnimator (new DefaultItemAnimator ());
+
+        loadTrips ();
+    }
+
+    private void loadTrips ()
+    {
+        List<Trip> trips;
+
+        if (getView () != null) {
+            trips = TripManager.LoadTrips (_ctx);
+
+            _adapter = new TripItemAdapter (_ctx, trips);
+            // _adapter.setOnTripItemClickListener (this);
+            _recyclerView.setAdapter (_adapter);
+        }
     }
 }

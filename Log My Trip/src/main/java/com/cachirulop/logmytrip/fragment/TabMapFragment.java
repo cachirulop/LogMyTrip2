@@ -40,7 +40,6 @@ import java.util.List;
 public class TabMapFragment
         extends Fragment
 {
-    public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
     private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
                                                            Color.MAGENTA, Color.YELLOW };
     private GoogleMap _map;
@@ -92,7 +91,7 @@ public class TabMapFragment
         Bundle         args;
 
         args = new Bundle ();
-        args.putSerializable (ARG_PARAM_TRIP, trip);
+        args.putSerializable (MainFragment.ARG_PARAM_TRIP, trip);
 
         fragment = new TabMapFragment ();
         fragment.setArguments (args);
@@ -115,7 +114,7 @@ public class TabMapFragment
     {
         super.onCreate (savedInstanceState);
         if (getArguments () != null) {
-            _trip = (Trip) getArguments ().getSerializable (ARG_PARAM_TRIP);
+            _trip = (Trip) getArguments ().getSerializable (MainFragment.ARG_PARAM_TRIP);
         }
     }
 

@@ -5,9 +5,18 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.cachirulop.logmytrip.R;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 /**
  * Provides the methods to access to the database.
@@ -41,6 +50,180 @@ public class LogMyTripDataHelper
 
         _ctx = ctx;
     }
+
+    /**
+     * Copy the database file in the sd card
+     */
+    public static void exportDB (Context ctx)
+    {
+        try {
+            String backup;
+
+            backup = getBackupPath (ctx);
+
+            Toast.makeText (ctx,
+                            String.format (ctx.getString (R.string.msg_database_exporting), backup),
+                            Toast.LENGTH_LONG)
+                 .show ();
+
+            copyFile (ctx, ctx.getDatabasePath (DATABASE_NAME)
+                              .getAbsolutePath (), backup, false);
+
+            Toast.makeText (ctx, ctx.getString (R.string.msg_database_exported), Toast.LENGTH_LONG)
+                 .show ();
+        }
+        catch (Exception e) {
+            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG)
+                 .show ();
+        }
+    }
+
+    /**
+     * Constructs the file path for the database backup
+     *
+     * @return The absolute path to the database backup file
+     */
+    private static String getBackupPath (Context ctx)
+    {
+        StringBuffer backupPath;
+
+        backupPath = new StringBuffer ();
+        backupPath.append (Environment.getExternalStorageDirectory ());
+        backupPath.append (File.separator);
+        backupPath.append (ctx.getString (R.string.app_name));
+        backupPath.append (File.separator);
+        backupPath.append (DATABASE_NAME);
+
+        return backupPath.toString ();
+    }
+
+    /**
+     * Copy source file to destination file
+     *
+     * @param src       Source file path
+     * @param dst       Destination file path
+     * @param deleteSrc If true delete the source file when done
+     * @throws FileNotFoundException If the source file is not found
+     * @throws IOException           If there is some error writing/reading file
+     * @throws Exception             If the source file can't be read or the destination file
+     *                               can't be write
+     */
+    private static void copyFile (Context ctx, String src, String dst, boolean deleteSrc)
+            throws Exception
+    {
+        FileChannel      srcChannel = null;
+        FileChannel      dstChannel = null;
+        FileInputStream  srcStream  = null;
+        FileOutputStream dstStream  = null;
+
+        try {
+            File dstFile;
+            File dstParentFile;
+
+            dstFile = new File (dst);
+            dstParentFile = dstFile.getParentFile ();
+            if (!dstParentFile.exists ()) {
+                dstParentFile.mkdirs ();
+            }
+
+            if (dstParentFile.canWrite ()) {
+                File srcFile;
+
+                srcFile = new File (src);
+                if (srcFile.exists ()) {
+                    srcStream = new FileInputStream (srcFile);
+                    dstStream = new FileOutputStream (dstFile);
+
+                    srcChannel = srcStream.getChannel ();
+                    dstChannel = dstStream.getChannel ();
+
+                    dstChannel.transferFrom (srcChannel, 0, srcChannel.size ());
+
+                    if (deleteSrc) {
+                        srcFile.delete ();
+                    }
+                }
+                else {
+                    throw new Exception (ctx.getString (R.string.error_cant_read_file));
+                }
+            }
+            else {
+                throw new Exception (ctx.getString (R.string.error_cant_write_file));
+            }
+        }
+        finally {
+            try {
+                if (srcStream != null) {
+                    srcStream.close ();
+                }
+
+                if (dstStream != null) {
+                    dstStream.close ();
+                }
+
+                if (srcChannel != null) {
+                    srcChannel.close ();
+                }
+
+                if (dstChannel != null) {
+                    dstChannel.close ();
+                }
+            }
+            catch (Exception e2) {
+            }
+        }
+    }
+
+    /**
+     * Import the database file located in the sd card
+     */
+    public static void importDB (Context ctx)
+    {
+        try {
+            String backup;
+
+            backup = getBackupPath (ctx);
+
+            Toast.makeText (ctx,
+                            String.format (ctx.getString (R.string.msg_database_importing), backup),
+                            Toast.LENGTH_LONG)
+                 .show ();
+
+            copyFile (ctx, backup, ctx.getDatabasePath (DATABASE_NAME)
+                                      .getAbsolutePath (), false);
+
+            Toast.makeText (ctx, ctx.getString (R.string.msg_database_imported), Toast.LENGTH_LONG)
+                 .show ();
+        }
+        catch (Exception e) {
+            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG)
+                 .show ();
+        }
+    }
+
+    /**
+     * Reset the identifier of a table to restart its count
+     *
+     * @param table Name of the table which restart counter
+     */
+/*
+    public void resetId (Context ctx, String table)
+    {
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
+
+            db.delete ("sqlite_sequence", "name = ?", new String[]{ table });
+        }
+        finally {
+            if (db != null) {
+                db.close ();
+            }
+        }
+
+    }
+*/
 
     /**
      * Drop the tables and recreate it calling onCreate method. To drop
@@ -143,28 +326,6 @@ public class LogMyTripDataHelper
                 sdb.close ();
             }
         }
-    }
-
-    /**
-     * Reset the identifier of a table to restart its count
-     *
-     * @param table Name of the table which restart counter
-     */
-    public void resetId (Context ctx, String table)
-    {
-        SQLiteDatabase db = null;
-
-        try {
-            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
-
-            db.delete ("sqlite_sequence", "name = ?", new String[]{ table });
-        }
-        finally {
-            if (db != null) {
-                db.close ();
-            }
-        }
-
     }
 
 }

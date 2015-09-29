@@ -49,6 +49,8 @@ public class MainFragment
         implements TripItemAdapter.OnTripItemClickListener,
                    ActionMode.Callback
 {
+    public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
+
     private RecyclerView         _recyclerView;
     private TripItemAdapter      _adapter;
     private ActionMode           _actionMode;
@@ -230,7 +232,7 @@ public class MainFragment
             Intent i;
 
             i = new Intent (_ctx, TripDetailActivity.class);
-            i.putExtra (TabMapFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
+            i.putExtra (MainFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
 
             startActivity (i);
         }

@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 
@@ -60,6 +61,14 @@ public class MainActivity
         switch (item.getItemId ()) {
             case R.id.action_settings:
                 showPreferences ();
+                return true;
+
+            case R.id.action_import_db:
+                LogMyTripDataHelper.importDB (this);
+                return true;
+
+            case R.id.action_export_db:
+                LogMyTripDataHelper.exportDB (this);
                 return true;
 
             default:

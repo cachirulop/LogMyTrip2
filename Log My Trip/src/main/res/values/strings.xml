@@ -142,5 +142,13 @@
     <string name="title_activity_maps">Map</string>
     <string name="action_export">Export selected trips</string>
     <string name="exporting_trips">Exporting trips</string>
+    <string name="msg_database_exporting">Exporting database</string>
+    <string name="msg_database_exported">Database exported</string>
+    <string name="msg_database_importing">Importing database</string>
+    <string name="msg_database_imported">Database imported</string>
+    <string name="error_cant_read_file">Can\'t read file</string>
+    <string name="error_cant_write_file">Can\'t write file</string>
+    <string name="action_import_db">Import database</string>
+    <string name="action_export_db">Export database</string>
 
 </resources>

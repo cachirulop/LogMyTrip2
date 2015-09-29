@@ -39,7 +39,7 @@ public class TripDetailFragment
 
         adapter = new TripDetailViewPagerAdapter (getActivity (),
                                                   (Trip) getArguments ().getSerializable (
-                                                          TabMapFragment.ARG_PARAM_TRIP));
+                                                          MainFragment.ARG_PARAM_TRIP));
 
         // Assigning ViewPager View and setting the adapter
         ViewPager pager;

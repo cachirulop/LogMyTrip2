@@ -61,7 +61,7 @@ public class TripItemAdapter
 
         LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (
                 Context.LAYOUT_INFLATER_SERVICE);
-        rowView = inflater.inflate (R.layout.lv_trips_item, parent, false);
+        rowView = inflater.inflate (R.layout.triplist_item, parent, false);
 
         return new ViewHolder (this, rowView);
     }

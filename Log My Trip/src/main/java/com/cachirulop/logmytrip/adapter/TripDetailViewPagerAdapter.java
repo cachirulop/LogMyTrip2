@@ -29,7 +29,7 @@ public class TripDetailViewPagerAdapter
 
         _fragments = new Fragment[2];
         _fragments[0] = TabMapFragment.newInstance (trip);
-        _fragments[1] = new TabStatisticsFragment ();
+        _fragments[1] = TabStatisticsFragment.newInstance (trip);
     }
 
     //This method return the fragment for the every position in the View Pager

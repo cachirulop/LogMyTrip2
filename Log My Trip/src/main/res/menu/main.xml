@@ -10,4 +10,16 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_import_db"
+        android:orderInCategory="102"
+        android:title="@string/action_import_db"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/action_export_db"
+        android:orderInCategory="103"
+        android:title="@string/action_export_db"
+        app:showAsAction="never"/>
+
 </menu>

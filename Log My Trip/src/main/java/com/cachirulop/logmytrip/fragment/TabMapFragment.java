@@ -151,7 +151,6 @@ public class TabMapFragment
                 R.id.gmTripDetail)).getMap ();
 
         _map.setMyLocationEnabled (true);
-
     }
 
     private void drawTrack ()

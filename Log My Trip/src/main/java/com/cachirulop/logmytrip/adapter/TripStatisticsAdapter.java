@@ -12,8 +12,6 @@ import android.widget.TextView;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 
 /**
  * Created by dmagro on 01/09/2015.
@@ -293,7 +291,6 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
-        private MapView               _mapView;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -310,8 +307,6 @@ public class TripStatisticsAdapter
             parent.setOnLongClickListener (this);
 
             _description = (TextView) parent.findViewById (R.id.tvTripSegmentDescription);
-            _mapView = (MapView) parent.findViewById (R.id.mvTripSegmentMap);
-            _mapView.onCreate (null);
 
             _onTripItemClickListener = null;
         }
@@ -357,14 +352,6 @@ public class TripStatisticsAdapter
         {
             getDescription ().setText (String.format ("%d", tripSegment.getLocations ()
                                                                        .size ()));
-
-            GoogleMap map;
-
-            // Gets to GoogleMap from the MapView and does initialization stuff
-            map = _mapView.getMap ();
-            map.getUiSettings ()
-               .setMyLocationButtonEnabled (false);
-            map.setMyLocationEnabled (true);
         }
 
         public TextView getDescription ()

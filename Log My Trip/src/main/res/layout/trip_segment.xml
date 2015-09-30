@@ -10,19 +10,15 @@
         android:layout_height="fill_parent"
         android:orientation="vertical">
 
-        <!--<fragment android:id="@+id/gmTripSegment"-->
-        <!--android:name="com.google.android.gms.maps.MapFragment"-->
+        <!--<fragment xmlns:android="http://schemas.android.com/apk/res/android"-->
         <!--xmlns:map="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/gmTripSegment"-->
+        <!--android:name="com.google.android.gms.maps.MapFragment"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="300dp"-->
         <!--map:cameraZoom="5"-->
         <!--map:liteMode="true"-->
-        <!--map:mapType="normal"-->
-        <!--/>-->
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mvTripSegmentMap"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"/>
+        <!--map:mapType="normal" />-->
 
         <TextView
             android:id="@+id/tvTripSegmentDescription"

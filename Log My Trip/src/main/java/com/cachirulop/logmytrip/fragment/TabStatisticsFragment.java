@@ -84,7 +84,7 @@ public class TabStatisticsFragment
 
         _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
-        _adapter = new TripStatisticsAdapter (_ctx, _trip);
+        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
         _recyclerView.setAdapter (_adapter);
     }
 }

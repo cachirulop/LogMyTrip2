@@ -1,17 +1,34 @@
 package com.cachirulop.logmytrip.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dmagro on 01/09/2015.
@@ -22,16 +39,18 @@ public class TripStatisticsAdapter
 
     private final int ITEM_TYPE_TRIP    = 0;
     private final int ITEM_TYPE_SEGMENT = 1;
-    Context _ctx;
-    Trip    _trip;
+    Context  _ctx;
+    Trip     _trip;
+    Fragment _parentFragment;
     private SparseBooleanArray      _selectedItems;
     private boolean                 _actionMode;
     private OnTripItemClickListener _onTripItemClickListener;
 
-    public TripStatisticsAdapter (Context ctx, Trip trip)
+    public TripStatisticsAdapter (Context ctx, Fragment parentFragment, Trip trip)
     {
         _ctx = ctx;
         _trip = trip;
+        _parentFragment = parentFragment;
 
         _onTripItemClickListener = null;
 
@@ -75,36 +94,20 @@ public class TripStatisticsAdapter
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position)
     {
         // Set data into the view.
-        int imgId;
-
-        imgId = R.mipmap.ic_trip_status_saved;
-
         switch (getItemViewType (position)) {
             case ITEM_TYPE_TRIP:
-                ((TripStatisticsAdapter.TripSummaryViewHolder) holder).bindView (_trip);
+                ((TripStatisticsAdapter.TripSummaryViewHolder) holder).bindView (_ctx,
+                                                                                 _parentFragment,
+                                                                                 _trip, position);
                 break;
 
             case ITEM_TYPE_SEGMENT:
-                ((TripStatisticsAdapter.TripSegmentViewHolder) holder).bindView (
+                ((TripStatisticsAdapter.TripSegmentViewHolder) holder).bindView (_ctx,
+                                                                                 _parentFragment,
                         _trip.getSegments ()
-                             .get (position - 1));
+                             .get (position - 1), position);
                 break;
         }
-
-        // vh.setOnTripItemClickListener (_onTripItemClickListener);
-        // vh.itemView.setActivated (_selectedItems.get (position, false));
-
-        //        Drawable background;
-        //
-        //        if (_actionMode) {
-        //            background = ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector_actionmode);
-        //        }
-        //        else {
-        //            background = ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector);
-        //        }
-        //
-        //        vh.itemView.setBackground (background);
-        //        background.jumpToCurrentState ();
     }
 
     @Override
@@ -273,7 +276,7 @@ public class TripStatisticsAdapter
             return false;
         }
 
-        public void bindView (Trip trip)
+        public void bindView (Context ctx, Fragment parentFragment, Trip trip, int position)
         {
             getDescription ().setText (trip.getDescription ());
         }
@@ -291,6 +294,8 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
+        private FrameLayout _mapFrame;
+        private TripSegment _segment;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -307,6 +312,7 @@ public class TripStatisticsAdapter
             parent.setOnLongClickListener (this);
 
             _description = (TextView) parent.findViewById (R.id.tvTripSegmentDescription);
+            _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
 
             _onTripItemClickListener = null;
         }
@@ -348,17 +354,143 @@ public class TripStatisticsAdapter
             return false;
         }
 
-        public void bindView (TripSegment tripSegment)
+        public void bindView (Context ctx, Fragment parentFragment, TripSegment tripSegment, int position)
         {
+            _segment = tripSegment;
             getDescription ().setText (String.format ("%d", tripSegment.getLocations ()
                                                                        .size ()));
+
+/*
+            FrameLayout frame; //  = new FrameLayout(mContext);
+
+            frame = new FrameLayout (ctx);
+            frame.setId (10000 * position); //you have to set unique id
+
+            int height = (int) TypedValue.applyDimension (TypedValue.COMPLEX_UNIT_DIP, 170,
+                                                          ctx.getResources ()
+                                                             .getDisplayMetrics ());
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height);
+            frame.setLayoutParams(layoutParams);
+
+            _mapFrame.addView (frame);
+
+            GoogleMapOptions options = new GoogleMapOptions();
+            options.liteMode (true);
+            SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
+
+            //Create the the class that implements OnMapReadyCallback and set up your map
+            mapFrag.getMapAsync (new MapReadyCallback ());
+
+            FragmentManager fm =  parentFragment.getChildFragmentManager ();
+            fm.beginTransaction().add(frame.getId(), mapFrag).commit();
+*/
+            GoogleMapOptions options = new GoogleMapOptions ();
+            options.liteMode (true);
+            // SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
+            MapView mapView;
+
+            mapView = new MapView (ctx, options);
+            mapView.onCreate (null);
+            mapView.getMapAsync (new MapReadyCallback ());
+
+            //Create the the class that implements OnMapReadyCallback and set up your map
+            // mapFrag.getMapAsync (new MapReadyCallback ());
+
+            _mapFrame.addView (mapView);
+
+            // FragmentManager fm =  parentFragment.getChildFragmentManager ();
+            // fm.beginTransaction().add(frame.getId(), mapFrag).commit();
+
         }
 
         public TextView getDescription ()
         {
             return _description;
         }
+
+        private void drawMap (final GoogleMap map)
+        {
+            final LatLngBounds.Builder builder;
+            List<LatLng>               track;
+
+            builder = new LatLngBounds.Builder ();
+
+            List<TripLocation> points;
+            MarkerOptions      markerOptions;
+
+            points = _segment.getLocations ();
+
+            markerOptions = new MarkerOptions ();
+            markerOptions.position (points.get (0)
+                                          .toLatLng ());
+
+            // TODO: set markeroptions title
+
+            map.addMarker (markerOptions);
+
+            markerOptions = new MarkerOptions ();
+            markerOptions.position (points.get (points.size () - 1)
+                                          .toLatLng ());
+            map.addMarker (markerOptions);
+
+            track = new ArrayList<LatLng> ();
+
+            for (TripLocation p : points) {
+                LatLng current;
+
+                current = p.toLatLng ();
+
+                track.add (current);
+                builder.include (current);
+            }
+
+            Polyline        route;
+            PolylineOptions routeOptions;
+            Polyline        border;
+            PolylineOptions borderOptions;
+
+            routeOptions = new PolylineOptions ();
+            routeOptions.width (5);
+            routeOptions.color (Color.RED);
+            routeOptions.geodesic (true);
+
+            borderOptions = new PolylineOptions ();
+            borderOptions.width (10);
+            borderOptions.color (Color.GRAY);
+            borderOptions.geodesic (true);
+
+            border = map.addPolyline (borderOptions);
+            route = map.addPolyline (routeOptions);
+
+            route.setPoints (track);
+            border.setPoints (track);
+
+            map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
+
+            //            map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
+            //            {
+            //
+            //                @Override
+            //                public void onCameraChange (CameraPosition arg0)
+            //                {
+            //                    // Move camera.
+            //                    map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
+            //
+            //                    // Remove listener to prevent position reset on camera move.
+            //                    map.setOnCameraChangeListener (null);
+            //                }
+            //            });
+        }
+
+        private class MapReadyCallback
+                implements OnMapReadyCallback
+        {
+            @Override
+            public void onMapReady (GoogleMap googleMap)
+            {
+                drawMap (googleMap);
+            }
+        }
+
     }
-
-
 }

@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -219,6 +220,7 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
+        private boolean _bound = false;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -278,7 +280,9 @@ public class TripStatisticsAdapter
 
         public void bindView (Context ctx, Fragment parentFragment, Trip trip, int position)
         {
-            getDescription ().setText (trip.getDescription ());
+            if (!_bound) {
+                getDescription ().setText (trip.getDescription ());
+            }
         }
 
         public TextView getDescription ()
@@ -296,6 +300,7 @@ public class TripStatisticsAdapter
         private TextView              _description;
         private FrameLayout _mapFrame;
         private TripSegment _segment;
+        private boolean _bound = false;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -356,50 +361,57 @@ public class TripStatisticsAdapter
 
         public void bindView (Context ctx, Fragment parentFragment, TripSegment tripSegment, int position)
         {
-            _segment = tripSegment;
-            getDescription ().setText (String.format ("%d", tripSegment.getLocations ()
-                                                                       .size ()));
+            if (!_bound) {
+                _bound = true;
 
-/*
-            FrameLayout frame; //  = new FrameLayout(mContext);
+                _segment = tripSegment;
+                getDescription ().setText (String.format ("%d", tripSegment.getLocations ()
+                                                                           .size ()));
 
-            frame = new FrameLayout (ctx);
-            frame.setId (10000 * position); //you have to set unique id
+    /*
+                FrameLayout frame; //  = new FrameLayout(mContext);
 
-            int height = (int) TypedValue.applyDimension (TypedValue.COMPLEX_UNIT_DIP, 170,
-                                                          ctx.getResources ()
-                                                             .getDisplayMetrics ());
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height);
-            frame.setLayoutParams(layoutParams);
+                frame = new FrameLayout (ctx);
+                frame.setId (10000 * position); //you have to set unique id
 
-            _mapFrame.addView (frame);
+                int height = (int) TypedValue.applyDimension (TypedValue.COMPLEX_UNIT_DIP, 170,
+                                                              ctx.getResources ()
+                                                                 .getDisplayMetrics ());
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height);
+                frame.setLayoutParams(layoutParams);
 
-            GoogleMapOptions options = new GoogleMapOptions();
-            options.liteMode (true);
-            SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
+                _mapFrame.addView (frame);
 
-            //Create the the class that implements OnMapReadyCallback and set up your map
-            mapFrag.getMapAsync (new MapReadyCallback ());
+                GoogleMapOptions options = new GoogleMapOptions();
+                options.liteMode (true);
+                SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
 
-            FragmentManager fm =  parentFragment.getChildFragmentManager ();
-            fm.beginTransaction().add(frame.getId(), mapFrag).commit();
-*/
-            GoogleMapOptions options = new GoogleMapOptions ();
-            options.liteMode (true);
-            // SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
-            MapView mapView;
+                //Create the the class that implements OnMapReadyCallback and set up your map
+                mapFrag.getMapAsync (new MapReadyCallback ());
 
-            mapView = new MapView (ctx, options);
-            mapView.onCreate (null);
-            mapView.getMapAsync (new MapReadyCallback ());
+                FragmentManager fm =  parentFragment.getChildFragmentManager ();
+                fm.beginTransaction().add(frame.getId(), mapFrag).commit();
+    */
+                GoogleMapOptions options = new GoogleMapOptions ();
+                options.liteMode (true);
+                // SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
+                MapView mapView;
 
-            //Create the the class that implements OnMapReadyCallback and set up your map
-            // mapFrag.getMapAsync (new MapReadyCallback ());
+                mapView = new MapView (ctx, options);
+                mapView.onCreate (null);
+                mapView.getMapAsync (new MapReadyCallback ());
 
-            _mapFrame.addView (mapView);
+                //Create the the class that implements OnMapReadyCallback and set up your map
+                // mapFrag.getMapAsync (new MapReadyCallback ());
 
-            // FragmentManager fm =  parentFragment.getChildFragmentManager ();
-            // fm.beginTransaction().add(frame.getId(), mapFrag).commit();
+                _mapFrame.addView (mapView);
+
+                Log.d (TripStatisticsAdapter.class.getCanonicalName (),
+                       "*************** view binded");
+
+                // FragmentManager fm =  parentFragment.getChildFragmentManager ();
+                // fm.beginTransaction().add(frame.getId(), mapFrag).commit();
+            }
 
         }
 

@@ -15,11 +15,6 @@ public class ServiceManager
         ctx.startService (new Intent (ctx, LogMyTripService.class));
     }
 
-    public static void stopBluetooth (Context ctx)
-    {
-        ctx.stopService (new Intent (ctx, BluetoothService.class));
-    }
-
     public static void stopSaveTrip (Context ctx)
     {
         SettingsManager.setLogTrip (ctx, false);
@@ -27,8 +22,15 @@ public class ServiceManager
         ctx.stopService (new Intent (ctx, LogMyTripService.class));
     }
 
+    public static void stopBluetooth (Context ctx)
+    {
+        SettingsManager.setAutoStartLog (ctx, false);
+        ctx.stopService (new Intent (ctx, BluetoothService.class));
+    }
+
     public static void startBluetooth (Context ctx)
     {
+        SettingsManager.setAutoStartLog (ctx, true);
         ctx.startService (new Intent (ctx, BluetoothService.class));
     }
 }

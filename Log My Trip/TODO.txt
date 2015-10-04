@@ -1,20 +1,33 @@
-- Make trip segments - in progress
-* Make trip statistics tab
+
+
+- Make trip statistics tab - In progress
+* Go to the detail trip on start saving from MainActivity
+* Follow the current trip better in the map view
+* Add a button in the map view to stop saving
+* Add map type selector: normal, satellite, etc.
+* In statistics map allow to select a segment
+* Change segment start/end marks
+* Make general method to paint map tracks
+* Don't show static maps until it has been drawn
+* Don't allow to click on static maps
+
 * Filter bluetooth device to start save
-* Autostart on boot
 * If autostart on boot and autosave bluetooth is active and the bluetooth is connected,
 then start saving trip
-* New autostart option 'Always'
-* Add map layers
-* Add a button in the map view to stop saving
-* Follow the current trip better in the map view
-* Change the bluetooth icon
 * Change the notification messages
 * Add actions to notification icon: stop autosave, stop saving
-* Add option to menu to autosave in main activity
+* Don't get all the location request, sometimes the accuracy is very bad
 
+* New autostart option 'Always'
+* Change interface like cheesesquare example https://github.com/chrisbanes/cheesesquare
+
+X Change the bluetooth icon
+X Make trip segments
 X When go to the map and return produces an exception:
     Activity com.cachirulop.logmytrip.activity.TripDetailActivity has leaked ServiceConnection
     com.cachirulop.logmytrip.fragment.TabMapFragment$2@b13eb178 that was originally bound here
 X Broadcast messages on start and stop save trip
 X Change the currenttrip algorithm
+X Autostart on boot
+X Add autosave menu option in main activity
+X Ask when delete a trip

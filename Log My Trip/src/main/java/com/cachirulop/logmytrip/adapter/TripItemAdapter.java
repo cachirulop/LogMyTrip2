@@ -15,8 +15,8 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.util.FormatHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,10 +34,10 @@ public class TripItemAdapter
     private boolean            _actionMode;
     private OnTripItemClickListener _onTripItemClickListener;
 
-    public TripItemAdapter (Context ctx, List<Trip> items)
+    public TripItemAdapter (Context ctx)
     {
         _ctx = ctx;
-        _items = items;
+        _items = TripManager.LoadTrips (_ctx);
 
         _onTripItemClickListener = null;
 
@@ -94,11 +94,12 @@ public class TripItemAdapter
         vh.getDescription ()
           .setText (t.getDescription ());
         vh.getDuration ()
-          .setText ("10:10:10 - 100Km");
+          .setText (String.format ("%s - %s", FormatHelper.formatDuration (t.computeTotalTime ()),
+                                   FormatHelper.formatDistance (t.computeTotalDistance ())));
         vh.getDate ()
-          .setText (new SimpleDateFormat ("dd/MM/yyyy").format (t.getTripDate ()));
+          .setText (FormatHelper.formatDate (_ctx, t.getTripDate ()));
         vh.getTime ()
-          .setText (new SimpleDateFormat ("hh:mm:ss").format (t.getTripDate ()));
+          .setText (FormatHelper.formatTime (_ctx, t.getTripDate ()));
 
         vh.setOnTripItemClickListener (_onTripItemClickListener);
 
@@ -216,6 +217,13 @@ public class TripItemAdapter
     public Trip getItem (int position)
     {
         return _items.get (position);
+    }
+
+    public void reloadTrips ()
+    {
+        _items.clear ();
+        _items = TripManager.LoadTrips (_ctx);
+        notifyDataSetChanged ();
     }
 
     public interface OnTripItemClickListener

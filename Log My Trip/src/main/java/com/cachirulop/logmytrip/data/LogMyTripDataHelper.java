@@ -34,7 +34,7 @@ public class LogMyTripDataHelper
     /**
      * Current version
      */
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     /**
      * Context where the object is created
@@ -250,7 +250,7 @@ public class LogMyTripDataHelper
             db.endTransaction ();
         }
 
-        onCreate (db);
+        // onCreate (db);
     }
 
     /**

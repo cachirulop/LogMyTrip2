@@ -23,6 +23,15 @@ public class SettingsManager
         return PreferenceManager.getDefaultSharedPreferences (ctx);
     }
 
+    public static void setAutoStartLog (Context ctx, boolean value)
+    {
+        SharedPreferences.Editor editor;
+
+        editor = getSharedPrefs (ctx).edit ();
+        editor.putBoolean (KEY_PREF_AUTO_START_LOG, value);
+        editor.commit ();
+    }
+
     public static boolean isLogTrip (Context ctx)
     {
         return getSharedPrefs (ctx).getBoolean (KEY_PREF_LOG_TRIP, false);

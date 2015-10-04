@@ -11,6 +11,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_auto_start_log"
+        android:checkable="true"
+        android:title="@string/pref_autoStartLogTitle"/>
+
+    <item
         android:id="@+id/action_import_db"
         android:orderInCategory="102"
         android:title="@string/action_import_db"

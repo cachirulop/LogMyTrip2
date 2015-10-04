@@ -1,8 +1,11 @@
 package com.cachirulop.logmytrip.entity;
 
+import android.location.Location;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 public class TripLocation
@@ -15,8 +18,9 @@ public class TripLocation
     private double _longitude;
     private double _altitude;
     private float _speed;
-    private float _accuracy;
-    private float _bearing;
+    private float  _accuracy;
+    private float  _bearing;
+    private String _provider;
 
     public float getAccuracy ()
     {
@@ -91,6 +95,16 @@ public class TripLocation
         return new Date (_locationTime);
     }
 
+    public Calendar getLocationTimeAsCalendar ()
+    {
+        Calendar result;
+
+        result = Calendar.getInstance ();
+        result.setTimeInMillis (_locationTime);
+
+        return result;
+    }
+
     /**
      * @return the altitude
      */
@@ -121,6 +135,16 @@ public class TripLocation
     public void setSpeed (float speed)
     {
         this._speed = speed;
+    }
+
+    public String getProvider ()
+    {
+        return _provider;
+    }
+
+    public void setProvider (String provider)
+    {
+        _provider = provider;
     }
 
     public LatLng toLatLng ()
@@ -162,5 +186,21 @@ public class TripLocation
     public void setLongitude (double longitude)
     {
         this._longitude = longitude;
+    }
+
+    public Location toLocation ()
+    {
+        Location result;
+
+        result = new Location (_provider);
+        result.setAccuracy (_accuracy);
+        result.setAltitude (_altitude);
+        result.setBearing (_bearing);
+        result.setLatitude (_latitude);
+        result.setLongitude (_longitude);
+        result.setSpeed (_speed);
+        result.setTime (_locationTime);
+
+        return result;
     }
 }

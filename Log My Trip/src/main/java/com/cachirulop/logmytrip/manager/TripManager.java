@@ -10,8 +10,8 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.util.FormatHelper;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,20 +27,9 @@ public class TripManager
 
         result = new Trip ();
         result.setTripDate (new Date ());
-        result.setDescription (getDefaultDescription (ctx, result.getTripDate ()));
+        result.setDescription (FormatHelper.formatDate (ctx, result.getTripDate ()));
 
         return saveTrip (ctx, result, true);
-    }
-
-    private static String getDefaultDescription (Context ctx, Date d)
-    {
-        DateFormat timeFormatter;
-        DateFormat dateFormatter;
-
-        timeFormatter = android.text.format.DateFormat.getTimeFormat (ctx);
-        dateFormatter = android.text.format.DateFormat.getMediumDateFormat (ctx);
-
-        return String.format ("[%s - %s]", dateFormatter.format (d), timeFormatter.format (d));
     }
 
     public static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
@@ -147,6 +136,7 @@ public class TripManager
             values.put ("speed", tl.getSpeed ());
             values.put ("accuracy", tl.getAccuracy ());
             values.put ("bearing", tl.getBearing ());
+            values.put ("provider", tl.getProvider ());
 
             db.insert (CONST_LOCATION_TABLE_NAME, null, values);
 
@@ -306,6 +296,7 @@ public class TripManager
         result.setSpeed (c.getFloat (c.getColumnIndex ("speed")));
         result.setAccuracy (c.getFloat (c.getColumnIndex ("accuracy")));
         result.setBearing (c.getFloat (c.getColumnIndex ("bearing")));
+        result.setProvider (c.getString (c.getColumnIndex ("provider")));
 
         return result;
     }

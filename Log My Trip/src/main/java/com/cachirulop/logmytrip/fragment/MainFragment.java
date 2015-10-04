@@ -38,6 +38,7 @@ import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.cachirulop.logmytrip.util.ConfirmDialog;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -153,12 +154,8 @@ public class MainFragment
      */
     private void loadTrips ()
     {
-        List<Trip> trips;
-
         if (getView () != null) {
-            trips = TripManager.LoadTrips (_ctx);
-
-            _adapter = new TripItemAdapter (_ctx, trips);
+            _adapter = new TripItemAdapter (_ctx);
             _adapter.setOnTripItemClickListener (this);
             _recyclerView.setAdapter (_adapter);
         }
@@ -169,8 +166,7 @@ public class MainFragment
         ActionBar bar;
 
         bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        bar.setSubtitle (
-                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
+        bar.setSubtitle (_ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
     private void onSaveTripClick (View v)
@@ -187,6 +183,11 @@ public class MainFragment
 
             updateActionBarSubtitle ();
         }
+    }
+
+    public void reloadTrips ()
+    {
+        _adapter.reloadTrips ();
     }
 
     public void updateSavingStatus (Trip currentTrip)
@@ -277,14 +278,25 @@ public class MainFragment
 
     private void deleteSelectedTrips ()
     {
-        List<Trip> selectedItems = _adapter.getSelectedItems ();
+        ConfirmDialog dlg;
 
-        for (Trip t : selectedItems) {
-            TripManager.deleteTrip (_ctx, t);
-            _adapter.removeItem (t);
-        }
+        dlg = new ConfirmDialog (R.string.delete, R.string.delete_confirm)
+        {
+            @Override
+            public void onOkClicked ()
+            {
+                List<Trip> selectedItems = _adapter.getSelectedItems ();
 
-        _actionMode.finish ();
+                for (Trip t : selectedItems) {
+                    TripManager.deleteTrip (_ctx, t);
+                    _adapter.removeItem (t);
+                }
+
+                _actionMode.finish ();
+            }
+        };
+
+        dlg.show (getActivity ().getSupportFragmentManager (), "deleteTrips");
     }
 
     private void exportSelectedTrips ()
@@ -410,4 +422,5 @@ public class MainFragment
 
         updateActionBarSubtitle ();
     }
+
 }

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +16,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.util.FormatHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -220,7 +220,6 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
-        private boolean _bound = false;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -280,9 +279,7 @@ public class TripStatisticsAdapter
 
         public void bindView (Context ctx, Fragment parentFragment, Trip trip, int position)
         {
-            if (!_bound) {
-                getDescription ().setText (trip.getDescription ());
-            }
+            getDescription ().setText (trip.getDescription ());
         }
 
         public TextView getDescription ()
@@ -298,9 +295,9 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
+        private TextView _distance;
         private FrameLayout _mapFrame;
         private TripSegment _segment;
-        private boolean _bound = false;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -316,8 +313,9 @@ public class TripStatisticsAdapter
             parent.setOnClickListener (this);
             parent.setOnLongClickListener (this);
 
-            _description = (TextView) parent.findViewById (R.id.tvTripSegmentDescription);
             _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
+            _description = (TextView) parent.findViewById (R.id.tvTripSegmentDescription);
+            _distance = (TextView) parent.findViewById (R.id.tvTripSegmentDistance);
 
             _onTripItemClickListener = null;
         }
@@ -361,58 +359,25 @@ public class TripStatisticsAdapter
 
         public void bindView (Context ctx, Fragment parentFragment, TripSegment tripSegment, int position)
         {
-            if (!_bound) {
-                _bound = true;
+            _segment = tripSegment;
+            _description.setText (String.format ("%s - %s (%s)", FormatHelper.formatTime (ctx,
+                                                                                          tripSegment.getStartDate ()),
+                                                 FormatHelper.formatTime (ctx,
+                                                                          tripSegment.getEndDate ()),
+                                                 FormatHelper.formatDuration (
+                                                         tripSegment.computeTotalTime ())));
+            _distance.setText (String.format ("%.3f", tripSegment.computeTotalDistance ()));
 
-                _segment = tripSegment;
-                getDescription ().setText (String.format ("%d", tripSegment.getLocations ()
-                                                                           .size ()));
+            GoogleMapOptions options = new GoogleMapOptions ();
+            options.liteMode (true);
 
-    /*
-                FrameLayout frame; //  = new FrameLayout(mContext);
+            MapView mapView;
 
-                frame = new FrameLayout (ctx);
-                frame.setId (10000 * position); //you have to set unique id
+            mapView = new MapView (ctx, options);
+            mapView.onCreate (null);
+            mapView.getMapAsync (new MapReadyCallback ());
 
-                int height = (int) TypedValue.applyDimension (TypedValue.COMPLEX_UNIT_DIP, 170,
-                                                              ctx.getResources ()
-                                                                 .getDisplayMetrics ());
-                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, height);
-                frame.setLayoutParams(layoutParams);
-
-                _mapFrame.addView (frame);
-
-                GoogleMapOptions options = new GoogleMapOptions();
-                options.liteMode (true);
-                SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
-
-                //Create the the class that implements OnMapReadyCallback and set up your map
-                mapFrag.getMapAsync (new MapReadyCallback ());
-
-                FragmentManager fm =  parentFragment.getChildFragmentManager ();
-                fm.beginTransaction().add(frame.getId(), mapFrag).commit();
-    */
-                GoogleMapOptions options = new GoogleMapOptions ();
-                options.liteMode (true);
-                // SupportMapFragment mapFrag = SupportMapFragment.newInstance (options);
-                MapView mapView;
-
-                mapView = new MapView (ctx, options);
-                mapView.onCreate (null);
-                mapView.getMapAsync (new MapReadyCallback ());
-
-                //Create the the class that implements OnMapReadyCallback and set up your map
-                // mapFrag.getMapAsync (new MapReadyCallback ());
-
-                _mapFrame.addView (mapView);
-
-                Log.d (TripStatisticsAdapter.class.getCanonicalName (),
-                       "*************** view binded");
-
-                // FragmentManager fm =  parentFragment.getChildFragmentManager ();
-                // fm.beginTransaction().add(frame.getId(), mapFrag).commit();
-            }
-
+            _mapFrame.addView (mapView);
         }
 
         public TextView getDescription ()

@@ -72,52 +72,87 @@ public class Trip
         this._description = description;
     }
 
+    public double computeTotalDistance ()
+    {
+        double result;
+
+        result = 0;
+        for (TripSegment s : getSegments ()) {
+            result += s.computeTotalDistance ();
+        }
+
+        return result;
+    }
+
     public List<TripSegment> getSegments ()
     {
         if (_segments == null) {
-            List<TripLocation> all;
-            TripLocation last;
-            Calendar cal;
-            TripSegment current = null;
-
-            cal = Calendar.getInstance ();
-
-            _segments = new ArrayList<> ();
-
-            all = TripManager.getTripLocationList (this);
-            last = null;
-            for (TripLocation l : all) {
-                if (last == null) {
-                    current = new TripSegment ();
-
-                    current.getLocations ()
-                           .add (l);
-                    _segments.add (current);
-                }
-                else {
-                    cal.setTime (last.getLocationTimeAsDate ());
-                    cal.add (Calendar.HOUR, 2);
-
-                    if (l.getLocationTimeAsDate ()
-                         .after (cal.getTime ())) {
-                        current = new TripSegment ();
-                        current.getLocations ()
-                               .add (l);
-
-                        _segments.add (current);
-                    }
-                    else {
-                        current.getLocations ()
-                               .add (l);
-                    }
-                }
-
-                last = l;
-            }
+            loadSegments ();
         }
 
         return _segments;
     }
+
+    private void loadSegments ()
+    {
+        List<TripLocation> all;
+        TripLocation       last;
+        Calendar           cal;
+        TripSegment        current = null;
+
+        cal = Calendar.getInstance ();
+
+        _segments = new ArrayList<> ();
+
+        all = TripManager.getTripLocationList (this);
+        last = null;
+        for (TripLocation l : all) {
+            if (last == null) {
+                current = new TripSegment ();
+
+                current.getLocations ()
+                       .add (l);
+                _segments.add (current);
+            }
+            else {
+                cal.setTime (last.getLocationTimeAsDate ());
+                cal.add (Calendar.HOUR, 2);
+
+                if (l.getLocationTimeAsDate ()
+                     .after (cal.getTime ())) {
+                    current = new TripSegment ();
+                    current.getLocations ()
+                           .add (l);
+
+                    _segments.add (current);
+                }
+                else {
+                    current.getLocations ()
+                           .add (l);
+                }
+            }
+
+            last = l;
+        }
+    }
+
+    /**
+     * Total time of the trip in milliseconds
+     *
+     * @return All segments duration time in milliseconds
+     */
+    public long computeTotalTime ()
+    {
+        long result;
+
+        result = 0;
+        for (TripSegment s : getSegments ()) {
+            result += s.computeTotalTime ();
+        }
+
+        return result;
+    }
+
 
     @Override
     public boolean equals (Object o)

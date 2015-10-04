@@ -17,13 +17,15 @@
                                     speed REAL,
                                     accuracy REAL,
                                     bearing REAL,
+                                    provider TEXT,
                                     FOREIGN KEY(id_trip) REFERENCES trip(id));</string>
 
     <!-- Drop all the tables. -->
+    <!--DROP TABLE trip_location;-->
+    <!--DROP TABLE trip;-->
     <string name="SQL_on_upgrade" translatable="false">
     <![CDATA[
-        DROP TABLE trip_location;
-        DROP TABLE trip;
+        ALTER TABLE trip_location ADD provider TEXT;
     ]]>
     </string>
     

@@ -233,6 +233,7 @@ public class LogMyTripService
         result.setSpeed (loc.getSpeed ());
         result.setAccuracy (loc.getAccuracy ());
         result.setBearing (loc.getBearing ());
+        result.setProvider (loc.getProvider ());
 
         return result;
     }

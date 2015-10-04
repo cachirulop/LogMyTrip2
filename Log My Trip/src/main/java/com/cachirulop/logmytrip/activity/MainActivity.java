@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
+import com.cachirulop.logmytrip.fragment.MainFragment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 
@@ -16,6 +17,8 @@ public class MainActivity
         extends AppCompatActivity
 {
     private final static int ACTIVITY_RESULT_SETTINGS = 0;
+
+    private MainFragment _mainFragment;
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
@@ -44,13 +47,21 @@ public class MainActivity
             bar.setIcon (R.drawable.ic_launcher);
             bar.setTitle (R.string.app_name);
         }
+
+        // gets the main fragment
+        _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (
+                R.id.fMainFragment);
     }
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater ().inflate (R.menu.main, menu);
+
+        MenuItem item;
+
+        item = menu.findItem (R.id.action_auto_start_log);
+        item.setChecked (SettingsManager.isAutoStartLog (this));
 
         return true;
     }
@@ -63,8 +74,20 @@ public class MainActivity
                 showPreferences ();
                 return true;
 
+            case R.id.action_auto_start_log:
+                if (SettingsManager.isAutoStartLog (this)) {
+                    item.setChecked (false);
+                    ServiceManager.stopBluetooth (this);
+                }
+                else {
+                    item.setChecked (true);
+                    ServiceManager.startBluetooth (this);
+                }
+                return true;
+
             case R.id.action_import_db:
                 LogMyTripDataHelper.importDB (this);
+                _mainFragment.reloadTrips ();
                 return true;
 
             case R.id.action_export_db:

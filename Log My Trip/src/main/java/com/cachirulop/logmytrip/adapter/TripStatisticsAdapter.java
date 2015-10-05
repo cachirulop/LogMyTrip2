@@ -220,6 +220,8 @@ public class TripStatisticsAdapter
     {
         private TripStatisticsAdapter _adapter;
         private TextView              _description;
+        private TextView _locationFrom;
+        private TextView _locationTo;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
@@ -236,6 +238,8 @@ public class TripStatisticsAdapter
             parent.setOnLongClickListener (this);
 
             _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
+            _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
+            _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
 
             _onTripItemClickListener = null;
         }
@@ -280,6 +284,8 @@ public class TripStatisticsAdapter
         public void bindView (Context ctx, Fragment parentFragment, Trip trip, int position)
         {
             getDescription ().setText (trip.getDescription ());
+
+
         }
 
         public TextView getDescription ()
@@ -359,7 +365,8 @@ public class TripStatisticsAdapter
 
         public void bindView (Context ctx, Fragment parentFragment, TripSegment tripSegment, int position)
         {
-            _segment = tripSegment;
+            // General data
+            _segment = tripSegment;  // To get locations
             _description.setText (String.format ("%s - %s (%s)", FormatHelper.formatTime (ctx,
                                                                                           tripSegment.getStartDate ()),
                                                  FormatHelper.formatTime (ctx,
@@ -368,10 +375,11 @@ public class TripStatisticsAdapter
                                                          tripSegment.computeTotalTime ())));
             _distance.setText (String.format ("%.3f", tripSegment.computeTotalDistance ()));
 
+            // Map
             GoogleMapOptions options = new GoogleMapOptions ();
-            options.liteMode (true);
-
             MapView mapView;
+
+            options.liteMode (true);
 
             mapView = new MapView (ctx, options);
             mapView.onCreate (null);

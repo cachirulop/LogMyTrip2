@@ -54,6 +54,10 @@
 
         <service android:name=".service.LogMyTripService" />
         <service android:name=".service.BluetoothService"/>
+        <service
+            android:name=".service.FetchAddressService"
+            android:exported="false"/>
+
 
         <receiver
             android:name=".receiver.BootCompletedBroadcastReceiver"

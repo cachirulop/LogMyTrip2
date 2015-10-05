@@ -36,14 +36,14 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
-import com.cachirulop.logmytrip.util.ConfirmDialog;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+
+// import com.cachirulop.logmytrip.util.ConfirmDialog;
 
 public class MainFragment
         extends Fragment
@@ -278,6 +278,7 @@ public class MainFragment
 
     private void deleteSelectedTrips ()
     {
+/*
         ConfirmDialog dlg;
 
         dlg = new ConfirmDialog (R.string.delete, R.string.delete_confirm)
@@ -297,6 +298,7 @@ public class MainFragment
         };
 
         dlg.show (getActivity ().getSupportFragmentManager (), "deleteTrips");
+*/
     }
 
     private void exportSelectedTrips ()

@@ -34,19 +34,6 @@ public class FetchAddressService
      */
     protected ResultReceiver _receiver;
 
-    // Errors could still arise from using the Geocoder (for example, if there is no
-    // connectivity, or if the Geocoder is given illegal location data). Or, the Geocoder may
-    // simply not have an address for a location. In all these cases, we communicate with the
-    // receiver using a resultCode indicating failure. If an address is found, we use a
-    // resultCode indicating success.
-
-    // The Geocoder used in this sample. The Geocoder's responses are localized for the given
-    // Locale, which represents a specific geographical or linguistic region. Locales are used
-    // to alter the presentation of information such as numbers or dates to suit the conventions
-    // in the region they describe.
-    Geocoder geocoder = new Geocoder (this, Locale.getDefault ());
-
-
     /**
      * This constructor is required, and calls the super IntentService(String)
      * constructor with the name for a worker thread.
@@ -83,6 +70,18 @@ public class FetchAddressService
 
             return;
         }
+
+        // Errors could still arise from using the Geocoder (for example, if there is no
+        // connectivity, or if the Geocoder is given illegal location data). Or, the Geocoder may
+        // simply not have an address for a location. In all these cases, we communicate with the
+        // receiver using a resultCode indicating failure. If an address is found, we use a
+        // resultCode indicating success.
+
+        // The Geocoder used in this sample. The Geocoder's responses are localized for the given
+        // Locale, which represents a specific geographical or linguistic region. Locales are used
+        // to alter the presentation of information such as numbers or dates to suit the conventions
+        // in the region they describe.
+        Geocoder geocoder = new Geocoder (this, Locale.getDefault ());
 
         // Address found using the Geocoder.
         List<Address> addresses = null;

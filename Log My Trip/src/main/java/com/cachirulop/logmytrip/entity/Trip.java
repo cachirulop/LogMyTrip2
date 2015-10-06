@@ -153,6 +153,29 @@ public class Trip
         return result;
     }
 
+    public TripLocation getStartLocation ()
+    {
+        if (getSegments ().size () > 0) {
+            return getSegments ().get (0)
+                                 .getStartLocation ();
+        }
+        else {
+            return null;
+        }
+    }
+
+    public TripLocation getEndLocation ()
+    {
+        if (getSegments ().size () > 0) {
+            return getSegments ().get (getSegments ().size () - 1)
+                                 .getEndLocation ();
+        }
+        else {
+            return null;
+        }
+    }
+
+
 
     @Override
     public boolean equals (Object o)

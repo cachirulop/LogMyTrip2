@@ -1,35 +1,18 @@
 package com.cachirulop.logmytrip.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.util.FormatHelper;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.cachirulop.logmytrip.view.TripSegmentViewHolder;
+import com.cachirulop.logmytrip.view.TripSummaryViewHolder;
 
 /**
  * Created by dmagro on 01/09/2015.
@@ -80,12 +63,12 @@ public class TripStatisticsAdapter
             case ITEM_TYPE_TRIP:
                 rowView = inflater.inflate (R.layout.trip_summary, parent, false);
 
-                return new TripSummaryViewHolder (this, rowView);
+                return new TripSummaryViewHolder (this, rowView, _ctx);
 
             case ITEM_TYPE_SEGMENT:
                 rowView = inflater.inflate (R.layout.trip_segment, parent, false);
 
-                return new TripSegmentViewHolder (this, rowView);
+                return new TripSegmentViewHolder (this, rowView, _ctx);
         }
 
         return null;
@@ -97,16 +80,15 @@ public class TripStatisticsAdapter
         // Set data into the view.
         switch (getItemViewType (position)) {
             case ITEM_TYPE_TRIP:
-                ((TripStatisticsAdapter.TripSummaryViewHolder) holder).bindView (_ctx,
-                                                                                 _parentFragment,
-                                                                                 _trip, position);
+                ((TripSummaryViewHolder) holder).bindView (_parentFragment, _trip, position);
                 break;
 
             case ITEM_TYPE_SEGMENT:
-                ((TripStatisticsAdapter.TripSegmentViewHolder) holder).bindView (_ctx,
-                                                                                 _parentFragment,
-                        _trip.getSegments ()
-                             .get (position - 1), position);
+                TripSegment segment;
+
+                segment = _trip.getSegments ()
+                               .get (position - 1);
+                ((TripSegmentViewHolder) holder).bindView (_parentFragment, segment, position);
                 break;
         }
     }
@@ -206,276 +188,5 @@ public class TripStatisticsAdapter
         void onTripItemLongClick (View v, int position);
 
         void onTripItemClick (View v, int position);
-    }
-
-
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    // ViewHolders classes
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-    public static class TripSummaryViewHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener,
-                       View.OnLongClickListener
-    {
-        private TripStatisticsAdapter _adapter;
-        private TextView              _description;
-        private TextView _locationFrom;
-        private TextView _locationTo;
-
-        private OnTripItemClickListener _onTripItemClickListener;
-
-        public TripSummaryViewHolder (TripStatisticsAdapter adapter, View parent)
-        {
-            super (parent);
-
-            _adapter = adapter;
-
-            parent.setClickable (true);
-            parent.setLongClickable (true);
-
-            parent.setOnClickListener (this);
-            parent.setOnLongClickListener (this);
-
-            _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
-            _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
-            _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
-
-            _onTripItemClickListener = null;
-        }
-
-        public OnTripItemClickListener getOnTripItemClickListener ()
-        {
-            return _onTripItemClickListener;
-        }
-
-        public void setOnTripItemClickListener (OnTripItemClickListener listener)
-        {
-            _onTripItemClickListener = listener;
-        }
-
-        @Override
-        public void onClick (View v)
-        {
-            if (_adapter.isActionMode ()) {
-                _adapter.toggleSelection (this.getLayoutPosition ());
-            }
-
-            if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
-            }
-        }
-
-        @Override
-        public boolean onLongClick (View v)
-        {
-            itemView.setBackground (ContextCompat.getDrawable (_adapter._ctx,
-                                                               R.drawable.trip_list_selector_actionmode));
-
-            _adapter.toggleSelection (this.getLayoutPosition ());
-
-            if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
-            }
-
-            return false;
-        }
-
-        public void bindView (Context ctx, Fragment parentFragment, Trip trip, int position)
-        {
-            getDescription ().setText (trip.getDescription ());
-
-
-        }
-
-        public TextView getDescription ()
-        {
-            return _description;
-        }
-    }
-
-    public static class TripSegmentViewHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener,
-                       View.OnLongClickListener
-    {
-        private TripStatisticsAdapter _adapter;
-        private TextView              _description;
-        private TextView _distance;
-        private FrameLayout _mapFrame;
-        private TripSegment _segment;
-
-        private OnTripItemClickListener _onTripItemClickListener;
-
-        public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent)
-        {
-            super (parent);
-
-            _adapter = adapter;
-
-            parent.setClickable (true);
-            parent.setLongClickable (true);
-
-            parent.setOnClickListener (this);
-            parent.setOnLongClickListener (this);
-
-            _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
-            _description = (TextView) parent.findViewById (R.id.tvTripSegmentDescription);
-            _distance = (TextView) parent.findViewById (R.id.tvTripSegmentDistance);
-
-            _onTripItemClickListener = null;
-        }
-
-        public OnTripItemClickListener getOnTripItemClickListener ()
-        {
-            return _onTripItemClickListener;
-        }
-
-        public void setOnTripItemClickListener (OnTripItemClickListener listener)
-        {
-            _onTripItemClickListener = listener;
-        }
-
-        @Override
-        public void onClick (View v)
-        {
-            if (_adapter.isActionMode ()) {
-                _adapter.toggleSelection (this.getLayoutPosition ());
-            }
-
-            if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
-            }
-        }
-
-        @Override
-        public boolean onLongClick (View v)
-        {
-            itemView.setBackground (ContextCompat.getDrawable (_adapter._ctx,
-                                                               R.drawable.trip_list_selector_actionmode));
-
-            _adapter.toggleSelection (this.getLayoutPosition ());
-
-            if (_onTripItemClickListener != null) {
-                _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
-            }
-
-            return false;
-        }
-
-        public void bindView (Context ctx, Fragment parentFragment, TripSegment tripSegment, int position)
-        {
-            // General data
-            _segment = tripSegment;  // To get locations
-            _description.setText (String.format ("%s - %s (%s)", FormatHelper.formatTime (ctx,
-                                                                                          tripSegment.getStartDate ()),
-                                                 FormatHelper.formatTime (ctx,
-                                                                          tripSegment.getEndDate ()),
-                                                 FormatHelper.formatDuration (
-                                                         tripSegment.computeTotalTime ())));
-            _distance.setText (String.format ("%.3f", tripSegment.computeTotalDistance ()));
-
-            // Map
-            GoogleMapOptions options = new GoogleMapOptions ();
-            MapView mapView;
-
-            options.liteMode (true);
-
-            mapView = new MapView (ctx, options);
-            mapView.onCreate (null);
-            mapView.getMapAsync (new MapReadyCallback ());
-
-            _mapFrame.addView (mapView);
-        }
-
-        public TextView getDescription ()
-        {
-            return _description;
-        }
-
-        private void drawMap (final GoogleMap map)
-        {
-            final LatLngBounds.Builder builder;
-            List<LatLng>               track;
-
-            builder = new LatLngBounds.Builder ();
-
-            List<TripLocation> points;
-            MarkerOptions      markerOptions;
-
-            points = _segment.getLocations ();
-
-            markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (0)
-                                          .toLatLng ());
-
-            // TODO: set markeroptions title
-
-            map.addMarker (markerOptions);
-
-            markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (points.size () - 1)
-                                          .toLatLng ());
-            map.addMarker (markerOptions);
-
-            track = new ArrayList<LatLng> ();
-
-            for (TripLocation p : points) {
-                LatLng current;
-
-                current = p.toLatLng ();
-
-                track.add (current);
-                builder.include (current);
-            }
-
-            Polyline        route;
-            PolylineOptions routeOptions;
-            Polyline        border;
-            PolylineOptions borderOptions;
-
-            routeOptions = new PolylineOptions ();
-            routeOptions.width (5);
-            routeOptions.color (Color.RED);
-            routeOptions.geodesic (true);
-
-            borderOptions = new PolylineOptions ();
-            borderOptions.width (10);
-            borderOptions.color (Color.GRAY);
-            borderOptions.geodesic (true);
-
-            border = map.addPolyline (borderOptions);
-            route = map.addPolyline (routeOptions);
-
-            route.setPoints (track);
-            border.setPoints (track);
-
-            map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
-
-            //            map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
-            //            {
-            //
-            //                @Override
-            //                public void onCameraChange (CameraPosition arg0)
-            //                {
-            //                    // Move camera.
-            //                    map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
-            //
-            //                    // Remove listener to prevent position reset on camera move.
-            //                    map.setOnCameraChangeListener (null);
-            //                }
-            //            });
-        }
-
-        private class MapReadyCallback
-                implements OnMapReadyCallback
-        {
-            @Override
-            public void onMapReady (GoogleMap googleMap)
-            {
-                drawMap (googleMap);
-            }
-        }
-
     }
 }

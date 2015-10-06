@@ -1,6 +1,7 @@
 
 
 - Make trip statistics tab - In progress
+* Export database on lollipop and Marshmallow
 * Go to the detail trip on start saving from MainActivity
 * Follow the current trip better in the map view
 * Add a button in the map view to stop saving

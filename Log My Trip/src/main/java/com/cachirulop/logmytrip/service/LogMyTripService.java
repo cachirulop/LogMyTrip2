@@ -1,10 +1,9 @@
 package com.cachirulop.logmytrip.service;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,11 +15,11 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.receiver.LocationReceiver;
 import com.cachirulop.logmytrip.util.ToastHelper;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
@@ -30,18 +29,16 @@ import java.util.List;
 public class LogMyTripService
         extends Service
         implements GoogleApiClient.ConnectionCallbacks,
-                   GoogleApiClient.OnConnectionFailedListener,
-                   LocationListener
+                   GoogleApiClient.OnConnectionFailedListener
 {
     public static final String BROADCAST_ACTION_SAVE_TRIP_START = "com.cachirulop.logmytrip.saveTripStatusChange.start";
     public static final String BROADCAST_ACTION_SAVE_TRIP_STOP  = "com.cachirulop.logmytrip.saveTripStatusChange.stop";
     public static final String BROADCAST_EXTRA_TRIP             = "com.cachirulop.logmytrip.saveTripStatusChange.trip";
-
+    PendingIntent _pendingIntent;
     private GoogleApiClient _apiClient;
     private LocationRequest _locationRequest;
     private Trip                              _currentTrip                  = null;
     private List<OnTripLocationSavedListener> _onTripLocationSavedListeners = new ArrayList<> ();
-
     private LogMyTripServiceBinder _binder = new LogMyTripServiceBinder ();
 
     @Override
@@ -87,13 +84,23 @@ public class LogMyTripService
     private void stopLog ()
     {
         sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_STOP);
-        if (_currentTrip != null) {
-            _currentTrip = null;
-        }
 
         ensureLocationClient ();
         if (_apiClient.isConnected () || _apiClient.isConnecting ()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates (_apiClient, this);
+            // LocationServices.FusedLocationApi.removeLocationUpdates (_apiClient, this);
+            Intent intent;
+            PendingIntent locationIntent;
+
+            intent = new Intent (this, LocationReceiver.class);
+
+            locationIntent = PendingIntent.getBroadcast (getApplicationContext (), 0, intent,
+                                                         PendingIntent.FLAG_CANCEL_CURRENT);
+
+            LocationServices.FusedLocationApi.removeLocationUpdates (_apiClient, locationIntent);
+        }
+
+        if (_currentTrip != null) {
+            _currentTrip = null;
         }
     }
 
@@ -150,27 +157,7 @@ public class LogMyTripService
             _apiClient.connect ();
         }
     }
-
-    private void startForegroundService ()
-    {
-        Notification note;
-        CharSequence contentText;
-
-        _currentTrip = TripManager.getTodayTrip (this);
-        if (_currentTrip == null) {
-            _currentTrip = TripManager.createTodayTrip (this);
-        }
-
-        sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_START);
-
-        contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)
-                                         .toString (), _currentTrip.getDescription ());
-
-        note = NotifyManager.createSavingTrip (this, contentText);
-
-        startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
-    }
-
+/*
     @Override
     public void onLocationChanged (Location loc)
     {
@@ -180,7 +167,7 @@ public class LogMyTripService
         ctx = this;
 
         if (isValidLocation (loc)) {
-            tl = convertLocation (loc);
+            tl = new TripLocation (loc);
 
             new Thread ()
             {
@@ -204,38 +191,33 @@ public class LogMyTripService
         }
 
     }
+*/
+    //    private boolean isValidLocation (Location location)
+    //    {
+    //        return (location.hasAccuracy () && location.getAccuracy () <= SettingsManager.getGpsAccuracy (
+    //                this)) && (location != null && Math.abs (
+    //                location.getLatitude ()) <= 90 && Math.abs (location.getLongitude ()) <= 180);
+    //    }
+    //
 
-    private boolean isValidLocation (Location location)
+    private void startForegroundService ()
     {
-        return (location.hasAccuracy () && location.getAccuracy () <= SettingsManager.getGpsAccuracy (
-                this)) && (location != null && Math.abs (
-                location.getLatitude ()) <= 90 && Math.abs (location.getLongitude ()) <= 180);
-    }
+        Notification note;
+        CharSequence contentText;
 
-    private TripLocation convertLocation (Location loc)
-    {
-        TripLocation result;
-
-        result = new TripLocation ();
-        result.setIdTrip (_currentTrip.getId ());
-
-        if (loc.getTime () == 0L) {
-            // Some devices don't set the time field
-            result.setLocationTime (System.currentTimeMillis ());
-        }
-        else {
-            result.setLocationTime (loc.getTime ());
+        _currentTrip = TripManager.getTodayTrip (this);
+        if (_currentTrip == null) {
+            _currentTrip = TripManager.createTodayTrip (this);
         }
 
-        result.setLatitude (loc.getLatitude ());
-        result.setLongitude (loc.getLongitude ());
-        result.setAltitude (loc.getAltitude ());
-        result.setSpeed (loc.getSpeed ());
-        result.setAccuracy (loc.getAccuracy ());
-        result.setBearing (loc.getBearing ());
-        result.setProvider (loc.getProvider ());
+        sendBroadcastMessage (BROADCAST_ACTION_SAVE_TRIP_START);
 
-        return result;
+        contentText = String.format (this.getText (R.string.notif_ContentSavingTrip)
+                                         .toString (), _currentTrip.getDescription ());
+
+        note = NotifyManager.createSavingTrip (this, contentText);
+
+        startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
     }
 
     public void registerTripLocationSavedListener (OnTripLocationSavedListener listener)
@@ -257,8 +239,17 @@ public class LogMyTripService
     @Override
     public void onConnected (Bundle arg0)
     {
+        Intent        intent;
+        PendingIntent locationIntent;
+
+        intent = new Intent (this, LocationReceiver.class);
+        // intent.putExtra (LocationReceiver.KEY_CURRENT_TRIP_ID, _currentTrip.getId ());
+
+        locationIntent = PendingIntent.getBroadcast (getApplicationContext (), 0, intent,
+                                                     PendingIntent.FLAG_CANCEL_CURRENT);
+
         LocationServices.FusedLocationApi.requestLocationUpdates (_apiClient, _locationRequest,
-                                                                  this);
+                                                                  locationIntent);
     }
 
     @Override

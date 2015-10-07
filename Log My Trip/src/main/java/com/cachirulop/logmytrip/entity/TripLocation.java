@@ -22,6 +22,31 @@ public class TripLocation
     private float  _bearing;
     private String _provider;
 
+    public TripLocation ()
+    {
+    }
+
+    public TripLocation (Trip trip, Location loc)
+    {
+        setIdTrip (trip.getId ());
+
+        if (loc.getTime () == 0L) {
+            // Some devices don't set the time field
+            setLocationTime (System.currentTimeMillis ());
+        }
+        else {
+            setLocationTime (loc.getTime ());
+        }
+
+        setLatitude (loc.getLatitude ());
+        setLongitude (loc.getLongitude ());
+        setAltitude (loc.getAltitude ());
+        setSpeed (loc.getSpeed ());
+        setAccuracy (loc.getAccuracy ());
+        setBearing (loc.getBearing ());
+        setProvider (loc.getProvider ());
+    }
+
     public float getAccuracy ()
     {
         return _accuracy;

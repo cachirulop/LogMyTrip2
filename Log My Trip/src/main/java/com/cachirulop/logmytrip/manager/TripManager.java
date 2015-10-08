@@ -248,7 +248,7 @@ public class TripManager
                     LogMyTripApplication.getAppContext ()).getReadableDatabase ();
 
             c = db.query (CONST_LOCATION_TABLE_NAME, null, "id_trip = ?",
-                          new String[]{ Long.toString (trip.getId ()) }, null, null, "id ASC");
+                          new String[]{ Long.toString (trip.getId ()) }, null, null, "location_time ASC");
 
             return createLocationList (c);
         }

@@ -5,14 +5,12 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -28,16 +26,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.cachirulop.logmytrip.util.ConfirmDialog;
 
 import java.io.File;
@@ -52,34 +51,30 @@ public class MainFragment
 {
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
 
-    private RecyclerView         _recyclerView;
-    private TripItemAdapter      _adapter;
-    private ActionMode           _actionMode;
-    private FloatingActionButton _fabSaveTrip;
-    private Context              _ctx;
-    private BroadcastReceiver _onSaveTripStateChangeReceiver = new BroadcastReceiver ()
+    private RecyclerView    _recyclerView;
+    private TripItemAdapter _adapter;
+    public BroadcastReceiver _onSaveTripStopReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            String action;
-            Trip   trip;
-
-            trip = (Trip) intent.getSerializableExtra (LogMyTripService.BROADCAST_EXTRA_TRIP);
-            action = intent.getAction ();
-            switch (action) {
-                case LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_START:
-                    updateSavingStatus (trip);
-                    break;
-
-                case LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_STOP:
-                    updateSavingStatus (trip);
-                    break;
-            }
-
-            Log.d (MainFragment.class.getCanonicalName (), "Action: " + action);
+            Log.d (LogMyTripApplication.LOG_CATEGORY, "Receive stop save broadcast");
+            _adapter.stopSaveTrip (LocationBroadcastManager.getTrip (intent));
         }
     };
+    private ActionMode           _actionMode;
+    private FloatingActionButton _fabSaveTrip;
+    private Context              _ctx;
+    private BroadcastReceiver _onSaveTripStartReceiver = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            Log.d (LogMyTripApplication.LOG_CATEGORY, "Receive start save broadcast");
+            _adapter.startSaveTrip ();
+        }
+    };
+
 
     public MainFragment ()
     {
@@ -94,8 +89,8 @@ public class MainFragment
     @Override
     public void onDestroyView ()
     {
-        LocalBroadcastManager.getInstance (_ctx)
-                             .unregisterReceiver (_onSaveTripStateChangeReceiver);
+        LocationBroadcastManager.unregisterReceiver (_ctx, _onSaveTripStartReceiver);
+        LocationBroadcastManager.unregisterReceiver (_ctx, _onSaveTripStopReceiver);
 
         super.onDestroyView ();
     }
@@ -138,14 +133,8 @@ public class MainFragment
             }
 
             // Receive the broadcast of the LogMyTripService class
-            LocalBroadcastManager.getInstance (_ctx)
-                                 .registerReceiver (_onSaveTripStateChangeReceiver,
-                                                    new IntentFilter (
-                                                            LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_START));
-            LocalBroadcastManager.getInstance (_ctx)
-                                 .registerReceiver (_onSaveTripStateChangeReceiver,
-                                                    new IntentFilter (
-                                                            LogMyTripService.BROADCAST_ACTION_SAVE_TRIP_STOP));
+            LocationBroadcastManager.registerSaveTripStartReceiver (_ctx, _onSaveTripStartReceiver);
+            LocationBroadcastManager.registerSaveTripStopReceiver (_ctx, _onSaveTripStopReceiver);
         }
     }
 
@@ -166,7 +155,8 @@ public class MainFragment
         ActionBar bar;
 
         bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        bar.setSubtitle (_ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
+        bar.setSubtitle (
+                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
     private void onSaveTripClick (View v)
@@ -188,14 +178,6 @@ public class MainFragment
     public void reloadTrips ()
     {
         _adapter.reloadTrips ();
-    }
-
-    public void updateSavingStatus (Trip currentTrip)
-    {
-        int position;
-
-        _recyclerView.smoothScrollToPosition (0);
-        _adapter.updateTripStatus ();
     }
 
     public RecyclerView getRecyclerView ()
@@ -331,7 +313,7 @@ public class MainFragment
         progDialog = ProgressDialog.show (_ctx, getString (R.string.app_name),
                                           _ctx.getString (R.string.exporting_trips), true);
 
-        Log.d (MainFragment.class.getCanonicalName (), "Writing file: " + filename);
+        Log.d (LogMyTripApplication.LOG_CATEGORY, "Writing file: " + filename);
 
         final Handler handler = new Handler ()
         {
@@ -354,8 +336,7 @@ public class MainFragment
                                                                .format (t.getTripDate ()),
                                                      DateFormat.format ("HH:mm:ss",
                                                                         t.getTripDate ())
-                                                               .toString (),
-                                                     t.getDescription () });
+                                                               .toString (), t.getDescription () });
 
                     writeFileLine (fw, new String[]{ " " });
 
@@ -391,7 +372,7 @@ public class MainFragment
                     fw.close ();
                 }
                 catch (Exception e) {
-                    Log.d (MainFragment.class.getCanonicalName (),
+                    Log.d (LogMyTripApplication.LOG_CATEGORY,
                            "Error writing file: " + e.getLocalizedMessage ());
                 }
 

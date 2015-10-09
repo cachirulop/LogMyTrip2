@@ -77,10 +77,10 @@ public class TripItemAdapter
         imgId = R.mipmap.ic_trip_status_saved;
 
         if (SettingsManager.isLogTrip (_ctx)) {
-            Trip today;
+            Trip active;
 
-            today = TripManager.getTodayTrip (_ctx);
-            if (today != null && t.equals (today)) {
+            active = TripManager.getActiveTrip (_ctx);
+            if (active != null && t.equals (active)) {
                 imgId = R.mipmap.ic_trip_status_saving;
             }
         }
@@ -138,10 +138,14 @@ public class TripItemAdapter
 
     public void updateTripStatus ()
     {
+    }
+
+    public void startSaveTrip ()
+    {
         Trip current;
         int position;
 
-        current = TripManager.getTodayTrip (_ctx);
+        current = TripManager.getActiveTrip (_ctx);
         if (current != null) {
             position = _items.indexOf (current);
             if (position == -1) {
@@ -152,6 +156,16 @@ public class TripItemAdapter
             else {
                 notifyItemChanged (position);
             }
+        }
+    }
+
+    public void stopSaveTrip (Trip trip)
+    {
+        int position;
+
+        position = _items.indexOf (trip);
+        if (position != -1) {
+            notifyItemChanged (position);
         }
     }
 

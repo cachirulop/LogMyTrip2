@@ -38,10 +38,7 @@ public class LocationReceiver
         if (LocationResult.hasResult (intent)) {
             LocationResult lr;
 
-            trip = TripManager.getTodayTrip (context);
-            if (trip == null) {
-                trip = TripManager.createTodayTrip (context);
-            }
+            trip = TripManager.getActiveTrip (context);
 
             lr = LocationResult.extractResult (intent);
             // tripId = intent.getExtras ().getLong (KEY_CURRENT_TRIP_ID);

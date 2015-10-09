@@ -9,6 +9,8 @@ import android.content.Context;
 public class LogMyTripApplication
         extends Application
 {
+    public static final String LOG_CATEGORY = "com.cachirulop.LOG";
+
     private static Context _context;
 
     public static Context getAppContext ()

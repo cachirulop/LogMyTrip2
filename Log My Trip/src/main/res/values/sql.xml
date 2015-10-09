@@ -18,7 +18,8 @@
                                     accuracy REAL,
                                     bearing REAL,
                                     provider TEXT,
-                                    FOREIGN KEY(id_trip) REFERENCES trip(id));</string>
+                                    FOREIGN KEY(id_trip) REFERENCES trip(id));
+    </string>
 
     <!-- Drop all the tables. -->
     <!--DROP TABLE trip_location;-->

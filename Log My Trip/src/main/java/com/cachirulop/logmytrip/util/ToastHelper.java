@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
+
 public class ToastHelper
 {
 
@@ -12,8 +14,7 @@ public class ToastHelper
         Toast.makeText (ctx, msg, Toast.LENGTH_LONG)
              .show ();
 
-        Log.d (ctx.getClass ()
-                  .getCanonicalName (), msg);
+        Log.d (LogMyTripApplication.LOG_CATEGORY, msg);
     }
 
     public static void showShort (Context ctx, String msg)
@@ -21,8 +22,7 @@ public class ToastHelper
         Toast.makeText (ctx, msg, Toast.LENGTH_SHORT)
              .show ();
 
-        Log.d (ctx.getClass ()
-                  .getCanonicalName (), msg);
+        Log.d (LogMyTripApplication.LOG_CATEGORY, msg);
     }
 
     public static void showDebug (Context ctx, String msg)
@@ -32,8 +32,7 @@ public class ToastHelper
                         msg,
                         Toast.LENGTH_LONG).show ();
 */
-        Log.d (ctx.getClass ()
-                  .getCanonicalName (), msg);
+        Log.d (LogMyTripApplication.LOG_CATEGORY, msg);
     }
 
     public static void showShortDebug (Context ctx, String msg)
@@ -43,7 +42,6 @@ public class ToastHelper
                         msg,
                         Toast.LENGTH_SHORT).show ();
 */
-        Log.d (ctx.getClass ()
-                  .getCanonicalName (), msg);
+        Log.d (LogMyTripApplication.LOG_CATEGORY, msg);
     }
 }

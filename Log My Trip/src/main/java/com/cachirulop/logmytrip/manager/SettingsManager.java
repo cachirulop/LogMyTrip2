@@ -12,6 +12,7 @@ public class SettingsManager
     public static final String KEY_PREF_GPS_TIME_INTERVAL     = "pref_gpsTimeInterval";
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY          = "pref_gpsAccuracy";
+    public static final String KEY_PREF_CURRENT_TRIP_ID = "pref_currentTripId";
 
     public static boolean isAutoStartLog (Context ctx)
     {
@@ -43,6 +44,20 @@ public class SettingsManager
 
         editor = getSharedPrefs (ctx).edit ();
         editor.putBoolean (KEY_PREF_LOG_TRIP, value);
+        editor.commit ();
+    }
+
+    public static long getCurrentTripId (Context ctx)
+    {
+        return getSharedPrefs (ctx).getLong (KEY_PREF_CURRENT_TRIP_ID, 0);
+    }
+
+    public static void setCurrentTripId (Context ctx, long id)
+    {
+        SharedPreferences.Editor editor;
+
+        editor = getSharedPrefs (ctx).edit ();
+        editor.putLong (KEY_PREF_CURRENT_TRIP_ID, id);
         editor.commit ();
     }
 

@@ -17,11 +17,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -43,17 +43,21 @@ public class TabMapFragment
     private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
                                                            Color.MAGENTA, Color.YELLOW };
     private GoogleMap _map;
-    private Trip _trip;
-    private LogMyTripService  _service    = null;
-    private LogMyTripService.OnTripLocationSavedListener _locationSavedListener = new LogMyTripService.OnTripLocationSavedListener ()
-    {
-        @Override
-        public void onTripLocationSaved (TripLocation tl)
-        {
-            _trip = TripManager.getTrip (_service, _trip.getId ());
-            drawTrackMainThread ();
-        }
-    };
+    private Trip      _trip;
+    private LogMyTripService _service = null;
+
+
+    // TODO: Refresh the map on broadcast message
+    //    private LogMyTripService.OnTripLocationSavedListener _locationSavedListener = new LogMyTripService.OnTripLocationSavedListener ()
+    //    {
+    //        @Override
+    //        public void onTripLocationSaved (TripLocation tl)
+    //        {
+    //            _trip = TripManager.getTrip (_service, _trip.getId ());
+    //            drawTrackMainThread ();
+    //        }
+    //    };
+
     private ServiceConnection _connection = new ServiceConnection ()
     {
         @Override
@@ -63,13 +67,13 @@ public class TabMapFragment
             LogMyTripService.LogMyTripServiceBinder binder = (LogMyTripService.LogMyTripServiceBinder) service;
 
             _service = binder.getService ();
-            _service.registerTripLocationSavedListener (_locationSavedListener);
+            //            _service.registerTripLocationSavedListener (_locationSavedListener);
         }
 
         @Override
         public void onServiceDisconnected (ComponentName arg0)
         {
-            _service.unregisterTripLocationSavedListener (_locationSavedListener);
+            //            _service.unregisterTripLocationSavedListener (_locationSavedListener);
         }
     };
 
@@ -242,7 +246,7 @@ public class TabMapFragment
 
         parent = getActivity ();
         if (parent != null) {
-            Log.d (TabMapFragment.class.getCanonicalName (), "Redrawing map");
+            Log.d (LogMyTripApplication.LOG_CATEGORY, "Redrawing map");
 
             main = new Handler (getActivity ().getMainLooper ());
 

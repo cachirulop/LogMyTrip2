@@ -2,14 +2,13 @@ package com.cachirulop.logmytrip.fragment;
 
 
 import android.app.Activity;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -22,10 +21,13 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -39,6 +41,7 @@ import java.util.List;
 
 public class TabMapFragment
         extends Fragment
+        implements OnMapReadyCallback
 {
     private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
                                                            Color.MAGENTA, Color.YELLOW };
@@ -46,36 +49,33 @@ public class TabMapFragment
     private Trip      _trip;
     private LogMyTripService _service = null;
 
-
-    // TODO: Refresh the map on broadcast message
-    //    private LogMyTripService.OnTripLocationSavedListener _locationSavedListener = new LogMyTripService.OnTripLocationSavedListener ()
-    //    {
-    //        @Override
-    //        public void onTripLocationSaved (TripLocation tl)
-    //        {
-    //            _trip = TripManager.getTrip (_service, _trip.getId ());
-    //            drawTrackMainThread ();
-    //        }
-    //    };
-
-    private ServiceConnection _connection = new ServiceConnection ()
+    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
-        public void onServiceConnected (ComponentName className, IBinder service)
+        public void onReceive (Context context, Intent intent)
         {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            LogMyTripService.LogMyTripServiceBinder binder = (LogMyTripService.LogMyTripServiceBinder) service;
-
-            _service = binder.getService ();
-            //            _service.registerTripLocationSavedListener (_locationSavedListener);
-        }
-
-        @Override
-        public void onServiceDisconnected (ComponentName arg0)
-        {
-            //            _service.unregisterTripLocationSavedListener (_locationSavedListener);
+            drawTrackMainThread ();
         }
     };
+
+    //    private ServiceConnection _connection = new ServiceConnection ()
+    //    {
+    //        @Override
+    //        public void onServiceConnected (ComponentName className, IBinder service)
+    //        {
+    //            // We've bound to LocalService, cast the IBinder and get LocalService instance
+    //            LogMyTripService.LogMyTripServiceBinder binder = (LogMyTripService.LogMyTripServiceBinder) service;
+    //
+    //            _service = binder.getService ();
+    //            //            _service.registerTripLocationSavedListener (_locationSavedListener);
+    //        }
+    //
+    //        @Override
+    //        public void onServiceDisconnected (ComponentName arg0)
+    //        {
+    //            //            _service.unregisterTripLocationSavedListener (_locationSavedListener);
+    //        }
+    //    };
 
     public TabMapFragment ()
     {
@@ -106,9 +106,9 @@ public class TabMapFragment
     @Override
     public void onDestroyView ()
     {
-        if (_service != null) {
-            getActivity ().unbindService (_connection);
-        }
+        //        if (_service != null) {
+        //            getActivity ().unbindService (_connection);
+        //        }
 
         super.onDestroyView ();
     }
@@ -135,14 +135,13 @@ public class TabMapFragment
         super.onActivityCreated (savedInstanceState);
 
         setUpMap ();
-        drawTrack ();
 
         Activity activity;
 
         activity = getActivity ();
 
-        Intent intent = new Intent (activity, LogMyTripService.class);
-        activity.bindService (intent, _connection, Context.BIND_AUTO_CREATE);
+        //        Intent intent = new Intent (activity, LogMyTripService.class);
+        //        activity.bindService (intent, _connection, Context.BIND_AUTO_CREATE);
     }
 
     private void setUpMap ()
@@ -151,91 +150,25 @@ public class TabMapFragment
 
         fm = getFragmentManager ();
 
-        _map = ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
-                R.id.gmTripDetail)).getMap ();
-
-        _map.setMyLocationEnabled (true);
+        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
+                R.id.gmTripDetail)).getMapAsync (this);
     }
 
-    private void drawTrack ()
+    @Override
+    public void onResume ()
     {
-        final LatLngBounds.Builder builder;
-        List<LatLng> track;
-        List<TripSegment> segments;
-        CameraUpdate camera;
-        int                        currentColor;
+        super.onResume ();
 
-        segments = _trip.getSegments ();
-        currentColor = 0;
-        builder = new LatLngBounds.Builder ();
+        LocationBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                              _onNewLocationReceiver);
+    }
 
-        for (TripSegment s : segments) {
-            List<TripLocation> points;
-            MarkerOptions markerOptions;
+    @Override
+    public void onPause ()
+    {
+        super.onPause ();
 
-            points = s.getLocations ();
-
-            markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (0)
-                                          .toLatLng ());
-
-            // TODO: set markeroptions title
-
-            _map.addMarker (markerOptions);
-
-            markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (points.size () - 1)
-                                          .toLatLng ());
-            _map.addMarker (markerOptions);
-
-            track = new ArrayList<LatLng> ();
-
-            for (TripLocation p : points) {
-                LatLng current;
-
-                current = p.toLatLng ();
-
-                track.add (current);
-                builder.include (current);
-            }
-
-            Polyline route;
-            PolylineOptions routeOptions;
-            Polyline border;
-            PolylineOptions borderOptions;
-
-            routeOptions = new PolylineOptions ();
-            routeOptions.width (5);
-            routeOptions.color (SEGMENT_COLORS[currentColor % SEGMENT_COLORS.length]);
-            routeOptions.geodesic (true);
-
-            borderOptions = new PolylineOptions ();
-            borderOptions.width (10);
-            borderOptions.color (Color.GRAY);
-            borderOptions.geodesic (true);
-
-            border = _map.addPolyline (borderOptions);
-            route = _map.addPolyline (routeOptions);
-
-            route.setPoints (track);
-            border.setPoints (track);
-
-            currentColor++;
-
-            _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
-            {
-
-                @Override
-                public void onCameraChange (CameraPosition arg0)
-                {
-                    // Move camera.
-                    _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
-
-                    // Remove listener to prevent position reset on camera move.
-                    _map.setOnCameraChangeListener (null);
-                }
-            });
-        }
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
     }
 
     private void drawTrackMainThread ()
@@ -261,5 +194,124 @@ public class TabMapFragment
 
             main.post (runInMain);
         }
+    }
+
+    private void drawTrack ()
+    {
+        final LatLngBounds.Builder builder;
+        List<LatLng> track;
+        List<TripSegment> segments;
+        CameraUpdate camera;
+        int                        currentColor;
+
+        if (_trip != null) {
+            boolean isActiveTrip;
+            Trip activeTrip;
+            int lastSegmentIndex;
+            int currentIndex;
+
+            activeTrip = TripManager.getActiveTrip (getContext ());
+            isActiveTrip = (_trip.equals (activeTrip));
+
+            segments = _trip.getSegments ();
+            lastSegmentIndex = segments.size () - 1;
+            currentIndex = 0;
+
+            currentColor = 0;
+            builder = new LatLngBounds.Builder ();
+
+            for (TripSegment s : segments) {
+                List<TripLocation> points;
+                MarkerOptions markerOptions;
+
+                points = s.getLocations ();
+
+                // TODO: set markeroptions title
+
+                // Start mark
+                markerOptions = new MarkerOptions ();
+                markerOptions.position (points.get (0)
+                                              .toLatLng ());
+                _map.addMarker (markerOptions);
+
+                // End mark
+                if (!isActiveTrip || currentIndex != lastSegmentIndex) {
+                    markerOptions = new MarkerOptions ();
+                    markerOptions.position (points.get (points.size () - 1)
+                                                  .toLatLng ());
+                    _map.addMarker (markerOptions);
+                }
+
+                track = new ArrayList<LatLng> ();
+
+                for (TripLocation p : points) {
+                    LatLng current;
+
+                    current = p.toLatLng ();
+
+                    track.add (current);
+                    builder.include (current);
+                }
+
+                Polyline route;
+                PolylineOptions routeOptions;
+                Polyline border;
+                PolylineOptions borderOptions;
+
+                routeOptions = new PolylineOptions ();
+                routeOptions.width (5);
+                routeOptions.color (SEGMENT_COLORS[currentColor % SEGMENT_COLORS.length]);
+                routeOptions.geodesic (true);
+
+                borderOptions = new PolylineOptions ();
+                borderOptions.width (10);
+                borderOptions.color (Color.GRAY);
+                borderOptions.geodesic (true);
+
+                border = _map.addPolyline (borderOptions);
+                route = _map.addPolyline (routeOptions);
+
+                route.setPoints (track);
+                border.setPoints (track);
+
+                currentColor++;
+
+                if (!isActiveTrip) {
+                    _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
+                    {
+
+                        @Override
+                        public void onCameraChange (CameraPosition arg0)
+                        {
+                            // Move camera.
+                            _map.moveCamera (
+                                    CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
+
+                            // Remove listener to prevent position reset on camera move.
+                            _map.setOnCameraChangeListener (null);
+                        }
+                    });
+                }
+
+                currentIndex++;
+            }
+        }
+    }
+
+    @Override
+    public void onMapReady (GoogleMap googleMap)
+    {
+        _map = googleMap;
+        _map.setMyLocationEnabled (true);
+        _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
+        {
+            @Override
+            public void onMyLocationChange (Location location)
+            {
+                _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
+                        new LatLng (location.getLatitude (), location.getLongitude ()), 20));
+            }
+        });
+        drawTrack ();
     }
 }

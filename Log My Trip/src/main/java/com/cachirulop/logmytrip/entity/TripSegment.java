@@ -117,4 +117,30 @@ public class TripSegment
     {
         return new Date (getEndTime ());
     }
+
+    @Override
+    public boolean equals (Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TripSegment)) {
+            return false;
+        }
+
+        TripSegment segment = (TripSegment) o;
+
+        return !(_locations != null
+                 ? !_locations.equals (segment._locations)
+                 : segment._locations != null);
+
+    }
+
+    @Override
+    public int hashCode ()
+    {
+        return _locations != null
+               ? _locations.hashCode ()
+               : 0;
+    }
 }

@@ -58,7 +58,6 @@ public class MainFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            Log.d (LogMyTripApplication.LOG_CATEGORY, "Receive stop save broadcast");
             _adapter.stopSaveTrip (LocationBroadcastManager.getTrip (intent));
         }
     };
@@ -70,7 +69,6 @@ public class MainFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            Log.d (LogMyTripApplication.LOG_CATEGORY, "Receive start save broadcast");
             _adapter.startSaveTrip ();
         }
     };

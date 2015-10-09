@@ -18,6 +18,7 @@ public class LocationBroadcastManager
     private static final String BROADCAST_PREFIX       = "com.cachirulop.logmytrip.LocationBroadcastManager.";
     private static final String ACTION_SAVE_TRIP_START = BROADCAST_PREFIX + "start";
     private static final String ACTION_SAVE_TRIP_STOP  = BROADCAST_PREFIX + "stop";
+    private static final String ACTION_NEW_LOCATION = BROADCAST_PREFIX + "new_location";
     private static final String EXTRA_TRIP             = BROADCAST_PREFIX + "trip";
 
     public static void sendStartSaveTripMessage (Context ctx)
@@ -51,14 +52,9 @@ public class LocationBroadcastManager
         sendBroadcastMessage (ctx, ACTION_SAVE_TRIP_STOP, trip);
     }
 
-    public static boolean hasTrip (Intent intent)
+    public static void sendNewLocationMessage (Context ctx)
     {
-        return intent.hasExtra (EXTRA_TRIP);
-    }
-
-    public static Trip getTrip (Intent intent)
-    {
-        return (Trip) intent.getSerializableExtra (EXTRA_TRIP);
+        sendBroadcastMessage (ctx, ACTION_NEW_LOCATION);
     }
 
     public static void registerSaveTripStartReceiver (Context ctx, BroadcastReceiver receiver)
@@ -74,10 +70,26 @@ public class LocationBroadcastManager
                              .registerReceiver (receiver, new IntentFilter (ACTION_SAVE_TRIP_STOP));
     }
 
+    public static void registerNewLocationReceiver (Context ctx, BroadcastReceiver receiver)
+    {
+        LocalBroadcastManager.getInstance (ctx)
+                             .registerReceiver (receiver, new IntentFilter (ACTION_NEW_LOCATION));
+    }
+
     public static void unregisterReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
                              .unregisterReceiver (receiver);
+    }
+
+    public static boolean hasTrip (Intent intent)
+    {
+        return intent.hasExtra (EXTRA_TRIP);
+    }
+
+    public static Trip getTrip (Intent intent)
+    {
+        return (Trip) intent.getSerializableExtra (EXTRA_TRIP);
     }
 }
 

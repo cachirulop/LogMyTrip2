@@ -3,12 +3,12 @@ package com.cachirulop.logmytrip.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
@@ -68,7 +68,8 @@ public class TabStatisticsFragment
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
-        return inflater.inflate (R.layout.fragment_tab_statistics, container, false);
+        // return inflater.inflate (R.layout.fragment_tab_statistics, container, false);
+        return inflater.inflate (R.layout.fragment_tab_statistics2, container, false);
     }
 
     @Override
@@ -78,13 +79,24 @@ public class TabStatisticsFragment
 
         _ctx = getActivity ();
 
-        _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
-        _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
-        _recyclerView.setHasFixedSize (true);
+        LinearLayout detail;
+        CardView     card;
 
-        _recyclerView.setItemAnimator (new DefaultItemAnimator ());
+        detail = (LinearLayout) view.findViewById (R.id.llTripStatistics);
 
-        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
-        _recyclerView.setAdapter (_adapter);
+        card = (CardView) getLayoutInflater (savedInstanceState).inflate (R.layout.trip_summary,
+                                                                          null);
+
+
+        detail.addView (card);
+
+        //        _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
+        //        _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
+        //        _recyclerView.setHasFixedSize (true);
+        //
+        //        _recyclerView.setItemAnimator (new DefaultItemAnimator ());
+        //
+        //        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
+        //        _recyclerView.setAdapter (_adapter);
     }
 }

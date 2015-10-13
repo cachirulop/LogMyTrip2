@@ -204,4 +204,40 @@ public class Trip
         result = 31 * result + _description.hashCode ();
         return result;
     }
+
+    public float computeMaxSpeed ()
+    {
+        float max;
+
+        max = 0;
+
+        for (TripSegment s : getSegments ()) {
+            float current;
+
+            current = s.computeMaxSpeed ();
+            if (current > max) {
+                max = current;
+            }
+        }
+
+        return max;
+    }
+
+    public float computeMediumSpeed ()
+    {
+        float max;
+
+        max = 0;
+
+        for (TripSegment s : getSegments ()) {
+            float current;
+
+            current = s.computeMediumSpeed ();
+            if (current > max) {
+                max = current;
+            }
+        }
+
+        return max;
+    }
 }

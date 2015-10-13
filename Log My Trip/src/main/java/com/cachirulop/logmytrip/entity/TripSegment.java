@@ -143,4 +143,32 @@ public class TripSegment
                ? _locations.hashCode ()
                : 0;
     }
+
+    public float computeMaxSpeed ()
+    {
+        float max;
+
+        max = 0;
+        for (TripLocation l : _locations) {
+            if (l.getSpeed () > max) {
+                max = l.getSpeed ();
+            }
+        }
+
+        // Convert m/s to km/h
+        return max * 3.6f;
+    }
+
+    public float computeMediumSpeed ()
+    {
+        float total;
+
+        total = 0;
+        for (TripLocation l : _locations) {
+            total += l.getSpeed ();
+        }
+
+        // Convert m/s to km/h
+        return (total / _locations.size ()) * 3.6f;
+    }
 }

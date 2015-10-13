@@ -63,4 +63,9 @@ public class FormatHelper
             return String.format ("%.1f m", meters);
         }
     }
+
+    public static String formatSpeed (double speed)
+    {
+        return String.format ("%.1f km/h", speed);
+    }
 }

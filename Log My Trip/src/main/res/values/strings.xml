@@ -152,16 +152,16 @@
     <string name="action_export_db">Export database</string>
     <string name="delete">Delete</string>
     <string name="delete_confirm">Delete selected trips. Are you sure?</string>
-    <string name="trip_summary_description">Trip name</string>
-    <string name="trip_summary_start_date">Start date</string>
-    <string name="trip_summary_start_time">Start time</string>
-    <string name="trip_summary_end_date">End date</string>
-    <string name="trip_summary_end_time">End time</string>
-    <string name="trip_summary_total_distance">Total distance</string>
-    <string name="trip_summary_total_time">Total time</string>
-    <string name="trip_summary_location_from">From</string>
-    <string name="trip_summary_location_to">To</string>
-    <string name="trip_summary_max_speed">Max speed</string>
-    <string name="trip_summary_medium_speed">Medium speed</string>
+    <string name="title_description">Trip name</string>
+    <string name="title_start_date">Start date</string>
+    <string name="title_start_time">Start time</string>
+    <string name="title_end_date">End date</string>
+    <string name="title_end_time">End time</string>
+    <string name="title_total_distance">Total distance</string>
+    <string name="title_total_time">Total time</string>
+    <string name="title_location_from">From</string>
+    <string name="title_location_to">To</string>
+    <string name="title_max_speed">Max speed</string>
+    <string name="title_medium_speed">Medium speed</string>
 
 </resources>

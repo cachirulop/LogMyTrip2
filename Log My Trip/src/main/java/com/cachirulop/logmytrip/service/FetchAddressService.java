@@ -1,6 +1,7 @@
 package com.cachirulop.logmytrip.service;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,6 +45,17 @@ public class FetchAddressService
     {
         super (TAG);
     }
+
+    public static void startService (Context ctx, AddressResultReceiver receiver, Location location)
+    {
+        Intent intent = new Intent (ctx, FetchAddressService.class);
+
+        intent.putExtra (FetchAddressService.RECEIVER, receiver);
+        intent.putExtra (FetchAddressService.LOCATION, location);
+
+        ctx.startService (intent);
+    }
+
 
     /**
      * Tries to get the location address using a Geocoder. If successful, sends an address to a

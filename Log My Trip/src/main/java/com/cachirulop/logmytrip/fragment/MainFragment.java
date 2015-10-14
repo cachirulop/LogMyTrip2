@@ -11,11 +11,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ActionMode;
@@ -102,10 +102,16 @@ public class MainFragment
             // Init context
             _ctx = getActivity ();
 
+            // Toolbar
+            Toolbar toolbar;
+
+            toolbar = (Toolbar) view.findViewById (R.id.fragment_main_toolbar);
+            ((AppCompatActivity) getActivity ()).setSupportActionBar (toolbar);
+
             // Recyclerview
             _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
             _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
-            _recyclerView.setHasFixedSize (true);
+            //_recyclerView.setHasFixedSize (true);
 
             _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
@@ -150,11 +156,11 @@ public class MainFragment
 
     private void updateActionBarSubtitle ()
     {
-        ActionBar bar;
-
-        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        bar.setSubtitle (
-                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
+        //        ActionBar bar;
+        //
+        //        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
+        //        bar.setSubtitle (
+        //                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
     private void onSaveTripClick (View v)

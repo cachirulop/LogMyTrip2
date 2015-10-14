@@ -1,6 +1,6 @@
 
 
-- Make trip statistics tab - In progress
+* Capture the states changes on the location provider
 * Export database on lollipop and Marshmallow
 * Go to the detail trip on start saving from MainActivity
 * Follow the current trip better in the map view
@@ -32,3 +32,4 @@ X Change the currenttrip algorithm
 X Autostart on boot
 X Add autosave menu option in main activity
 X Ask when delete a trip
+X Make trip statistics tab - In progress

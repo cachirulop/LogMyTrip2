@@ -228,4 +228,10 @@ public class TripLocation
 
         return result;
     }
+
+    @Override
+    public String toString ()
+    {
+        return String.format(" %.6f,%.6f", getLatitude (), getLongitude ());
+    }
 }

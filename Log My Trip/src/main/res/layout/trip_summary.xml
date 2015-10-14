@@ -12,50 +12,10 @@
         android:orientation="vertical"
         android:padding="5dp">
 
-        <!--<fragment-->
-        <!--android:id="@+id/gmTripSummary"-->
-        <!--android:name="com.google.android.gms.maps.MapFragment"-->
-        <!--xmlns:map="http://schemas.android.com/apk/res-auto"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="300dp"-->
-        <!--map:cameraZoom="5"-->
-        <!--map:liteMode="true"-->
-        <!--map:mapType="normal"-->
-        <!--/>-->
-
         <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="2">
-
-            <!-- Description -->
-            <TableRow>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tvTripSummaryDescriptionTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:text="@string/title_description"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:textColor="@color/default_background_dark"/>
-
-                    <TextView
-                        android:id="@+id/tvTripSummaryDescription"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="left"
-                        android:text="Trip name"
-                        android:textAppearance="?android:attr/textAppearanceLarge"/>
-                </LinearLayout>
-            </TableRow>
-
-            <View style="@style/SeparatorViewStyle"/>
 
             <!-- Location From -->
             <TableRow>

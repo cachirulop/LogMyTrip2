@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/default_background</item>
         <item name="colorPrimaryDark">@color/default_background_dark</item>
 
@@ -9,7 +9,7 @@
     </style>
 
     <!-- ActionBar styles -->
-    <style name="LogMyTripActionBarStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="LogMyTripActionBarStyle" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="background">@color/default_background</item>
         <item name="backgroundStacked">@color/default_background</item>
         <item name="backgroundSplit">@color/default_background</item>
@@ -21,25 +21,5 @@
         <item name="android:layout_height">2dp</item>
         <item name="android:layout_margin">10dp</item>
         <item name="android:background">@color/default_background</item>
-    </style>
-
-    <!-- cheese demo -->
-
-    <style name="Theme.DesignDemo" parent="Base.Theme.DesignDemo">
-    </style>
-
-    <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#673AB7</item>
-        <item name="colorPrimaryDark">#512DA8</item>
-        <item name="colorAccent">#FF4081</item>
-        <item name="android:windowBackground">@color/default_background</item>
-    </style>
-
-    <style name="Widget.CardContent" parent="android:Widget">
-        <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingTop">24dp</item>
-        <item name="android:paddingBottom">24dp</item>
-        <item name="android:orientation">vertical</item>
     </style>
 </resources>

@@ -57,7 +57,6 @@ public class TripSummaryViewHolder
         parent.setOnClickListener (this);
         parent.setOnLongClickListener (this);
 
-        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
 

@@ -136,6 +136,16 @@ public class Trip
         }
     }
 
+    public List<TripSegment> getSegments (boolean refresh)
+    {
+        if (refresh) {
+            _segments.clear ();
+            _segments = null;
+        }
+
+        return getSegments ();
+    }
+
     /**
      * Total time of the trip in milliseconds
      *

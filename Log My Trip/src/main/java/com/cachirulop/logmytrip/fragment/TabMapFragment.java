@@ -57,25 +57,6 @@ public class TabMapFragment
         }
     };
 
-    //    private ServiceConnection _connection = new ServiceConnection ()
-    //    {
-    //        @Override
-    //        public void onServiceConnected (ComponentName className, IBinder service)
-    //        {
-    //            // We've bound to LocalService, cast the IBinder and get LocalService instance
-    //            LogMyTripService.LogMyTripServiceBinder binder = (LogMyTripService.LogMyTripServiceBinder) service;
-    //
-    //            _service = binder.getService ();
-    //            //            _service.registerTripLocationSavedListener (_locationSavedListener);
-    //        }
-    //
-    //        @Override
-    //        public void onServiceDisconnected (ComponentName arg0)
-    //        {
-    //            //            _service.unregisterTripLocationSavedListener (_locationSavedListener);
-    //        }
-    //    };
-
     public TabMapFragment ()
     {
         // Required empty public constructor
@@ -105,10 +86,6 @@ public class TabMapFragment
     @Override
     public void onDestroyView ()
     {
-        //        if (_service != null) {
-        //            getActivity ().unbindService (_connection);
-        //        }
-
         super.onDestroyView ();
     }
 
@@ -129,18 +106,11 @@ public class TabMapFragment
     }
 
     @Override
-    public void onActivityCreated (Bundle savedInstanceState)
+    public void onViewCreated (View view, Bundle savedInstanceState)
     {
-        super.onActivityCreated (savedInstanceState);
+        super.onViewCreated (view, savedInstanceState);
 
         setUpMap ();
-
-        Activity activity;
-
-        activity = getActivity ();
-
-        //        Intent intent = new Intent (activity, LogMyTripService.class);
-        //        activity.bindService (intent, _connection, Context.BIND_AUTO_CREATE);
     }
 
     private void setUpMap ()
@@ -151,6 +121,12 @@ public class TabMapFragment
 
         ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
                 R.id.gmTripDetail)).getMapAsync (this);
+    }
+
+    @Override
+    public void onActivityCreated (Bundle savedInstanceState)
+    {
+        super.onActivityCreated (savedInstanceState);
     }
 
     @Override
@@ -210,7 +186,7 @@ public class TabMapFragment
             activeTrip = TripManager.getActiveTrip (getContext ());
             isActiveTrip = (_trip.equals (activeTrip));
 
-            segments = _trip.getSegments ();
+            segments = _trip.getSegments (true);
             lastSegmentIndex = segments.size () - 1;
             currentIndex = 0;
 

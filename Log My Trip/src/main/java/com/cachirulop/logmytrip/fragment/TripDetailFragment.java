@@ -1,7 +1,7 @@
 package com.cachirulop.logmytrip.fragment;
 
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -21,6 +21,8 @@ import com.cachirulop.logmytrip.entity.Trip;
 public class TripDetailFragment
         extends Fragment
 {
+    FloatingActionButton _fabDetailChangeView;
+    ViewPager            _vpDetailPager;
 
     public TripDetailFragment ()
     {
@@ -43,10 +45,9 @@ public class TripDetailFragment
 
         app = (AppCompatActivity) getActivity ();
 
+        // Toolbar and back button
         toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
         app.setSupportActionBar (toolbar);
-
-        // Back button
         ab = app.getSupportActionBar ();
         ab.setDisplayHomeAsUpEnabled (true);
 
@@ -57,34 +58,24 @@ public class TripDetailFragment
                                                   (Trip) getArguments ().getSerializable (
                                                           MainFragment.ARG_PARAM_TRIP));
 
-        // Assigning ViewPager View and setting the adapter
-        ViewPager pager;
+        // ViewPager
+        _vpDetailPager = (ViewPager) view.findViewById (R.id.vpDetailPager);
+        _vpDetailPager.setAdapter (adapter);
 
-        // pager = (ViewPager) getView ().findViewById (R.id.vpTripDetail);
-        pager = (ViewPager) view.findViewById (R.id.trip_detail_viewpager);
-        pager.setAdapter (adapter);
+        //        TabLayout tabLayout = (TabLayout) view.findViewById (R.id.trip_detail_tabs);
+        //        tabLayout.setupWithViewPager (_vpDetailPager);
 
-        // Assigning the Sliding Tab Layout View
-        //        SlidingTabLayout tabs;
-        //
-        //        tabs = (SlidingTabLayout) getView ().findViewById (R.id.stlTripDetail);
-        //        tabs.setDistributeEvenly (true);
-        //
-        //        // Setting Custom Color for the Scroll bar indicator of the Tab View
-        //        tabs.setCustomTabColorizer (new SlidingTabLayout.TabColorizer ()
-        //        {
-        //            @Override
-        //            public int getIndicatorColor (int position)
-        //            {
-        //                return getResources ().getColor (R.color.tab_selected);
-        //            }
-        //        });
-        //
-        //        // Setting the ViewPager For the SlidingTabsLayout
-        //        tabs.setViewPager (pager);
+        // Change-page button
+        _fabDetailChangeView = (FloatingActionButton) view.findViewById (R.id.fabDetailChangeView);
+        _fabDetailChangeView.setOnClickListener (new View.OnClickListener ()
+        {
+            @Override
+            public void onClick (View v)
+            {
+                _vpDetailPager.setCurrentItem (_vpDetailPager.getCurrentItem () % 1);
+            }
+        });
 
-        TabLayout tabLayout = (TabLayout) view.findViewById (R.id.trip_detail_tabs);
-        tabLayout.setupWithViewPager (pager);
     }
 
 }

@@ -28,9 +28,21 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/trip_detail_viewpager"
+        android:id="@+id/vpDetailPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabDetailChangeView"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:src="@mipmap/ic_button_save"
+        app:backgroundTint="@color/default_background"/>
 
 </android.support.design.widget.CoordinatorLayout>

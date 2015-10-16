@@ -4,9 +4,10 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,14 +38,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link TabStatisticsFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link TabStatisticsFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class TabStatisticsFragment
         extends Fragment
 {
@@ -100,44 +94,38 @@ public class TabStatisticsFragment
     {
         LinearLayout            detail;
         CardView                card;
-        CollapsingToolbarLayout toolbar;
 
         super.onViewCreated (view, savedInstanceState);
 
         _ctx = getActivity ();
 
-        toolbar = (CollapsingToolbarLayout) view.findViewById (
-                R.id.statistics_summary_collapsingtoolbar);
-        toolbar.setTitle (_trip.getDescription ());
+        _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
+        _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
+        _recyclerView.setHasFixedSize (true);
 
-        // LinearLayout to add the cards
-        detail = (LinearLayout) view.findViewById (R.id.llTripStatistics);
+        _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
-        // Trip summary card
-        card = (CardView) getLayoutInflater (savedInstanceState).inflate (R.layout.trip_summary,
-                                                                          null);
+        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
+        _recyclerView.setAdapter (_adapter);
 
-        fillSummaryCard (card);
-        detail.addView (card);
-
-        // Segments cards
-        for (TripSegment s : _trip.getSegments ()) {
-            card = (CardView) getLayoutInflater (savedInstanceState).inflate (R.layout.trip_segment,
-                                                                              null);
-
-            fillSegmentCard (card, s);
-            detail.addView (card);
-        }
-
-
-        //        _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
-        //        _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
-        //        _recyclerView.setHasFixedSize (true);
+        //        // LinearLayout to add the cards
+        //        detail = (LinearLayout) view.findViewById (R.id.llTripStatistics);
         //
-        //        _recyclerView.setItemAnimator (new DefaultItemAnimator ());
+        //        // Trip summary card
+        //        card = (CardView) getLayoutInflater (savedInstanceState).inflate (R.layout.trip_summary,
+        //                                                                          null);
         //
-        //        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
-        //        _recyclerView.setAdapter (_adapter);
+        //        fillSummaryCard (card);
+        //        detail.addView (card);
+        //
+        //        // Segments cards
+        //        for (TripSegment s : _trip.getSegments ()) {
+        //            card = (CardView) getLayoutInflater (savedInstanceState).inflate (R.layout.trip_segment,
+        //                                                                              null);
+        //
+        //            fillSegmentCard (card, s);
+        //            detail.addView (card);
+        //        }
     }
 
     private void fillSummaryCard (CardView card)

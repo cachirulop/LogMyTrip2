@@ -77,7 +77,6 @@ public class TripStatisticsAdapter
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position)
     {
-        // Set data into the view.
         switch (getItemViewType (position)) {
             case ITEM_TYPE_TRIP:
                 ((TripSummaryViewHolder) holder).bindView (_parentFragment, _trip, position);
@@ -113,8 +112,18 @@ public class TripStatisticsAdapter
     @Override
     public int getItemCount ()
     {
-        return _trip.getSegments ()
-                    .size () + 1;
+        int numSegments;
+
+        numSegments = _trip.getSegments ()
+                           .size ();
+        if (numSegments <= 1) {
+            // 1 or 0 segments, only show the summary
+            return 1;
+        }
+        else {
+            // Show the summary + segments
+            return numSegments + 1;
+        }
     }
 
     public void toggleSelection (int pos)

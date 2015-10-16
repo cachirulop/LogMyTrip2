@@ -7,8 +7,4 @@
     <color name="pressed">#54000000</color>
 
     <color name="recyclerview_background">#64df9d</color>
-
-    <color name="tab_selected">#FF0000</color>
-    <color name="tab_text_color">#000000</color>
-    <color name="tab_text_selected_color">#FFFFFF</color>
 </resources>

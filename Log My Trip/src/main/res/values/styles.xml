@@ -4,7 +4,6 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/default_background</item>
         <item name="colorPrimaryDark">@color/default_background_dark</item>
-        <!--<item name="colorAccent">@color/default_background</item>-->
         <item name="colorAccent">#c92b2b</item>
 
         <item name="windowActionModeOverlay">true</item>

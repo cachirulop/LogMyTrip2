@@ -26,7 +26,6 @@ public class TripSummaryViewHolder
 {
     private TripStatisticsAdapter _adapter;
 
-    private TextView              _description;
     private TextView              _locationFrom;
     private TextView              _locationTo;
     private TextView _startDate;
@@ -134,8 +133,6 @@ public class TripSummaryViewHolder
 
     public void bindView (Fragment parentFragment, Trip trip, int position)
     {
-        getDescription ().setText (trip.getDescription ());
-
         TripLocation l;
 
         l = trip.getStartLocation ();
@@ -169,16 +166,6 @@ public class TripSummaryViewHolder
         getTotalTime ().setText (FormatHelper.formatDuration (trip.computeTotalTime ()));
         getMaxSpeed ().setText (FormatHelper.formatSpeed (trip.computeMaxSpeed ()));
         getMediumSpeed ().setText (FormatHelper.formatSpeed (trip.computeMediumSpeed ()));
-    }
-
-    public TextView getDescription ()
-    {
-        return _description;
-    }
-
-    public void setDescription (TextView description)
-    {
-        _description = description;
     }
 
     public TextView getStartDate ()

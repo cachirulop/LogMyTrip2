@@ -163,5 +163,7 @@
     <string name="title_location_to">To</string>
     <string name="title_max_speed">Max speed</string>
     <string name="title_medium_speed">Medium speed</string>
+    <string name="title_summary">Summary</string>
+    <string name="title_segment_num">Segment %d</string>
 
 </resources>

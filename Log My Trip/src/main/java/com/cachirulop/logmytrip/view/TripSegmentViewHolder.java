@@ -41,6 +41,7 @@ public class TripSegmentViewHolder
 {
     private TripStatisticsAdapter _adapter;
 
+    private TextView _title;
     private TextView _locationFrom;
     private TextView _locationTo;
     private TextView _startDate;
@@ -73,6 +74,7 @@ public class TripSegmentViewHolder
         parent.setOnClickListener (this);
         parent.setOnLongClickListener (this);
 
+        _title = (TextView) parent.findViewById (R.id.tvSegmentTitle);
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSegmentLocationFrom);
@@ -156,6 +158,8 @@ public class TripSegmentViewHolder
 
         // General data
         TripLocation l;
+
+        _title.setText (String.format (_ctx.getString (R.string.title_segment_num), position));
 
         l = _segment.getStartLocation ();
         if (l != null) {

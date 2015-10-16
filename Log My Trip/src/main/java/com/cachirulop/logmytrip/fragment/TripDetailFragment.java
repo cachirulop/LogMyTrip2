@@ -62,8 +62,6 @@ public class TripDetailFragment
         _vpDetailPager = (ViewPager) view.findViewById (R.id.vpDetailPager);
         _vpDetailPager.setAdapter (adapter);
 
-        //        TabLayout tabLayout = (TabLayout) view.findViewById (R.id.trip_detail_tabs);
-        //        tabLayout.setupWithViewPager (_vpDetailPager);
 
         // Change-page button
         _fabDetailChangeView = (FloatingActionButton) view.findViewById (R.id.fabDetailChangeView);
@@ -72,7 +70,14 @@ public class TripDetailFragment
             @Override
             public void onClick (View v)
             {
-                _vpDetailPager.setCurrentItem (_vpDetailPager.getCurrentItem () % 1);
+                if (_vpDetailPager.getCurrentItem () == 0) {
+                    _vpDetailPager.setCurrentItem (1);
+                    _fabDetailChangeView.setImageResource (R.mipmap.ic_button_map);
+                }
+                else {
+                    _vpDetailPager.setCurrentItem (0);
+                    _fabDetailChangeView.setImageResource (R.mipmap.ic_button_statistics);
+                }
             }
         });
 

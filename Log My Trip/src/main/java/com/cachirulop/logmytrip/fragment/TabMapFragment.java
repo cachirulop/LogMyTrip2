@@ -11,17 +11,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.maps.CameraUpdate;
@@ -179,8 +178,6 @@ public class TabMapFragment
 
         parent = getActivity ();
         if (parent != null) {
-            Log.d (LogMyTripApplication.LOG_CATEGORY, "Redrawing map");
-
             main = new Handler (getActivity ().getMainLooper ());
 
             runInMain = new Runnable ()
@@ -199,9 +196,9 @@ public class TabMapFragment
     private void drawTrack ()
     {
         final LatLngBounds.Builder builder;
-        List<LatLng> track;
+        List<LatLng>      track;
         List<TripSegment> segments;
-        CameraUpdate camera;
+        CameraUpdate      camera;
         int                        currentColor;
 
         if (_trip != null) {
@@ -223,7 +220,9 @@ public class TabMapFragment
             for (TripSegment s : segments) {
                 List<TripLocation> points;
                 MarkerOptions markerOptions;
+                boolean showCurrentPosition;
 
+                showCurrentPosition = (isActiveTrip) && (currentIndex == lastSegmentIndex);
                 points = s.getLocations ();
 
                 // TODO: set markeroptions title
@@ -235,7 +234,7 @@ public class TabMapFragment
                 _map.addMarker (markerOptions);
 
                 // End mark
-                if (!isActiveTrip || currentIndex != lastSegmentIndex) {
+                if (!showCurrentPosition) {
                     markerOptions = new MarkerOptions ();
                     markerOptions.position (points.get (points.size () - 1)
                                                   .toLatLng ());
@@ -275,25 +274,25 @@ public class TabMapFragment
                 border.setPoints (track);
 
                 currentColor++;
-
-                if (!isActiveTrip) {
-                    _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
-                    {
-
-                        @Override
-                        public void onCameraChange (CameraPosition arg0)
-                        {
-                            // Move camera.
-                            _map.moveCamera (
-                                    CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
-
-                            // Remove listener to prevent position reset on camera move.
-                            _map.setOnCameraChangeListener (null);
-                        }
-                    });
-                }
-
                 currentIndex++;
+            }
+
+            if (_trip.getSegments ()
+                     .size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (getContext ())) {
+                _map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
+                {
+
+                    @Override
+                    public void onCameraChange (CameraPosition arg0)
+                    {
+                        // Move camera.
+                        _map.moveCamera (
+                                CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
+
+                        // Remove listener to prevent position reset on camera move.
+                        _map.setOnCameraChangeListener (null);
+                    }
+                });
             }
         }
     }
@@ -301,17 +300,27 @@ public class TabMapFragment
     @Override
     public void onMapReady (GoogleMap googleMap)
     {
+        Trip    activeTrip;
+        boolean isActiveTrip;
+
+        activeTrip = TripManager.getActiveTrip (getContext ());
+        isActiveTrip = (_trip.equals (activeTrip));
+
         _map = googleMap;
         _map.setMyLocationEnabled (true);
-        _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
-        {
-            @Override
-            public void onMyLocationChange (Location location)
+
+        if (isActiveTrip && SettingsManager.isLogTrip (getContext ())) {
+            _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
             {
-                _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
-                        new LatLng (location.getLatitude (), location.getLongitude ()), 20));
-            }
-        });
+                @Override
+                public void onMyLocationChange (Location location)
+                {
+                    _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
+                            new LatLng (location.getLatitude (), location.getLongitude ()), 20));
+                }
+            });
+        }
+
         drawTrack ();
     }
 }

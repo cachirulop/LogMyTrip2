@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
-import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
@@ -51,10 +49,7 @@ public class LogMyTripService
 
     private void startLog ()
     {
-        Log.d (LogMyTripApplication.LOG_CATEGORY, "Start log");
         if (_locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            Log.d (LogMyTripApplication.LOG_CATEGORY, "Start log: GPS Enabled");
-
             TripManager.startTrip (this);
 
             LocationBroadcastManager.sendStartSaveTripMessage (this);
@@ -65,7 +60,6 @@ public class LogMyTripService
                                                  getLocationIntent ());
         }
         else {
-            Log.d (LogMyTripApplication.LOG_CATEGORY, "Start log: NO GPS Enabled");
             ToastHelper.showLong (this, "No GPS activated");
         }
     }
@@ -87,7 +81,7 @@ public class LogMyTripService
         intent = new Intent (this, LocationReceiver.class);
 
         return PendingIntent.getBroadcast (getApplicationContext (), 0, intent,
-                                           PendingIntent.FLAG_CANCEL_CURRENT);
+                                           PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
@@ -109,8 +103,6 @@ public class LogMyTripService
 
     private void stopLog ()
     {
-        Log.d (LogMyTripApplication.LOG_CATEGORY, "Stop log");
-
         Trip trip;
 
         trip = TripManager.getActiveTrip (this);

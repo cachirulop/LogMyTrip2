@@ -16,17 +16,19 @@
             android:id="@+id/fragment_main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:layout_collapseMode="pin"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvTrips"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white"
-            android:scrollIndicators="right">
-        </android.support.v7.widget.RecyclerView>
     </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvTrips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="5dp"
+        android:scrollIndicators="right"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    </android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabSaveTrip"
@@ -35,7 +37,8 @@
         android:layout_gravity="end|bottom"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:src="@mipmap/ic_button_save"/>
+        android:src="@mipmap/ic_button_save"
+        app:backgroundTint="@color/default_background"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

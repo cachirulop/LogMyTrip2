@@ -1,14 +1,14 @@
 package com.cachirulop.logmytrip.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
@@ -63,7 +63,7 @@ public class TripItemAdapter
                 Context.LAYOUT_INFLATER_SERVICE);
         rowView = inflater.inflate (R.layout.triplist_item, parent, false);
 
-        return new ViewHolder (this, rowView);
+        return new ViewHolder (_ctx, this, rowView);
     }
 
     @Override
@@ -105,17 +105,25 @@ public class TripItemAdapter
 
         vh.itemView.setActivated (_selectedItems.get (position, false));
 
-        Drawable background;
+        // Drawable background;
+        int background;
 
-        if (_actionMode) {
-            background = ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector_actionmode);
+        if (_actionMode && isSelected (vh.getLayoutPosition ())) {
+            background = R.color.default_background;
         }
         else {
-            background = ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector);
+            background = R.color.cardview_light_background;
         }
 
-        vh.itemView.setBackground (background);
-        background.jumpToCurrentState ();
+        ((CardView) vh.itemView).setCardBackgroundColor (_ctx.getResources ()
+                                                             .getColor (background));
+        // vh.getContainer ().setBackground (background);
+        //background.jumpToCurrentState ();
+    }
+
+    public boolean isSelected (int pos)
+    {
+        return _selectedItems.get (pos, false);
     }
 
     @Override
@@ -257,19 +265,22 @@ public class TripItemAdapter
             implements View.OnClickListener,
                        View.OnLongClickListener
     {
+        private Context        _ctx;
         private TripItemAdapter _adapter;
         private ImageView _status;
         private TextView  _description;
         private TextView  _duration;
         private TextView  _date;
         private TextView  _time;
+        private RelativeLayout _container;
 
         private OnTripItemClickListener _onTripItemClickListener;
 
-        public ViewHolder (TripItemAdapter adapter, View parent)
+        public ViewHolder (Context ctx, TripItemAdapter adapter, View parent)
         {
             super (parent);
 
+            _ctx = ctx;
             _adapter = adapter;
 
             parent.setClickable (true);
@@ -278,6 +289,7 @@ public class TripItemAdapter
             parent.setOnClickListener (this);
             parent.setOnLongClickListener (this);
 
+            _container = (RelativeLayout) parent.findViewById (R.id.tripListItemContainer);
             _status = (ImageView) parent.findViewById (R.id.ivTripItemStatus);
             _description = (TextView) parent.findViewById (R.id.tvTripItemDescription);
             _duration = (TextView) parent.findViewById (R.id.tvTripItemDuration);
@@ -285,6 +297,17 @@ public class TripItemAdapter
             _time = (TextView) parent.findViewById (R.id.tvTripItemDatetime);
 
             _onTripItemClickListener = null;
+
+            _container.setClickable (true);
+            _container.setLongClickable (true);
+
+            _container.setOnClickListener (this);
+            _container.setOnLongClickListener (this);
+        }
+
+        public View getContainer ()
+        {
+            return _container;
         }
 
         public ImageView getStatus ()
@@ -337,9 +360,8 @@ public class TripItemAdapter
         @Override
         public boolean onLongClick (View v)
         {
-            itemView.setBackground (ContextCompat.getDrawable (_adapter._ctx,
-                                                               R.drawable.trip_list_selector_actionmode));
-
+            //            getContainer ().setBackground (ContextCompat.getDrawable (_adapter._ctx,
+            //                                                                      R.drawable.trip_list_selector_actionmode));
             _adapter.toggleSelection (this.getLayoutPosition ());
 
             if (_onTripItemClickListener != null) {

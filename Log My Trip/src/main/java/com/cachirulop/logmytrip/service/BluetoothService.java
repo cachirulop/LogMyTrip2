@@ -10,7 +10,6 @@ import android.os.IBinder;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
-import com.cachirulop.logmytrip.util.ToastHelper;
 
 /**
  * Created by dmagro on 18/09/2015.
@@ -54,9 +53,6 @@ public class BluetoothService
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
     {
-
-        ToastHelper.showDebug (this, "BluetoothService.onStartCommand: starting service");
-
         super.onStartCommand (intent, flags, startId);
 
         registerBluetoothReceiver ();

@@ -11,6 +11,7 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.util.LogHelper;
 
 /**
  * Created by dmagro on 07/10/2015.
@@ -22,6 +23,8 @@ public class LocationReceiver
     public void onReceive (final Context context, Intent intent)
     {
         Location loc;
+
+        LogHelper.d ("LocationReceiver: onReceive");
 
         loc = (Location) intent.getExtras ()
                                .get (LocationManager.KEY_LOCATION_CHANGED);

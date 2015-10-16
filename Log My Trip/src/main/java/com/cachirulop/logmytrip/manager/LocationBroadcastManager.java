@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
-import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.entity.Trip;
 
 /**
@@ -23,7 +21,6 @@ public class LocationBroadcastManager
 
     public static void sendStartSaveTripMessage (Context ctx)
     {
-        Log.d (LogMyTripApplication.LOG_CATEGORY, "Sending start save trip message");
         sendBroadcastMessage (ctx, ACTION_SAVE_TRIP_START);
     }
 
@@ -48,7 +45,6 @@ public class LocationBroadcastManager
 
     public static void sendStopSaveTripMessage (Context ctx, Trip trip)
     {
-        Log.d (LogMyTripApplication.LOG_CATEGORY, "Sending stop save trip message");
         sendBroadcastMessage (ctx, ACTION_SAVE_TRIP_STOP, trip);
     }
 

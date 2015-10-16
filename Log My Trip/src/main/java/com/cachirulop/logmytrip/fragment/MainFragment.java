@@ -11,13 +11,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,7 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
@@ -38,6 +37,7 @@ import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.util.ConfirmDialog;
+import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -156,11 +156,11 @@ public class MainFragment
 
     private void updateActionBarSubtitle ()
     {
-        //        ActionBar bar;
-        //
-        //        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        //        bar.setSubtitle (
-        //                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
+        ActionBar bar;
+
+        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
+        bar.setSubtitle (
+                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
     private void onSaveTripClick (View v)
@@ -317,8 +317,6 @@ public class MainFragment
         progDialog = ProgressDialog.show (_ctx, getString (R.string.app_name),
                                           _ctx.getString (R.string.exporting_trips), true);
 
-        Log.d (LogMyTripApplication.LOG_CATEGORY, "Writing file: " + filename);
-
         final Handler handler = new Handler ()
         {
             @Override
@@ -376,8 +374,7 @@ public class MainFragment
                     fw.close ();
                 }
                 catch (Exception e) {
-                    Log.d (LogMyTripApplication.LOG_CATEGORY,
-                           "Error writing file: " + e.getLocalizedMessage ());
+                    LogHelper.e ("Error writing file: " + e.getLocalizedMessage ());
                 }
 
                 handler.sendEmptyMessage (0);

@@ -12,6 +12,17 @@
         android:orientation="vertical"
         android:padding="5dp">
 
+        <TextView
+            android:id="@+id/tvSegmentTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/default_background"
+            android:gravity="center"
+            android:text="@string/title_segment_num"
+            android:textAlignment="center"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
         <FrameLayout
             android:id="@+id/flMapSegment"
             android:layout_width="match_parent"

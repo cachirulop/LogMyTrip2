@@ -26,7 +26,6 @@ public class TripSummaryViewHolder
 {
     private TripStatisticsAdapter _adapter;
 
-    private TextView              _description;
     private TextView              _locationFrom;
     private TextView              _locationTo;
     private TextView _startDate;
@@ -134,14 +133,18 @@ public class TripSummaryViewHolder
 
     public void bindView (Fragment parentFragment, Trip trip, int position)
     {
-        getDescription ().setText (trip.getDescription ());
-
         TripLocation l;
+
+        getStartDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
+        getStartTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));
 
         l = trip.getStartLocation ();
         if (l != null) {
             getLocationFrom ().setText (l.toString ());
-            FetchAddressService.startService (_ctx, _addressFromReceiver, l.toLocation ());
+
+            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
+                                                                               getLocationFrom ()),
+                                              l.toLocation ());
         }
         else {
             getLocationFrom ().setText ("");
@@ -150,20 +153,18 @@ public class TripSummaryViewHolder
         l = trip.getEndLocation ();
         if (l != null) {
             getLocationTo ().setText (l.toString ());
-            FetchAddressService.startService (_ctx, _addressToReceiver, l.toLocation ());
+            getEndDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
+            getEndTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
+
+            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
+                                                                               getLocationTo ()),
+                                              l.toLocation ());
         }
         else {
             getLocationTo ().setText ("");
+            getEndDate ().setText ("");
+            getEndTime ().setText ("");
         }
-
-        getStartDate ().setText (FormatHelper.formatDate (_ctx, trip.getStartLocation ()
-                                                                    .getLocationTimeAsDate ()));
-        getEndDate ().setText (FormatHelper.formatDate (_ctx, trip.getEndLocation ()
-                                                                  .getLocationTimeAsDate ()));
-        getStartTime ().setText (FormatHelper.formatTime (_ctx, trip.getStartLocation ()
-                                                                    .getLocationTimeAsDate ()));
-        getEndTime ().setText (FormatHelper.formatTime (_ctx, trip.getEndLocation ()
-                                                                  .getLocationTimeAsDate ()));
 
         getTotalDistance ().setText (FormatHelper.formatDistance (trip.computeTotalDistance ()));
         getTotalTime ().setText (FormatHelper.formatDuration (trip.computeTotalTime ()));
@@ -171,19 +172,14 @@ public class TripSummaryViewHolder
         getMediumSpeed ().setText (FormatHelper.formatSpeed (trip.computeMediumSpeed ()));
     }
 
-    public TextView getDescription ()
-    {
-        return _description;
-    }
-
-    public void setDescription (TextView description)
-    {
-        _description = description;
-    }
-
     public TextView getStartDate ()
     {
         return _startDate;
+    }
+
+    public TextView getStartTime ()
+    {
+        return _startTime;
     }
 
     public TextView getEndDate ()
@@ -194,11 +190,6 @@ public class TripSummaryViewHolder
     public void setEndDate (TextView endDate)
     {
         _endDate = endDate;
-    }
-
-    public TextView getStartTime ()
-    {
-        return _startTime;
     }
 
     public TextView getEndTime ()

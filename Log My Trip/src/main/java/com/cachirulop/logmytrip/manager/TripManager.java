@@ -247,7 +247,7 @@ public class TripManager
         return result;
     }
 
-    private static Trip getTodayTrip (Context ctx)
+    public static Trip getTodayTrip (Context ctx)
     {
         SQLiteDatabase db = null;
         Cursor         c  = null;

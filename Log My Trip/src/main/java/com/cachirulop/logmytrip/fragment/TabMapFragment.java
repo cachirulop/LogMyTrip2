@@ -299,4 +299,9 @@ public class TabMapFragment
 
         drawTrack ();
     }
+
+    public void setMapType (int mapType)
+    {
+        _map.setMapType (mapType);
+    }
 }

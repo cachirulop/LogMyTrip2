@@ -30,7 +30,7 @@ public class MainActivity
         // Start the log service
         // startService (new Intent (this, LogMyTripService.class));
         if (SettingsManager.isLogTrip (this)) {
-            ServiceManager.startSaveTrip (this);
+            ServiceManager.startTripLog (this);
         }
 
         if (SettingsManager.isAutoStartLog (this)) {

@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripDetailViewPagerAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.google.android.gms.maps.GoogleMap;
 
 /**
  * Created by david on 14/09/15.
@@ -21,11 +22,14 @@ import com.cachirulop.logmytrip.entity.Trip;
 public class TripDetailFragment
         extends Fragment
 {
-    FloatingActionButton _fabDetailChangeView;
-    ViewPager            _vpDetailPager;
+    private FloatingActionButton       _fabDetailChangeView;
+    private ViewPager                  _vpDetailPager;
+    private TripDetailViewPagerAdapter _adapter;
+    private int                        _mapType;
 
     public TripDetailFragment ()
     {
+        _mapType = GoogleMap.MAP_TYPE_NORMAL;
     }
 
     @Override
@@ -42,28 +46,26 @@ public class TripDetailFragment
         Toolbar           toolbar;
         ActionBar         ab;
         AppCompatActivity app;
+        Trip trip;
 
+        trip = (Trip) getArguments ().getSerializable (MainFragment.ARG_PARAM_TRIP);
         app = (AppCompatActivity) getActivity ();
 
         // Toolbar and back button
         toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
+        toolbar.setTitle (trip.getDescription ());
+
         app.setSupportActionBar (toolbar);
         ab = app.getSupportActionBar ();
         ab.setDisplayHomeAsUpEnabled (true);
 
-        // Creating The ViewPagerAdapter and Passing Fragment Manager, Titles fot the Tabs and Number Of Tabs.
-        TripDetailViewPagerAdapter adapter;
-
-        adapter = new TripDetailViewPagerAdapter (getActivity (),
-                                                  (Trip) getArguments ().getSerializable (
-                                                          MainFragment.ARG_PARAM_TRIP));
+        // Adapter
+        _adapter = new TripDetailViewPagerAdapter (getActivity (), trip);
 
         // ViewPager
         _vpDetailPager = (ViewPager) view.findViewById (R.id.vpDetailPager);
-        _vpDetailPager.setAdapter (adapter);
+        _vpDetailPager.setAdapter (_adapter);
 
-        //        TabLayout tabLayout = (TabLayout) view.findViewById (R.id.trip_detail_tabs);
-        //        tabLayout.setupWithViewPager (_vpDetailPager);
 
         // Change-page button
         _fabDetailChangeView = (FloatingActionButton) view.findViewById (R.id.fabDetailChangeView);
@@ -72,10 +74,26 @@ public class TripDetailFragment
             @Override
             public void onClick (View v)
             {
-                _vpDetailPager.setCurrentItem (_vpDetailPager.getCurrentItem () % 1);
+                if (_vpDetailPager.getCurrentItem () == 0) {
+                    _vpDetailPager.setCurrentItem (1);
+                    _fabDetailChangeView.setImageResource (R.mipmap.ic_button_map);
+                }
+                else {
+                    _vpDetailPager.setCurrentItem (0);
+                    _fabDetailChangeView.setImageResource (R.mipmap.ic_button_statistics);
+                }
             }
         });
-
     }
 
+    public int getMapType ()
+    {
+        return _mapType;
+    }
+
+    public void setMapType (int type)
+    {
+        _mapType = type;
+        _adapter.setMapType (type);
+    }
 }

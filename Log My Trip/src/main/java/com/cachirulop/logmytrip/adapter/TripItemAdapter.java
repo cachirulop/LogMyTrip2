@@ -81,7 +81,7 @@ public class TripItemAdapter
 
             active = TripManager.getActiveTrip (_ctx);
             if (active != null && t.equals (active)) {
-                imgId = R.mipmap.ic_trip_status_saving;
+                imgId = R.mipmap.ic_trip_status_logging;
             }
         }
 
@@ -144,11 +144,7 @@ public class TripItemAdapter
         }
     }
 
-    public void updateTripStatus ()
-    {
-    }
-
-    public void startSaveTrip ()
+    public void startTripLog ()
     {
         Trip current;
         int position;
@@ -167,7 +163,7 @@ public class TripItemAdapter
         }
     }
 
-    public void stopSaveTrip (Trip trip)
+    public void stopTripLog (Trip trip)
     {
         int position;
 

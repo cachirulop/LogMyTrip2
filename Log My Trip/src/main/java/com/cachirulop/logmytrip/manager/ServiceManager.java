@@ -8,14 +8,14 @@ import com.cachirulop.logmytrip.service.LogMyTripService;
 
 public class ServiceManager
 {
-    public static void startSaveTrip (Context ctx)
+    public static void startTripLog (Context ctx)
     {
         SettingsManager.setLogTrip (ctx, true);
 
         ctx.startService (new Intent (ctx, LogMyTripService.class));
     }
 
-    public static void stopSaveTrip (Context ctx)
+    public static void stopTripLog (Context ctx)
     {
         SettingsManager.setLogTrip (ctx, false);
 

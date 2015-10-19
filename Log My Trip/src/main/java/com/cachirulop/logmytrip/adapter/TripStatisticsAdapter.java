@@ -13,6 +13,7 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.view.TripSegmentViewHolder;
 import com.cachirulop.logmytrip.view.TripSummaryViewHolder;
+import com.google.android.gms.maps.GoogleMap;
 
 /**
  * Created by dmagro on 01/09/2015.
@@ -29,6 +30,7 @@ public class TripStatisticsAdapter
     private SparseBooleanArray      _selectedItems;
     private boolean                 _actionMode;
     private OnTripItemClickListener _onTripItemClickListener;
+    private int _mapType;
 
     public TripStatisticsAdapter (Context ctx, Fragment parentFragment, Trip trip)
     {
@@ -39,6 +41,8 @@ public class TripStatisticsAdapter
         _onTripItemClickListener = null;
 
         _selectedItems = new SparseBooleanArray ();
+
+        _mapType = GoogleMap.MAP_TYPE_NORMAL;
     }
 
     public OnTripItemClickListener getOnTripSegmentItemClickListener ()
@@ -68,7 +72,7 @@ public class TripStatisticsAdapter
             case ITEM_TYPE_SEGMENT:
                 rowView = inflater.inflate (R.layout.trip_segment, parent, false);
 
-                return new TripSegmentViewHolder (this, rowView, _ctx);
+                return new TripSegmentViewHolder (this, rowView, _ctx, _mapType);
         }
 
         return null;
@@ -77,7 +81,6 @@ public class TripStatisticsAdapter
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position)
     {
-        // Set data into the view.
         switch (getItemViewType (position)) {
             case ITEM_TYPE_TRIP:
                 ((TripSummaryViewHolder) holder).bindView (_parentFragment, _trip, position);
@@ -113,8 +116,24 @@ public class TripStatisticsAdapter
     @Override
     public int getItemCount ()
     {
-        return _trip.getSegments ()
-                    .size () + 1;
+        int numSegments;
+
+        numSegments = _trip.getSegments ()
+                           .size ();
+        if (numSegments <= 1) {
+            // 1 or 0 segments, only show the summary
+            return 1;
+        }
+        else {
+            // Show the summary + segments
+            return numSegments + 1;
+        }
+    }
+
+    public void setMapType (int type)
+    {
+        _mapType = type;
+        notifyDataSetChanged ();
     }
 
     public void toggleSelection (int pos)
@@ -189,4 +208,5 @@ public class TripStatisticsAdapter
 
         void onTripItemClick (View v, int position);
     }
+
 }

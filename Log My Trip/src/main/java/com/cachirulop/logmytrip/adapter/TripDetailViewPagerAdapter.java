@@ -24,8 +24,8 @@ public class TripDetailViewPagerAdapter
         super (activity.getSupportFragmentManager ());
 
         _titles = new CharSequence[2];
-        _titles[0] = activity.getString (R.string.tab_title_map);
-        _titles[1] = activity.getString (R.string.tab_title_statistics);
+        _titles[0] = activity.getString (R.string.title_map);
+        _titles[1] = activity.getString (R.string.title_statistics);
 
         _fragments = new Fragment[2];
         _fragments[0] = TabMapFragment.newInstance (trip);
@@ -53,5 +53,21 @@ public class TripDetailViewPagerAdapter
     public int getCount ()
     {
         return _fragments.length;
+    }
+
+    public void setMapType (int mapType)
+    {
+        getMapFragment ().setMapType (mapType);
+        getStatisticsFragment ().setMapType (mapType);
+    }
+
+    private TabMapFragment getMapFragment ()
+    {
+        return (TabMapFragment) _fragments[0];
+    }
+
+    private TabStatisticsFragment getStatisticsFragment ()
+    {
+        return (TabStatisticsFragment) _fragments[1];
     }
 }

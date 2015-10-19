@@ -1,7 +1,5 @@
 
-
-* Allow to change the trip description
-* Add map type selector: normal, satellite, etc.
+* Show the new trip when click in start save button
 * Allow to delete segments
 * Capture the states changes on the location provider
 * Export database on lollipop and Marshmallow
@@ -13,6 +11,7 @@
 * Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
+* Draw arrow direction on tracks
 
 * Filter bluetooth device to start log
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
@@ -35,3 +34,5 @@ X Ask when delete a trip
 X Make trip statistics tab
 X Don't get all the location request, sometimes the accuracy is very bad
 X Change trip detail title with the trip description
+X Allow to change the trip description
+X Add map type selector: normal, satellite, etc.

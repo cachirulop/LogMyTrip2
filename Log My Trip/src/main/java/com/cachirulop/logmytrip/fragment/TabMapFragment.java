@@ -263,7 +263,7 @@ public class TabMapFragment
                     {
                         // Move camera.
                         _map.moveCamera (
-                                CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
+                                CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
 
                         // Remove listener to prevent position reset on camera move.
                         _map.setOnCameraChangeListener (null);

@@ -155,6 +155,7 @@
     <string name="msg_database_imported">Database imported</string>
     <string name="msg_exporting_trips">Exporting trips</string>
     <string name="msg_delete_confirm">Delete selected trips. Are you sure?</string>
+    <string name="msg_edit_trip">Trip properties</string>
 
     <!-- Errors -->
     <string name="error_cant_read_file">Can\'t read file</string>
@@ -182,5 +183,7 @@
     <string name="action_map_type">Map type</string>
     <string name="action_edit">Edit</string>
     <string name="title_map_type">Select map type</string>
+    <string name="title_title">Title</string>
+    <string name="title_edit_trip">Edit trip</string>
 
 </resources>

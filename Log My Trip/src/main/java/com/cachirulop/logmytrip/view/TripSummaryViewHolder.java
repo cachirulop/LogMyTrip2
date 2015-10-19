@@ -60,7 +60,7 @@ public class TripSummaryViewHolder
         parent.setOnLongClickListener (this);
 
         _descriptionRow = (TableRow) parent.findViewById (R.id.tvTripSummaryDescriptionRow);
-        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescriptionTitle);
+        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);

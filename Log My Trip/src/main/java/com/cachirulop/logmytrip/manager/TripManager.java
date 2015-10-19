@@ -283,10 +283,15 @@ public class TripManager
         result.setTripDate (new Date ());
         result.setTitle (FormatHelper.formatDate (ctx, result.getTripDate ()));
 
-        return saveTrip (ctx, result, true);
+        return insertTrip (ctx, result);
     }
 
-    public static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
+    public static Trip insertTrip (Context ctx, Trip t)
+    {
+        return saveTrip (ctx, t, true);
+    }
+
+    private static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
     {
         SQLiteDatabase db = null;
 
@@ -329,6 +334,11 @@ public class TripManager
     private static long getLastIdTrip (Context ctx)
     {
         return new LogMyTripDataHelper (ctx).getLastId (CONST_TRIP_TABLE_NAME);
+    }
+
+    public static Trip updateTrip (Context ctx, Trip t)
+    {
+        return saveTrip (ctx, t, false);
     }
 
     public static void unsetActiveTrip (Context ctx)

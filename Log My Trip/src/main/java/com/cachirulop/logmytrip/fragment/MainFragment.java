@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
+import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
@@ -36,7 +37,6 @@ import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.util.ConfirmDialog;
 import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.io.File;

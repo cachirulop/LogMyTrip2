@@ -177,6 +177,8 @@ public class MainFragment
 
             updateActionBarSubtitle ();
         }
+
+        _recyclerView.scrollToPosition (0);
     }
 
     public void reloadTrips ()

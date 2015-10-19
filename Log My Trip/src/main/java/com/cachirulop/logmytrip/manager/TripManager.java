@@ -101,6 +101,7 @@ public class TripManager
         result = new Trip ();
 
         result.setId (c.getLong (c.getColumnIndex ("id")));
+        result.setTitle (c.getString (c.getColumnIndex ("title")));
         result.setDescription (c.getString (c.getColumnIndex ("description")));
         result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
 
@@ -280,7 +281,7 @@ public class TripManager
 
         result = new Trip ();
         result.setTripDate (new Date ());
-        result.setDescription (FormatHelper.formatDate (ctx, result.getTripDate ()));
+        result.setTitle (FormatHelper.formatDate (ctx, result.getTripDate ()));
 
         return saveTrip (ctx, result, true);
     }
@@ -298,6 +299,7 @@ public class TripManager
 
             values.put ("trip_date", t.getTripDate ()
                                       .getTime ());
+            values.put ("title", t.getTitle ());
             values.put ("description", t.getDescription ());
 
             if (isInsert) {

@@ -332,13 +332,15 @@ public class MainFragment
                 try {
                     FileWriter fw = new FileWriter (filename);
 
-                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Description" });
+                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Title",
+                                                     "Description" });
                     writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
                                                      DateFormat.getMediumDateFormat (_ctx)
                                                                .format (t.getTripDate ()),
                                                      DateFormat.format ("HH:mm:ss",
                                                                         t.getTripDate ())
-                                                               .toString (), t.getDescription () });
+                                                               .toString (), t.getTitle (),
+                                                     t.getDescription () });
 
                     writeFileLine (fw, new String[]{ " " });
 

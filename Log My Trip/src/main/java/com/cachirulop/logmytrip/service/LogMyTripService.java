@@ -52,7 +52,7 @@ public class LogMyTripService
         if (_locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
             TripManager.startTrip (this);
 
-            LocationBroadcastManager.sendStartSaveTripMessage (this);
+            LocationBroadcastManager.sendStartTripLogMessage (this);
 
             _locationMgr.requestLocationUpdates (LocationManager.GPS_PROVIDER,
                                                  SettingsManager.getGpsTimeInterval (this),
@@ -68,10 +68,10 @@ public class LogMyTripService
     {
         Notification note;
 
-        note = NotifyManager.createSavingTrip (this,
-                                               this.getText (R.string.notif_ContentSavingTrip));
+        note = NotifyManager.createTripLogging (this,
+                                                this.getText (R.string.notif_ContentLoggingTrip));
 
-        startForeground (NotifyManager.NOTIFICATION_SAVING_TRIP, note);
+        startForeground (NotifyManager.NOTIFICATION_TRIP_LOGGING, note);
     }
 
     private PendingIntent getLocationIntent ()
@@ -109,7 +109,7 @@ public class LogMyTripService
 
         TripManager.unsetActiveTrip (this);
 
-        LocationBroadcastManager.sendStopSaveTripMessage (this, trip);
+        LocationBroadcastManager.sendStopTripLogMessage (this, trip);
 
         _locationMgr.removeUpdates (getLocationIntent ());
     }

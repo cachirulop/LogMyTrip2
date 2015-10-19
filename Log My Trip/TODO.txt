@@ -1,35 +1,37 @@
 
 
+* Allow to change the trip description
+* Add map type selector: normal, satellite, etc.
+* Allow to delete segments
 * Capture the states changes on the location provider
 * Export database on lollipop and Marshmallow
-* Go to the detail trip on start saving from MainActivity
+* Go to the detail trip on start logging from MainActivity
 * Follow the current trip better in the map view
-* Add a button in the map view to stop saving
-* Add map type selector: normal, satellite, etc.
+* Add a button in the map view to stop logging
 * In statistics map allow to select a segment
 * Change segment start/end marks
 * Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
 
-* Filter bluetooth device to start save
-* If autostart on boot and autosave bluetooth is active and the bluetooth is connected,
-then start saving trip
+* Filter bluetooth device to start log
+* If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
+then start logging trip
 * Change the notification messages
-* Add actions to notification icon: stop autosave, stop saving
-* Don't get all the location request, sometimes the accuracy is very bad
+* Add actions to notification icon: stop autolog, stop log
 
 * New autostart option 'Always'
-* Change interface like cheesesquare example https://github.com/chrisbanes/cheesesquare
 
 X Change the bluetooth icon
 X Make trip segments
 X When go to the map and return produces an exception:
     Activity com.cachirulop.logmytrip.activity.TripDetailActivity has leaked ServiceConnection
     com.cachirulop.logmytrip.fragment.TabMapFragment$2@b13eb178 that was originally bound here
-X Broadcast messages on start and stop save trip
+X Broadcast messages on start and stop trip log
 X Change the currenttrip algorithm
 X Autostart on boot
-X Add autosave menu option in main activity
+X Add autolog menu option in main activity
 X Ask when delete a trip
-X Make trip statistics tab - In progress
+X Make trip statistics tab
+X Don't get all the location request, sometimes the accuracy is very bad
+X Change trip detail title with the trip description

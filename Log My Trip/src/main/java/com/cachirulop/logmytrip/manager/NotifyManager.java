@@ -11,12 +11,12 @@ import com.cachirulop.logmytrip.activity.MainActivity;
 
 public class NotifyManager
 {
-    public static final int NOTIFICATION_SAVING_TRIP       = 1133;
+    public static final int NOTIFICATION_TRIP_LOGGING = 1133;
     public static final int NOTIFICATION_WAITING_BLUETOOTH = 1134;
 
-    public static void hideSavingTrip (Context ctx)
+    public static void hideTripLogging (Context ctx)
     {
-        hideNotification (ctx, NOTIFICATION_SAVING_TRIP);
+        hideNotification (ctx, NOTIFICATION_TRIP_LOGGING);
     }
 
     private static void hideNotification (Context ctx, int id)
@@ -34,9 +34,9 @@ public class NotifyManager
         hideNotification (ctx, NOTIFICATION_WAITING_BLUETOOTH);
     }
 
-    public static void showSavingTrip (Context ctx, CharSequence contentText)
+    public static void showTripLogging (Context ctx, CharSequence contentText)
     {
-        showNotification (ctx, contentText, NOTIFICATION_SAVING_TRIP);
+        showNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
     }
 
     private static void showNotification (Context ctx, CharSequence contentText, int id)
@@ -60,8 +60,8 @@ public class NotifyManager
         builder.setContentText (contextText);
 
         switch (id) {
-            case NOTIFICATION_SAVING_TRIP:
-                builder.setSmallIcon (R.mipmap.ic_trip_status_saving);
+            case NOTIFICATION_TRIP_LOGGING:
+                builder.setSmallIcon (R.mipmap.ic_trip_status_logging);
                 break;
 
             case NOTIFICATION_WAITING_BLUETOOTH:
@@ -82,9 +82,9 @@ public class NotifyManager
         showNotification (ctx, contentText, NOTIFICATION_WAITING_BLUETOOTH);
     }
 
-    public static Notification createSavingTrip (Context ctx, CharSequence contentText)
+    public static Notification createTripLogging (Context ctx, CharSequence contentText)
     {
-        return createNotification (ctx, contentText, NOTIFICATION_SAVING_TRIP);
+        return createNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
     }
 
     public static Notification createWaitingBluetooth (Context ctx, CharSequence contentText)

@@ -58,15 +58,17 @@ public class TripSegmentViewHolder
     private Context               _ctx;
     private AddressResultReceiver _addressFromReceiver;
     private AddressResultReceiver _addressToReceiver;
+    private int _mapType;
 
     private TripStatisticsAdapter.OnTripItemClickListener _onTripItemClickListener;
 
-    public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx)
+    public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx, int mapType)
     {
         super (parent);
 
         _adapter = adapter;
         _ctx = ctx;
+        _mapType = mapType;
 
         parent.setClickable (true);
         parent.setLongClickable (true);
@@ -156,7 +158,6 @@ public class TripSegmentViewHolder
     {
         _segment = tripSegment;  // To get locations
 
-        // General data
         TripLocation l;
 
         _title.setText (String.format (_ctx.getString (R.string.title_segment_num), position));
@@ -164,29 +165,34 @@ public class TripSegmentViewHolder
         l = _segment.getStartLocation ();
         if (l != null) {
             getLocationFrom ().setText (l.toString ());
-            FetchAddressService.startService (_ctx, _addressFromReceiver, l.toLocation ());
+            getStartDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
+            getStartTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
+
+            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
+                                                                               getLocationFrom ()),
+                                              l.toLocation ());
         }
         else {
             getLocationFrom ().setText ("");
+            getStartDate ().setText ("");
+            getStartTime ().setText ("");
         }
 
         l = _segment.getEndLocation ();
         if (l != null) {
             getLocationTo ().setText (l.toString ());
-            FetchAddressService.startService (_ctx, _addressToReceiver, l.toLocation ());
+            getEndDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
+            getEndTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
+
+            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
+                                                                               getLocationTo ()),
+                                              l.toLocation ());
         }
         else {
             getLocationTo ().setText ("");
+            getEndDate ().setText ("");
+            getEndTime ().setText ("");
         }
-
-        getStartDate ().setText (FormatHelper.formatDate (_ctx, _segment.getStartLocation ()
-                                                                        .getLocationTimeAsDate ()));
-        getEndDate ().setText (FormatHelper.formatDate (_ctx, _segment.getEndLocation ()
-                                                                      .getLocationTimeAsDate ()));
-        getStartTime ().setText (FormatHelper.formatTime (_ctx, _segment.getStartLocation ()
-                                                                        .getLocationTimeAsDate ()));
-        getEndTime ().setText (FormatHelper.formatTime (_ctx, _segment.getEndLocation ()
-                                                                      .getLocationTimeAsDate ()));
 
         getTotalDistance ().setText (
                 FormatHelper.formatDistance (_segment.computeTotalDistance ()));
@@ -203,6 +209,8 @@ public class TripSegmentViewHolder
         mapView = new MapView (_ctx, options);
         mapView.onCreate (null);
         mapView.getMapAsync (new MapReadyCallback ());
+        mapView.getMap ()
+               .setMapType (_mapType);
 
         _mapFrame.addView (mapView);
     }
@@ -210,6 +218,11 @@ public class TripSegmentViewHolder
     public TextView getStartDate ()
     {
         return _startDate;
+    }
+
+    public TextView getStartTime ()
+    {
+        return _startTime;
     }
 
     public TextView getEndDate ()
@@ -220,11 +233,6 @@ public class TripSegmentViewHolder
     public void setEndDate (TextView endDate)
     {
         _endDate = endDate;
-    }
-
-    public TextView getStartTime ()
-    {
-        return _startTime;
     }
 
     public TextView getEndTime ()
@@ -345,20 +353,6 @@ public class TripSegmentViewHolder
         border.setPoints (track);
 
         map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
-
-        //            map.setOnCameraChangeListener (new GoogleMap.OnCameraChangeListener ()
-        //            {
-        //
-        //                @Override
-        //                public void onCameraChange (CameraPosition arg0)
-        //                {
-        //                    // Move camera.
-        //                    map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
-        //
-        //                    // Remove listener to prevent position reset on camera move.
-        //                    map.setOnCameraChangeListener (null);
-        //                }
-        //            });
     }
 
     public TripStatisticsAdapter getAdapter ()

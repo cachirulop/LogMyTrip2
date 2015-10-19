@@ -13,15 +13,15 @@ import com.cachirulop.logmytrip.entity.Trip;
  */
 public class LocationBroadcastManager
 {
-    private static final String BROADCAST_PREFIX       = "com.cachirulop.logmytrip.LocationBroadcastManager.";
-    private static final String ACTION_SAVE_TRIP_START = BROADCAST_PREFIX + "start";
-    private static final String ACTION_SAVE_TRIP_STOP  = BROADCAST_PREFIX + "stop";
-    private static final String ACTION_NEW_LOCATION = BROADCAST_PREFIX + "new_location";
-    private static final String EXTRA_TRIP             = BROADCAST_PREFIX + "trip";
+    private static final String BROADCAST_PREFIX      = "com.cachirulop.logmytrip.LocationBroadcastManager.";
+    private static final String ACTION_TRIP_LOG_START = BROADCAST_PREFIX + "start";
+    private static final String ACTION_TRIP_LOG_STOP  = BROADCAST_PREFIX + "stop";
+    private static final String ACTION_NEW_LOCATION   = BROADCAST_PREFIX + "new_location";
+    private static final String EXTRA_TRIP            = BROADCAST_PREFIX + "trip";
 
-    public static void sendStartSaveTripMessage (Context ctx)
+    public static void sendStartTripLogMessage (Context ctx)
     {
-        sendBroadcastMessage (ctx, ACTION_SAVE_TRIP_START);
+        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_START);
     }
 
     private static void sendBroadcastMessage (Context ctx, String action)
@@ -43,9 +43,9 @@ public class LocationBroadcastManager
                              .sendBroadcast (intent);
     }
 
-    public static void sendStopSaveTripMessage (Context ctx, Trip trip)
+    public static void sendStopTripLogMessage (Context ctx, Trip trip)
     {
-        sendBroadcastMessage (ctx, ACTION_SAVE_TRIP_STOP, trip);
+        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_STOP, trip);
     }
 
     public static void sendNewLocationMessage (Context ctx)
@@ -53,17 +53,16 @@ public class LocationBroadcastManager
         sendBroadcastMessage (ctx, ACTION_NEW_LOCATION);
     }
 
-    public static void registerSaveTripStartReceiver (Context ctx, BroadcastReceiver receiver)
+    public static void registerTripLogStartReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver,
-                                                new IntentFilter (ACTION_SAVE_TRIP_START));
+                             .registerReceiver (receiver, new IntentFilter (ACTION_TRIP_LOG_START));
     }
 
-    public static void registerSaveTripStopReceiver (Context ctx, BroadcastReceiver receiver)
+    public static void registerTripLogStopReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_SAVE_TRIP_STOP));
+                             .registerReceiver (receiver, new IntentFilter (ACTION_TRIP_LOG_STOP));
     }
 
     public static void registerNewLocationReceiver (Context ctx, BroadcastReceiver receiver)

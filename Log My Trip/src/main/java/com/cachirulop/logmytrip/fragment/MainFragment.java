@@ -53,23 +53,23 @@ public class MainFragment
 
     private RecyclerView    _recyclerView;
     private TripItemAdapter _adapter;
-    public BroadcastReceiver _onSaveTripStopReceiver = new BroadcastReceiver ()
+    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.stopSaveTrip (LocationBroadcastManager.getTrip (intent));
+            _adapter.stopTripLog (LocationBroadcastManager.getTrip (intent));
         }
     };
     private ActionMode           _actionMode;
-    private FloatingActionButton _fabSaveTrip;
+    private FloatingActionButton _fabTripLog;
     private Context              _ctx;
-    private BroadcastReceiver _onSaveTripStartReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.startSaveTrip ();
+            _adapter.startTripLog ();
         }
     };
 
@@ -87,8 +87,8 @@ public class MainFragment
     @Override
     public void onDestroyView ()
     {
-        LocationBroadcastManager.unregisterReceiver (_ctx, _onSaveTripStartReceiver);
-        LocationBroadcastManager.unregisterReceiver (_ctx, _onSaveTripStopReceiver);
+        LocationBroadcastManager.unregisterReceiver (_ctx, _onTripLogStartReceiver);
+        LocationBroadcastManager.unregisterReceiver (_ctx, _onTripLogStopReceiver);
 
         super.onDestroyView ();
     }
@@ -118,27 +118,27 @@ public class MainFragment
             loadTrips ();
             updateActionBarSubtitle ();
 
-            // Save button
-            _fabSaveTrip = (FloatingActionButton) getView ().findViewById (R.id.fabSaveTrip);
-            _fabSaveTrip.setOnClickListener (new View.OnClickListener ()
+            // Log button
+            _fabTripLog = (FloatingActionButton) getView ().findViewById (R.id.fabTripLog);
+            _fabTripLog.setOnClickListener (new View.OnClickListener ()
             {
                 @Override
                 public void onClick (View v)
                 {
-                    onSaveTripClick (v);
+                    onTripLogClick (v);
                 }
             });
 
             if (SettingsManager.isLogTrip (_ctx)) {
-                _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
+                _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
             }
             else {
-                _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
+                _fabTripLog.setImageResource (R.mipmap.ic_button_save);
             }
 
             // Receive the broadcast of the LogMyTripService class
-            LocationBroadcastManager.registerSaveTripStartReceiver (_ctx, _onSaveTripStartReceiver);
-            LocationBroadcastManager.registerSaveTripStopReceiver (_ctx, _onSaveTripStopReceiver);
+            LocationBroadcastManager.registerTripLogStartReceiver (_ctx, _onTripLogStartReceiver);
+            LocationBroadcastManager.registerTripLogStopReceiver (_ctx, _onTripLogStopReceiver);
         }
     }
 
@@ -163,17 +163,17 @@ public class MainFragment
                 _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
     }
 
-    private void onSaveTripClick (View v)
+    private void onTripLogClick (View v)
     {
         if (SettingsManager.isLogTrip (_ctx)) {
-            ServiceManager.stopSaveTrip (_ctx);
+            ServiceManager.stopTripLog (_ctx);
 
-            _fabSaveTrip.setImageResource (R.mipmap.ic_button_save);
+            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
         }
         else {
-            ServiceManager.startSaveTrip (_ctx);
+            ServiceManager.startTripLog (_ctx);
 
-            _fabSaveTrip.setImageResource (android.R.drawable.ic_media_pause);
+            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
 
             updateActionBarSubtitle ();
         }
@@ -204,7 +204,7 @@ public class MainFragment
     private void updateActionModeTitle ()
     {
         _actionMode.setTitle (
-                getString (R.string.selected_count, _adapter.getSelectedItemCount ()));
+                getString (R.string.title_selected_count, _adapter.getSelectedItemCount ()));
     }
 
     /*  ActionMode.Callback implementation */
@@ -233,7 +233,7 @@ public class MainFragment
         MenuInflater inflater = mode.getMenuInflater ();
         inflater.inflate (R.menu.menu_trip_actionmode, menu);
 
-        _fabSaveTrip.hide ();
+        _fabTripLog.hide ();
 
         return true;
     }
@@ -266,7 +266,7 @@ public class MainFragment
     {
         ConfirmDialog dlg;
 
-        dlg = new ConfirmDialog (R.string.delete, R.string.delete_confirm)
+        dlg = new ConfirmDialog (R.string.title_delete, R.string.msg_delete_confirm)
         {
             @Override
             public void onOkClicked ()
@@ -315,7 +315,7 @@ public class MainFragment
         final ProgressDialog progDialog;
 
         progDialog = ProgressDialog.show (_ctx, getString (R.string.app_name),
-                                          _ctx.getString (R.string.exporting_trips), true);
+                                          _ctx.getString (R.string.msg_exporting_trips), true);
 
         final Handler handler = new Handler ()
         {
@@ -400,7 +400,7 @@ public class MainFragment
         _actionMode = null;
         _adapter.setActionMode (false);
         _adapter.clearSelections ();
-        _fabSaveTrip.show ();
+        _fabTripLog.show ();
 
         updateActionBarSubtitle ();
     }

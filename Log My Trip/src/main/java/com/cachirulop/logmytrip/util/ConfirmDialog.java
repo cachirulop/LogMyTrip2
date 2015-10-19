@@ -79,9 +79,7 @@ public abstract class ConfirmDialog
     }
 
     /**
-     * called when "ok" pressed.
-     *
-     * @param input
+     * Called when "ok" pressed.
      */
     abstract public void onOkClicked ();
 }

@@ -1,5 +1,4 @@
 
-* Show the new trip when click in start save button
 * Allow to delete segments
 * Capture the states changes on the location provider
 * Export database on lollipop and Marshmallow
@@ -36,3 +35,4 @@ X Don't get all the location request, sometimes the accuracy is very bad
 X Change trip detail title with the trip description
 X Allow to change the trip description
 X Add map type selector: normal, satellite, etc.
+X Show the new trip when click in start save button

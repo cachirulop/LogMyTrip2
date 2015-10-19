@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
@@ -26,8 +27,10 @@ public class TripSummaryViewHolder
 {
     private TripStatisticsAdapter _adapter;
 
-    private TextView              _locationFrom;
-    private TextView              _locationTo;
+    private TextView _description;
+    private TableRow _descriptionRow;
+    private TextView _locationFrom;
+    private TextView _locationTo;
     private TextView _startDate;
     private TextView _endDate;
     private TextView _startTime;
@@ -55,6 +58,9 @@ public class TripSummaryViewHolder
 
         parent.setOnClickListener (this);
         parent.setOnLongClickListener (this);
+
+        _descriptionRow = (TableRow) parent.findViewById (R.id.tvTripSummaryDescriptionRow);
+        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescriptionTitle);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
@@ -134,6 +140,14 @@ public class TripSummaryViewHolder
     public void bindView (Fragment parentFragment, Trip trip, int position)
     {
         TripLocation l;
+
+        if (trip.getDescription () != null) {
+            _descriptionRow.setVisibility (View.VISIBLE);
+            _description.setText (trip.getDescription ());
+        }
+        else {
+            _descriptionRow.setVisibility (View.GONE);
+        }
 
         getStartDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
         getStartTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));

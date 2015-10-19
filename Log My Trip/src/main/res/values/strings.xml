@@ -164,7 +164,7 @@
     <string name="title_delete">Delete</string>
     <string name="title_selected_count">%1$s selected</string>
     <string name="title_activity_maps">Map</string>
-    <string name="title_description">Trip name</string>
+    <string name="title_description">Description</string>
     <string name="title_start_date">Start date</string>
     <string name="title_start_time">Start time</string>
     <string name="title_end_date">End date</string>

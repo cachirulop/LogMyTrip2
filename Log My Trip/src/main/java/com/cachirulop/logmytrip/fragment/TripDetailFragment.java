@@ -53,7 +53,7 @@ public class TripDetailFragment
 
         // Toolbar and back button
         toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
-        toolbar.setTitle (trip.getDescription ());
+        toolbar.setTitle (trip.getTitle ());
 
         app.setSupportActionBar (toolbar);
         ab = app.getSupportActionBar ();

@@ -221,7 +221,8 @@ public class Trip
     {
         int result = (int) (_id ^ (_id >>> 32));
         result = 31 * result + _tripDate.hashCode ();
-        result = 31 * result + _description.hashCode ();
+        result = 31 * result + _title.hashCode ();
+
         return result;
     }
 

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.util.FormatHelper;
@@ -33,7 +34,7 @@ public class TripItemViewHolder
     private TextView        _time;
     private RelativeLayout  _container;
 
-    private TripItemAdapter.OnTripItemClickListener _onTripItemClickListener;
+    private RecyclerViewItemClickListener _onTripItemClickListener;
 
     public TripItemViewHolder (Context ctx, TripItemAdapter adapter, View parent)
     {
@@ -70,12 +71,12 @@ public class TripItemViewHolder
         return _container;
     }
 
-    public TripItemAdapter.OnTripItemClickListener getOnTripItemClickListener ()
+    public RecyclerViewItemClickListener getOnTripItemClickListener ()
     {
         return _onTripItemClickListener;
     }
 
-    public void setOnTripItemClickListener (TripItemAdapter.OnTripItemClickListener listener)
+    public void setOnTripItemClickListener (RecyclerViewItemClickListener listener)
     {
         _onTripItemClickListener = listener;
     }
@@ -88,7 +89,7 @@ public class TripItemViewHolder
         }
 
         if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
+            _onTripItemClickListener.onRecyclerViewItemClick (v, this.getAdapterPosition ());
         }
     }
 
@@ -98,13 +99,13 @@ public class TripItemViewHolder
         _adapter.toggleSelection (this.getLayoutPosition ());
 
         if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
+            _onTripItemClickListener.onRecyclerViewItemLongClick (v, this.getAdapterPosition ());
         }
 
         return false;
     }
 
-    public void bindView (Trip trip, boolean activated, int background, TripItemAdapter.OnTripItemClickListener listener)
+    public void bindView (Trip trip, boolean activated, int background, RecyclerViewItemClickListener listener)
     {
         int imgId;
 

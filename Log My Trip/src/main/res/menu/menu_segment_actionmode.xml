@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.cachirulop.logmytrip.MainActivity">
+
+    <item
+        android:id="@+id/action_delete_selected_trip"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:orderInCategory="201"
+        android:title="@string/action_delete"
+        app:showAsAction="always"/>
+
+</menu>

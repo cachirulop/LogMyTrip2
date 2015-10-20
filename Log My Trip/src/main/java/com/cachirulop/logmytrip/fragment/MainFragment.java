@@ -46,7 +46,7 @@ import java.util.List;
 
 public class MainFragment
         extends Fragment
-        implements TripItemAdapter.OnTripItemClickListener,
+        implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
@@ -192,7 +192,7 @@ public class MainFragment
     }
 
     @Override
-    public void onTripItemLongClick (View v, int position)
+    public void onRecyclerViewItemLongClick (View v, int position)
     {
         if (_actionMode != null) {
             return;
@@ -209,10 +209,8 @@ public class MainFragment
                 getString (R.string.title_selected_count, _adapter.getSelectedItemCount ()));
     }
 
-    /*  ActionMode.Callback implementation */
-
     @Override
-    public void onTripItemClick (View view, int position)
+    public void onRecyclerViewItemClick (View view, int position)
     {
         if (_actionMode != null) {
             updateActionModeTitle ();

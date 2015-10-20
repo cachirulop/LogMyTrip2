@@ -3,8 +3,7 @@ package com.cachirulop.logmytrip.viewholder;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -14,9 +13,11 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
 import com.cachirulop.logmytrip.util.FormatHelper;
+import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -60,7 +61,7 @@ public class TripSegmentViewHolder
     private AddressResultReceiver _addressToReceiver;
     private int _mapType;
 
-    private TripStatisticsAdapter.OnTripItemClickListener _onTripItemClickListener;
+    private RecyclerViewItemClickListener _onTripStatisticsClickListener;
 
     public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx, int mapType)
     {
@@ -94,7 +95,7 @@ public class TripSegmentViewHolder
         _maxSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMaxSpeed);
         _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMediumSpeed);
 
-        _onTripItemClickListener = null;
+        _onTripStatisticsClickListener = null;
     }
 
     public TextView getLocationFrom ()
@@ -117,14 +118,14 @@ public class TripSegmentViewHolder
         _locationTo = locationTo;
     }
 
-    public TripStatisticsAdapter.OnTripItemClickListener getOnTripItemClickListener ()
+    public RecyclerViewItemClickListener getOnTripStatisticsClickListener ()
     {
-        return _onTripItemClickListener;
+        return _onTripStatisticsClickListener;
     }
 
-    public void setOnTripItemClickListener (TripStatisticsAdapter.OnTripItemClickListener listener)
+    public void setOnTripStatisticsClickListener (RecyclerViewItemClickListener listener)
     {
-        _onTripItemClickListener = listener;
+        _onTripStatisticsClickListener = listener;
     }
 
     @Override
@@ -134,29 +135,29 @@ public class TripSegmentViewHolder
             _adapter.toggleSelection (this.getLayoutPosition ());
         }
 
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
+        if (_onTripStatisticsClickListener != null) {
+            _onTripStatisticsClickListener.onRecyclerViewItemClick (v, this.getAdapterPosition ());
         }
     }
 
     @Override
     public boolean onLongClick (View v)
     {
-        itemView.setBackground (
-                ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector_actionmode));
-
         _adapter.toggleSelection (this.getLayoutPosition ());
 
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
+        if (_onTripStatisticsClickListener != null) {
+            _onTripStatisticsClickListener.onRecyclerViewItemLongClick (v,
+                                                                        this.getAdapterPosition ());
         }
 
         return false;
     }
 
-    public void bindView (Fragment parentFragment, TripSegment tripSegment, int position)
+    public void bindView (TripSegment tripSegment, int position, int background, RecyclerViewItemClickListener listener)
     {
         _segment = tripSegment;  // To get locations
+
+        setOnTripStatisticsClickListener (listener);
 
         TripLocation l;
 
@@ -213,6 +214,12 @@ public class TripSegmentViewHolder
                .setMapType (_mapType);
 
         _mapFrame.addView (mapView);
+
+        LogHelper.d ("bindView: Color = " + background);
+
+        // Background
+        ((CardView) itemView).setCardBackgroundColor (_ctx.getResources ()
+                                                          .getColor (background));
     }
 
     public TextView getStartDate ()

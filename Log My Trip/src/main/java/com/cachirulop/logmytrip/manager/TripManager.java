@@ -10,6 +10,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.util.FormatHelper;
 
 import java.util.ArrayList;
@@ -119,6 +120,25 @@ public class TripManager
                        new String[]{ Long.toString (t.getId ()) });
 
             db.delete (CONST_TRIP_TABLE_NAME, "id = ?", new String[]{ Long.toString (t.getId ()) });
+        }
+        finally {
+            if (db != null) {
+                db.close ();
+            }
+        }
+    }
+
+    public static void deleteSegment (Context ctx, TripSegment segment)
+    {
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
+
+            for (TripLocation l : segment.getLocations ()) {
+                db.delete (CONST_LOCATION_TABLE_NAME, "id = ?",
+                           new String[]{ Long.toString (l.getId ()) });
+            }
         }
         finally {
             if (db != null) {

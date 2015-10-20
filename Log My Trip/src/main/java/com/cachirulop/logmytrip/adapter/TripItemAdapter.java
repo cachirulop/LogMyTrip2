@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.viewholder.TripItemViewHolder;
 
@@ -25,9 +26,9 @@ public class TripItemAdapter
     Context _ctx;
     List<Trip> _items;
 
-    private SparseBooleanArray _selectedItems;
-    private boolean            _actionMode;
-    private OnTripItemClickListener _onTripItemClickListener;
+    private SparseBooleanArray            _selectedItems;
+    private boolean                       _actionMode;
+    private RecyclerViewItemClickListener _onTripItemClickListener;
 
     public TripItemAdapter (Context ctx)
     {
@@ -39,12 +40,12 @@ public class TripItemAdapter
         _selectedItems = new SparseBooleanArray ();
     }
 
-    public OnTripItemClickListener getOnTripItemClickListener ()
+    public RecyclerViewItemClickListener getOnTripItemClickListener ()
     {
         return _onTripItemClickListener;
     }
 
-    public void setOnTripItemClickListener (OnTripItemClickListener listener)
+    public void setOnTripItemClickListener (RecyclerViewItemClickListener listener)
     {
         _onTripItemClickListener = listener;
     }
@@ -206,9 +207,4 @@ public class TripItemAdapter
         notifyDataSetChanged ();
     }
 
-    public interface OnTripItemClickListener
-    {
-        void onTripItemLongClick (View v, int position);
-        void onTripItemClick (View v, int position);
-    }
 }

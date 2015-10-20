@@ -154,7 +154,7 @@
     <string name="msg_database_importing">Importing database</string>
     <string name="msg_database_imported">Database imported</string>
     <string name="msg_exporting_trips">Exporting trips</string>
-    <string name="msg_delete_confirm">Delete selected trips. Are you sure?</string>
+    <string name="msg_delete_confirm">Delete selected items. Are you sure?</string>
     <string name="msg_edit_trip">Trip properties</string>
 
     <!-- Errors -->

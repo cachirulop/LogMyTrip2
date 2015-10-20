@@ -11,8 +11,8 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.view.TripSegmentViewHolder;
-import com.cachirulop.logmytrip.view.TripSummaryViewHolder;
+import com.cachirulop.logmytrip.viewholder.TripSegmentViewHolder;
+import com.cachirulop.logmytrip.viewholder.TripSummaryViewHolder;
 import com.google.android.gms.maps.GoogleMap;
 
 /**

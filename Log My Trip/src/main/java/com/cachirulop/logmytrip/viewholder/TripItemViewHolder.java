@@ -1,4 +1,4 @@
-package com.cachirulop.logmytrip.view;
+package com.cachirulop.logmytrip.viewholder;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;

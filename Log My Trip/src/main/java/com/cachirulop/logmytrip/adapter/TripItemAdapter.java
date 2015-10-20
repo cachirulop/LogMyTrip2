@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.view.TripItemViewHolder;
+import com.cachirulop.logmytrip.viewholder.TripItemViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

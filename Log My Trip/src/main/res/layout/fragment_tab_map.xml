@@ -12,10 +12,17 @@
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         map:liteMode="false"
         map:mapType="normal"
         tools:context="com.cachirulop.logmytrip.MapsActivity"
         />
 
+    <ViewStub
+        android:id="@+id/vsGPSStatusStub"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:inflatedId="@+id/vGPSStatus"
+        android:layout="@layout/view_gps_status"/>
 </android.support.design.widget.CoordinatorLayout>

@@ -3,7 +3,6 @@ package com.cachirulop.logmytrip.adapter;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +10,10 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.viewholder.TripSegmentViewHolder;
 import com.cachirulop.logmytrip.viewholder.TripSummaryViewHolder;
 import com.google.android.gms.maps.GoogleMap;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,35 +25,17 @@ public class TripStatisticsAdapter
 
     private final int ITEM_TYPE_TRIP    = 0;
     private final int ITEM_TYPE_SEGMENT = 1;
-    Context  _ctx;
-    Trip     _trip;
-    Fragment _parentFragment;
-    private SparseBooleanArray            _selectedItems;
-    private boolean                       _actionMode;
-    private RecyclerViewItemClickListener _onTripStatisticsClickListener;
+
+    private Context _ctx;
+    private Trip    _trip;
     private int                           _mapType;
 
     public TripStatisticsAdapter (Context ctx, Fragment parentFragment, Trip trip)
     {
         _ctx = ctx;
         _trip = trip;
-        _parentFragment = parentFragment;
-
-        _onTripStatisticsClickListener = null;
-
-        _selectedItems = new SparseBooleanArray ();
 
         _mapType = GoogleMap.MAP_TYPE_NORMAL;
-    }
-
-    public RecyclerViewItemClickListener getOnTripSegmentItemClickListener ()
-    {
-        return _onTripStatisticsClickListener;
-    }
-
-    public void setOnTripSegmentItemClickListener (RecyclerViewItemClickListener listener)
-    {
-        _onTripStatisticsClickListener = listener;
     }
 
     @Override
@@ -93,19 +72,9 @@ public class TripStatisticsAdapter
             case ITEM_TYPE_SEGMENT:
                 TripSegment segment;
 
-                int background;
-
-                if (_actionMode && isSelected (holder.getLayoutPosition ())) {
-                    background = R.color.default_background;
-                }
-                else {
-                    background = R.color.cardview_light_background;
-                }
-
                 segment = _trip.getSegments ()
                                .get (position - 1);
-                ((TripSegmentViewHolder) holder).bindView (segment, position, background,
-                                                           _onTripStatisticsClickListener);
+                ((TripSegmentViewHolder) holder).bindView (segment, position);
 
                 break;
         }
@@ -120,11 +89,6 @@ public class TripStatisticsAdapter
         else {
             return ITEM_TYPE_SEGMENT;
         }
-    }
-
-    public boolean isSelected (int pos)
-    {
-        return _selectedItems.get (pos, false);
     }
 
     @Override
@@ -156,46 +120,6 @@ public class TripStatisticsAdapter
         notifyDataSetChanged ();
     }
 
-    public void toggleSelection (int pos)
-    {
-        if (_selectedItems.get (pos, false)) {
-            _selectedItems.delete (pos);
-        }
-        else {
-            _selectedItems.put (pos, true);
-        }
-
-        notifyItemChanged (pos);
-    }
-
-    public void clearSelections ()
-    {
-        _selectedItems.clear ();
-
-        notifyDataSetChanged ();
-    }
-
-    public int getSelectedItemCount ()
-    {
-        return _selectedItems.size ();
-    }
-
-    public List<TripSegment> getSelectedItems ()
-    {
-        List<TripSegment> result;
-        List<TripSegment> segments;
-
-        result = new ArrayList<TripSegment> (_selectedItems.size ());
-
-        segments = _trip.getSegments ();
-
-        for (int i = 0 ; i < _selectedItems.size () ; i++) {
-            result.add (segments.get (_selectedItems.keyAt (i) - 1));
-        }
-
-        return result;
-    }
-
     public void removeItem (TripSegment t)
     {
         int               pos;
@@ -206,37 +130,11 @@ public class TripStatisticsAdapter
         pos = segments.indexOf (t);
         if (pos != -1) {
             segments.remove (t);
-            notifyItemChanged (pos);
+            notifyItemRemoved (pos + 1);
+
+            if (segments.size () == 1) {
+                notifyItemRemoved (2);
+            }
         }
     }
-
-    public boolean isActionMode ()
-    {
-        return _actionMode;
-    }
-
-
-    public void setActionMode (boolean selectionMode)
-    {
-        this._actionMode = selectionMode;
-        this.notifyDataSetChanged ();
-    }
-
-    //    public void removeItem (Trip t)
-    //    {
-    //        int pos;
-    //
-    //        pos = _items.indexOf (t);
-    //        if (pos != -1) {
-    //            _items.remove (t);
-    //            notifyItemChanged (pos);
-    //        }
-    //    }
-    //
-    //    public Trip getItem (int position)
-    //    {
-    //        return _items.get (position);
-    //    }
-    //
-
 }

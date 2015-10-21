@@ -9,9 +9,9 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
+import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,14 +71,14 @@ public class FetchAddressService
     {
         _receiver = intent.getParcelableExtra (RECEIVER);
         if (_receiver == null) {
-            Log.wtf (TAG, "No receiver received. There is nowhere to send the results.");
+            LogHelper.wtf ("No receiver received. There is nowhere to send the results.");
             return;
         }
 
         // Get the location passed to this service through an extra.
         Location location = intent.getParcelableExtra (LOCATION);
         if (location == null) {
-            Log.wtf (TAG, "No location data received.");
+            LogHelper.wtf ("No location data received.");
 
             // deliverResultToReceiver(Constants.FAILURE_RESULT, errorMessage);
 
@@ -109,19 +109,18 @@ public class FetchAddressService
         }
         catch (IOException ioException) {
             // Catch network or other I/O problems.
-            Log.e (TAG, "Service not available", ioException);
+            LogHelper.e ("Service not available");
         }
         catch (IllegalArgumentException illegalArgumentException) {
             // Catch invalid latitude or longitude values.
-            Log.e (TAG, "Invalid location: " +
+            LogHelper.e ("Invalid location: " +
                     "Latitude = " + location.getLatitude () +
-                    ", Longitude = " + location.getLongitude (), illegalArgumentException);
+                                 ", Longitude = " + location.getLongitude ());
         }
 
         // Handle case where no address was found.
         if (addresses == null || addresses.size () == 0) {
             // TODO: Externalize message
-            Log.e (TAG, "No address found");
             deliverResultToReceiver (FAILURE_RESULT, "No address found");
         }
         else {
@@ -141,7 +140,6 @@ public class FetchAddressService
                 addressFragments.add (address.getAddressLine (i));
             }
 
-            Log.i (TAG, "Address found");
             deliverResultToReceiver (SUCCESS_RESULT,
                                      TextUtils.join (System.getProperty ("line.separator"),
                                                      addressFragments));

@@ -4,10 +4,10 @@
       tools:context="com.cachirulop.logmytrip.MainActivity">
 
     <item
-        android:id="@+id/action_delete_selected_trip"
+        android:id="@+id/action_delete_segment"
         android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="201"
-        android:title="@string/action_delete"
-        app:showAsAction="always"/>
+        android:title="@string/action_delete_segment"
+        app:showAsAction="never"/>
 
 </menu>

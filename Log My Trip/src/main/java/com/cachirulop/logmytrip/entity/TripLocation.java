@@ -234,4 +234,78 @@ public class TripLocation
     {
         return String.format(" %.6f,%.6f", getLatitude (), getLongitude ());
     }
+
+    @Override
+    public boolean equals (Object o)
+    {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof TripLocation)) {
+            return false;
+        }
+
+        TripLocation that = (TripLocation) o;
+
+        if (_id != that._id) {
+            return false;
+        }
+        if (_idTrip != that._idTrip) {
+            return false;
+        }
+        if (_locationTime != that._locationTime) {
+            return false;
+        }
+        if (Double.compare (that._latitude, _latitude) != 0) {
+            return false;
+        }
+        if (Double.compare (that._longitude, _longitude) != 0) {
+            return false;
+        }
+        if (Double.compare (that._altitude, _altitude) != 0) {
+            return false;
+        }
+        if (Float.compare (that._speed, _speed) != 0) {
+            return false;
+        }
+        if (Float.compare (that._accuracy, _accuracy) != 0) {
+            return false;
+        }
+        if (Float.compare (that._bearing, _bearing) != 0) {
+            return false;
+        }
+        return !(_provider != null
+                 ? !_provider.equals (that._provider)
+                 : that._provider != null);
+
+    }
+
+    @Override
+    public int hashCode ()
+    {
+        int  result;
+        long temp;
+        result = (int) (_id ^ (_id >>> 32));
+        result = 31 * result + (int) (_idTrip ^ (_idTrip >>> 32));
+        result = 31 * result + (int) (_locationTime ^ (_locationTime >>> 32));
+        temp = Double.doubleToLongBits (_latitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits (_longitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits (_altitude);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (_speed != +0.0f
+                                ? Float.floatToIntBits (_speed)
+                                : 0);
+        result = 31 * result + (_accuracy != +0.0f
+                                ? Float.floatToIntBits (_accuracy)
+                                : 0);
+        result = 31 * result + (_bearing != +0.0f
+                                ? Float.floatToIntBits (_bearing)
+                                : 0);
+        result = 31 * result + (_provider != null
+                                ? _provider.hashCode ()
+                                : 0);
+        return result;
+    }
 }

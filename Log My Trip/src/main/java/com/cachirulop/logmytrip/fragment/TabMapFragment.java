@@ -9,11 +9,14 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -23,6 +26,7 @@ import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,12 +52,53 @@ public class TabMapFragment
     private Trip      _trip;
     private LogMyTripService _service = null;
 
-    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onNewLocationReceiver   = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
             drawTrackMainThread ();
+        }
+    };
+    private BroadcastReceiver _onProviderEnabledChange = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            if (LocationBroadcastManager.hasProviderEnable (intent)) {
+                boolean enabled;
+
+                enabled = LocationBroadcastManager.getProviderEnable (intent);
+
+                LogHelper.d ("ProviderEnabled change");
+                if (!enabled) {
+                    Snackbar msg;
+
+                    msg = Snackbar.make (getView (), R.string.msg_gps_disabled,
+                                         Snackbar.LENGTH_LONG);
+                    msg.setAction (R.string.msg_configure_gps, new View.OnClickListener ()
+                    {
+                        @Override
+                        public void onClick (View v)
+                        {
+                            startActivity (new Intent (Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        }
+                    });
+
+                    msg.show ();
+                }
+            }
+        }
+    };
+    private BroadcastReceiver _onProviderStatusChange  = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            ViewStub v;
+
+            v = (ViewStub) getActivity ().findViewById (R.id.vsGPSStatusStub);
+            v.inflate ();
         }
     };
 
@@ -136,6 +181,9 @@ public class TabMapFragment
 
         LocationBroadcastManager.registerNewLocationReceiver (getContext (),
                                                               _onNewLocationReceiver);
+        LocationBroadcastManager.registerProviderEnableChange (getContext (),
+                                                               _onProviderEnabledChange);
+        LocationBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
     }
 
     @Override
@@ -144,6 +192,8 @@ public class TabMapFragment
         super.onPause ();
 
         LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
     }
 
     private void drawTrackMainThread ()

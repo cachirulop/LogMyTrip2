@@ -45,7 +45,7 @@ public class SettingsManager
     {
         int mode;
 
-        mode = getSharedPrefs (ctx).getInt (KEY_PREF_AUTO_START_MODE, 0);
+        mode = Integer.parseInt (getSharedPrefs (ctx).getString (KEY_PREF_AUTO_START_MODE, "0"));
 
         return (mode == 0);
     }

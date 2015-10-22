@@ -1,6 +1,6 @@
 
 - Capture the states changes on the location provider -> Done, testing
-* Export database on lollipop and Marshmallow
+* Draw arrow direction on tracks
 * Go to the detail trip on start logging from MainActivity
 * Follow the current trip better in the map view
 * In statistics map allow to select a segment
@@ -8,7 +8,7 @@
 * Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
-* Draw arrow direction on tracks
+* Export database on lollipop and Marshmallow
 
 * Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size.

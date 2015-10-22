@@ -5,7 +5,12 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,10 +37,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -232,6 +239,8 @@ public class TabMapFragment
             Trip activeTrip;
             int lastSegmentIndex;
             int currentIndex;
+            ArrayList<PolygonOptions> arrows;
+            arrows = new ArrayList<> ();
 
             activeTrip = TripManager.getActiveTrip (getContext ());
             isActiveTrip = (_trip.equals (activeTrip));
@@ -269,13 +278,61 @@ public class TabMapFragment
 
                 track = new ArrayList<LatLng> ();
 
+                int i = 0;
                 for (TripLocation p : points) {
                     LatLng current;
 
                     current = p.toLatLng ();
 
+                    if ((i % 10) == 0) {
+                        //                        PolygonOptions arrow;
+                        //                        LatLng p1;
+                        //                        LatLng p2;
+                        //                        double factor = 0.0005;
+                        //
+                        //                        // p1 = new LatLng (current.latitude + factor, current.longitude - factor);
+                        //                        // p2 = new LatLng (current.latitude + factor, current.longitude + factor);
+                        //                        p1 = new LatLng (rotateLatitudeAround (current.latitude + factor, current.longitude - factor, p.getBearing (), current),
+                        //                                         rotateLongitudeAround (current.latitude + factor, current.longitude - factor, p.getBearing (), current));
+                        //                        p2 = new LatLng (rotateLatitudeAround (current.latitude + factor, current.longitude + factor, p.getBearing (), current),
+                        //                                         rotateLongitudeAround (current.latitude + factor, current.longitude + factor, p.getBearing (), current));
+                        //
+                        //                        arrow = new PolygonOptions ();
+                        //                        arrow.add (p1, current, p2);
+                        //                        arrow.strokeWidth (5);
+                        //                        arrow.strokeColor (Color.GRAY);
+                        //                        arrow.fillColor (SEGMENT_COLORS[currentColor]);
+                        //                        arrow.zIndex (10);
+                        //
+                        //                        arrows.add (arrow);
+
+
+                        MarkerOptions arrowOptions;
+
+                        arrowOptions = new MarkerOptions ();
+                        arrowOptions.position (p.toLatLng ());
+                        arrowOptions.rotation (p.getBearing ());
+                        //arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
+                        //                                getArrow (p.getBearing ()).getBitmap ()));
+                        _map.addMarker (arrowOptions);
+
+                        arrowOptions = new MarkerOptions ();
+                        arrowOptions.flat (true);
+                        arrowOptions.position (p.toLatLng ());
+                        arrowOptions.rotation (p.getBearing ());
+                        arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.drawable.arrow));
+                        //                        arrowOptions.icon (
+                        //                                BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
+                        //                                getArrow (p.getBearing ()).getBitmap ()));
+                        _map.addMarker (arrowOptions);
+                    }
+
                     track.add (current);
                     builder.include (current);
+
+                    i++;
                 }
 
                 Polyline route;
@@ -285,7 +342,7 @@ public class TabMapFragment
 
                 routeOptions = new PolylineOptions ();
                 routeOptions.width (5);
-                routeOptions.color (SEGMENT_COLORS[currentColor % SEGMENT_COLORS.length]);
+                routeOptions.color (SEGMENT_COLORS[currentColor]);
                 routeOptions.geodesic (true);
 
                 borderOptions = new PolylineOptions ();
@@ -300,7 +357,12 @@ public class TabMapFragment
                 border.setPoints (track);
 
                 currentColor++;
+                currentColor = currentColor % SEGMENT_COLORS.length;
                 currentIndex++;
+            }
+
+            for (PolygonOptions p : arrows) {
+                _map.addPolygon (p);
             }
 
             if (_trip.getSegments ()
@@ -321,6 +383,45 @@ public class TabMapFragment
                 });
             }
         }
+    }
+
+    public double rotateLatitudeAround (double lat, double lon, double angle, LatLng center)
+    {
+        lat = center.latitude + (Math.cos (
+                Math.toRadians (angle)) * (lat - center.latitude) - Math.sin (
+                Math.toRadians (angle)) * (lon - center.longitude));
+
+        return lat;
+    }
+
+    public double rotateLongitudeAround (double lat, double lon, double angle, LatLng center)
+    {
+        lon = center.longitude + (Math.sin (
+                Math.toRadians (angle)) * (lat - center.latitude) + Math.cos (
+                Math.toRadians (angle)) * (lon - center.longitude));
+
+        return lon;
+    }
+
+    public BitmapDrawable getArrow (float angle)
+    {
+        Bitmap arrowBitmap = BitmapFactory.decodeResource (getContext ().getResources (),
+                                                           R.mipmap.map_track_arrow);
+        // Create blank bitmap of equal size
+        Bitmap canvasBitmap = arrowBitmap.copy (Bitmap.Config.ARGB_8888, true);
+        canvasBitmap.eraseColor (0x00000000);
+
+        // Create canvas
+        Canvas canvas = new Canvas (canvasBitmap);
+
+        // Create rotation matrix
+        Matrix rotateMatrix = new Matrix ();
+        rotateMatrix.setRotate (angle, canvas.getWidth () / 2, canvas.getHeight () / 2);
+
+        // Draw bitmap onto canvas using matrix
+        canvas.drawBitmap (arrowBitmap, rotateMatrix, null);
+
+        return new BitmapDrawable (getContext ().getResources (), canvasBitmap);
     }
 
     @Override

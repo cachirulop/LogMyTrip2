@@ -309,21 +309,20 @@ public class TabMapFragment
 
                         MarkerOptions arrowOptions;
 
-                        arrowOptions = new MarkerOptions ();
-                        arrowOptions.position (p.toLatLng ());
-                        arrowOptions.rotation (p.getBearing ());
-                        //arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
-                        //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
-                        //                                getArrow (p.getBearing ()).getBitmap ()));
-                        _map.addMarker (arrowOptions);
+                        //                        arrowOptions = new MarkerOptions ();
+                        //                        arrowOptions.position (p.toLatLng ());
+                        //                        arrowOptions.rotation (p.getBearing ());
+                        //                        //arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        //                        //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
+                        //                        //                                getArrow (p.getBearing ()).getBitmap ()));
+                        //                        _map.addMarker (arrowOptions);
 
                         arrowOptions = new MarkerOptions ();
                         arrowOptions.flat (true);
                         arrowOptions.position (p.toLatLng ());
-                        arrowOptions.rotation (p.getBearing ());
-                        arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.drawable.arrow));
-                        //                        arrowOptions.icon (
-                        //                                BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        arrowOptions.rotation (p.getBearing () + 180);
+                        arrowOptions.icon (
+                                BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
                         //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
                         //                                getArrow (p.getBearing ()).getBitmap ()));
                         _map.addMarker (arrowOptions);
@@ -384,6 +383,7 @@ public class TabMapFragment
             }
         }
     }
+
 
     public double rotateLatitudeAround (double lat, double lon, double angle, LatLng center)
     {

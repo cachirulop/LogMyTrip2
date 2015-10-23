@@ -93,7 +93,7 @@ public class TripSummaryViewHolder
     {
         TripLocation l;
 
-        if (trip.getDescription () != null) {
+        if (trip.getDescription () != null && !"".equals (trip.getDescription ())) {
             _descriptionRow.setVisibility (View.VISIBLE);
             _description.setText (trip.getDescription ());
         }

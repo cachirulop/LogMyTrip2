@@ -123,7 +123,7 @@ public class TripItemViewHolder
         getStatus ().setImageResource (imgId);
         getTitle ().setText (trip.getTitle ());
 
-        if (trip.getDescription () != null) {
+        if (trip.getDescription () != null && !"".equals (trip.getDescription ())) {
             getDescription ().setVisibility (View.VISIBLE);
             getDescription ().setText (trip.getDescription ());
         }

@@ -36,19 +36,19 @@ public abstract class ConfirmDialog
         builder.setMessage (_messageId);
 
         builder.setPositiveButton (android.R.string.ok, new DialogInterface.OnClickListener ()
-                                   {
-                                       public void onClick (DialogInterface dialog, int which)
-                                       {
-                                           // Do nothing here because we
-                                           // override this button later to
-                                           // change the close behaviour.
-                                           // However, we still need this
-                                           // because on older versions of
-                                           // Android unless we
-                                           // pass a handler the button doesn't
-                                           // get instantiated
-                                       }
-                                   });
+        {
+            public void onClick (DialogInterface dialog, int which)
+            {
+                // Do nothing here because we
+                // override this button later to
+                // change the close behaviour.
+                // However, we still need this
+                // because on older versions of
+                // Android unless we
+                // pass a handler the button doesn't
+                // get instantiated
+            }
+        });
 
         builder.setNegativeButton (android.R.string.cancel, null);
 

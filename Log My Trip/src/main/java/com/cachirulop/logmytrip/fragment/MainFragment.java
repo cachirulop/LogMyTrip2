@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
+import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
@@ -36,7 +37,6 @@ import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.util.ConfirmDialog;
 import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.io.File;
@@ -46,7 +46,7 @@ import java.util.List;
 
 public class MainFragment
         extends Fragment
-        implements TripItemAdapter.OnTripItemClickListener,
+        implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
     public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
@@ -177,6 +177,8 @@ public class MainFragment
 
             updateActionBarSubtitle ();
         }
+
+        _recyclerView.scrollToPosition (0);
     }
 
     public void reloadTrips ()
@@ -190,7 +192,7 @@ public class MainFragment
     }
 
     @Override
-    public void onTripItemLongClick (View v, int position)
+    public void onRecyclerViewItemLongClick (View v, int position)
     {
         if (_actionMode != null) {
             return;
@@ -207,10 +209,8 @@ public class MainFragment
                 getString (R.string.title_selected_count, _adapter.getSelectedItemCount ()));
     }
 
-    /*  ActionMode.Callback implementation */
-
     @Override
-    public void onTripItemClick (View view, int position)
+    public void onRecyclerViewItemClick (View view, int position)
     {
         if (_actionMode != null) {
             updateActionModeTitle ();
@@ -332,13 +332,15 @@ public class MainFragment
                 try {
                     FileWriter fw = new FileWriter (filename);
 
-                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Description" });
+                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Title",
+                                                     "Description" });
                     writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
                                                      DateFormat.getMediumDateFormat (_ctx)
                                                                .format (t.getTripDate ()),
                                                      DateFormat.format ("HH:mm:ss",
                                                                         t.getTripDate ())
-                                                               .toString (), t.getDescription () });
+                                                               .toString (), t.getTitle (),
+                                                     t.getDescription () });
 
                     writeFileLine (fw, new String[]{ " " });
 

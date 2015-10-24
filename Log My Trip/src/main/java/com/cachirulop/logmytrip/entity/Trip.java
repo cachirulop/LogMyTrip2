@@ -16,6 +16,7 @@ public class Trip
 {
     private long _id;
     private Date _tripDate;
+    private String _title;
     private String _description;
 
     private transient List<TripSegment> _segments = null;
@@ -56,6 +57,15 @@ public class Trip
         this._tripDate = tripDate;
     }
 
+    public String getTitle ()
+    {
+        return _title;
+    }
+
+    public void setTitle (String title)
+    {
+        _title = title;
+    }
     /**
      * @return the _description
      */
@@ -211,7 +221,8 @@ public class Trip
     {
         int result = (int) (_id ^ (_id >>> 32));
         result = 31 * result + _tripDate.hashCode ();
-        result = 31 * result + _description.hashCode ();
+        result = 31 * result + _title.hashCode ();
+
         return result;
     }
 

@@ -1,11 +1,10 @@
-package com.cachirulop.logmytrip.view;
+package com.cachirulop.logmytrip.viewholder;
 
 import android.content.Context;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
@@ -21,13 +20,13 @@ import com.cachirulop.logmytrip.util.FormatHelper;
  */
 public class TripSummaryViewHolder
         extends RecyclerView.ViewHolder
-        implements View.OnClickListener,
-                   View.OnLongClickListener
 {
     private TripStatisticsAdapter _adapter;
 
-    private TextView              _locationFrom;
-    private TextView              _locationTo;
+    private TextView _description;
+    private TableRow _descriptionRow;
+    private TextView _locationFrom;
+    private TextView _locationTo;
     private TextView _startDate;
     private TextView _endDate;
     private TextView _startTime;
@@ -41,8 +40,6 @@ public class TripSummaryViewHolder
     private AddressResultReceiver _addressFromReceiver;
     private AddressResultReceiver _addressToReceiver;
 
-    private TripStatisticsAdapter.OnTripItemClickListener _onTripItemClickListener;
-
     public TripSummaryViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx)
     {
         super (parent);
@@ -50,11 +47,11 @@ public class TripSummaryViewHolder
         _adapter = adapter;
         _ctx = ctx;
 
-        parent.setClickable (true);
-        parent.setLongClickable (true);
+        parent.setClickable (false);
+        parent.setLongClickable (false);
 
-        parent.setOnClickListener (this);
-        parent.setOnLongClickListener (this);
+        _descriptionRow = (TableRow) parent.findViewById (R.id.tvTripSummaryDescriptionRow);
+        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
@@ -70,8 +67,6 @@ public class TripSummaryViewHolder
         _totalTime = (TextView) parent.findViewById (R.id.tvTripSummaryTotalTime);
         _maxSpeed = (TextView) parent.findViewById (R.id.tvTripSummaryMaxSpeed);
         _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSummaryMediumSpeed);
-
-        _onTripItemClickListener = null;
     }
 
     public TextView getLocationFrom ()
@@ -94,46 +89,17 @@ public class TripSummaryViewHolder
         _locationFrom = locationFrom;
     }
 
-    public TripStatisticsAdapter.OnTripItemClickListener getOnTripItemClickListener ()
-    {
-        return _onTripItemClickListener;
-    }
-
-    public void setOnTripItemClickListener (TripStatisticsAdapter.OnTripItemClickListener listener)
-    {
-        _onTripItemClickListener = listener;
-    }
-
-    @Override
-    public void onClick (View v)
-    {
-        if (_adapter.isActionMode ()) {
-            _adapter.toggleSelection (this.getLayoutPosition ());
-        }
-
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
-        }
-    }
-
-    @Override
-    public boolean onLongClick (View v)
-    {
-        itemView.setBackground (
-                ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector_actionmode));
-
-        _adapter.toggleSelection (this.getLayoutPosition ());
-
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
-        }
-
-        return false;
-    }
-
-    public void bindView (Fragment parentFragment, Trip trip, int position)
+    public void bindView (Trip trip, int position)
     {
         TripLocation l;
+
+        if (trip.getDescription () != null && !"".equals (trip.getDescription ())) {
+            _descriptionRow.setVisibility (View.VISIBLE);
+            _description.setText (trip.getDescription ());
+        }
+        else {
+            _descriptionRow.setVisibility (View.GONE);
+        }
 
         getStartDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
         getStartTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));

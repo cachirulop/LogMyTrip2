@@ -22,7 +22,6 @@ public class TabStatisticsFragment
     private TripStatisticsAdapter _adapter;
     private Trip                  _trip;
     private Context               _ctx;
-    private int _map;
 
     public TabStatisticsFragment ()
     {
@@ -85,4 +84,5 @@ public class TabStatisticsFragment
     {
         _adapter.setMapType (mapType);
     }
+
 }

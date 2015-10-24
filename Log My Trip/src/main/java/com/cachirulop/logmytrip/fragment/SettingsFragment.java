@@ -41,6 +41,14 @@ public class SettingsFragment
 
         p = (ListPreference) findPreference (SettingsManager.KEY_PREF_GPS_ACCURACY);
         p.setValue (Integer.toString (SettingsManager.getGpsAccuracy (ctx)));
+
+        p = (ListPreference) findPreference (SettingsManager.KEY_PREF_AUTO_START_MODE);
+        if (SettingsManager.isAutostartOnConnect (ctx)) {
+            p.setValue ("0");
+        }
+        else {
+            p.setValue ("1");
+        }
     }
 
     public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key)

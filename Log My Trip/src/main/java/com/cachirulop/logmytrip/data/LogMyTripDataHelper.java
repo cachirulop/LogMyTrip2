@@ -34,7 +34,7 @@ public class LogMyTripDataHelper
     /**
      * Current version
      */
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     /**
      * Context where the object is created
@@ -200,30 +200,6 @@ public class LogMyTripDataHelper
                  .show ();
         }
     }
-
-    /**
-     * Reset the identifier of a table to restart its count
-     *
-     * @param table Name of the table which restart counter
-     */
-/*
-    public void resetId (Context ctx, String table)
-    {
-        SQLiteDatabase db = null;
-
-        try {
-            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
-
-            db.delete ("sqlite_sequence", "name = ?", new String[]{ table });
-        }
-        finally {
-            if (db != null) {
-                db.close ();
-            }
-        }
-
-    }
-*/
 
     /**
      * Drop the tables and recreate it calling onCreate method. To drop

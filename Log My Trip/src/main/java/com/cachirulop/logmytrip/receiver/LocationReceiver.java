@@ -22,12 +22,24 @@ public class LocationReceiver
     @Override
     public void onReceive (final Context context, Intent intent)
     {
+        if (intent.hasExtra (LocationManager.KEY_LOCATION_CHANGED)) {
+            onLocationChanged (context, intent);
+        }
+        else if (intent.hasExtra (LocationManager.KEY_PROVIDER_ENABLED)) {
+            LogHelper.d ("LocationReceiver: KEY_PROVIDER_ENABLED");
+            onProviderEnabled (context, intent);
+        }
+        else if (intent.hasExtra (LocationManager.KEY_STATUS_CHANGED)) {
+            LogHelper.d ("LocationReceiver: KEY_STATUS_CHANGED");
+            onStatusChanged (context, intent);
+        }
+    }
+
+    private void onLocationChanged (Context context, Intent intent)
+    {
         Location loc;
 
-        LogHelper.d ("LocationReceiver: onReceive");
-
-        loc = (Location) intent.getExtras ()
-                               .get (LocationManager.KEY_LOCATION_CHANGED);
+        loc = intent.getParcelableExtra (LocationManager.KEY_LOCATION_CHANGED);
         if (loc != null && isValidLocation (context, loc)) {
             Trip trip;
 
@@ -41,6 +53,25 @@ public class LocationReceiver
 
                 LocationBroadcastManager.sendNewLocationMessage (context);
             }
+        }
+    }
+
+    private void onProviderEnabled (Context context, Intent intent)
+    {
+        boolean enabled;
+
+        enabled = intent.getBooleanExtra (LocationManager.KEY_PROVIDER_ENABLED, false);
+
+        LocationBroadcastManager.sendProviderEnableChangeMessage (context, enabled);
+    }
+
+    private void onStatusChanged (Context context, Intent intent)
+    {
+        int status;
+
+        status = intent.getIntExtra (LocationManager.KEY_STATUS_CHANGED, -1);
+        if (status != -1) {
+            LocationBroadcastManager.sendStatusChangeMessage (context, status);
         }
     }
 

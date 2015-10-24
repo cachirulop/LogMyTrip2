@@ -5,7 +5,8 @@
     <!-- Creates the database. -->
     <string name="SQL_on_create" translatable="false">        
         CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                           description TEXT NOT NULL,
+                           title TEXT NOT NULL,
+                           description TEXT,
                            trip_date TIMESTAMP NOT NULL);
         
         CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -26,7 +27,14 @@
     <!--DROP TABLE trip;-->
     <string name="SQL_on_upgrade" translatable="false">
     <![CDATA[
-        ALTER TABLE trip_location ADD provider TEXT;
+            CREATE TABLE trip_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                           title TEXT NOT NULL,
+                           description TEXT,
+                           trip_date TIMESTAMP NOT NULL);
+
+            INSERT INTO trip_new SELECT id, description, null, trip_date FROM trip;
+            DROP TABLE trip;
+            ALTER TABLE trip_new RENAME TO trip;
     ]]>
     </string>
     

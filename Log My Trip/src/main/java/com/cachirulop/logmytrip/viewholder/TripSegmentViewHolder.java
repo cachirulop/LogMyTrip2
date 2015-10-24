@@ -1,19 +1,22 @@
-package com.cachirulop.logmytrip.view;
+package com.cachirulop.logmytrip.viewholder;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
+import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
 import com.cachirulop.logmytrip.util.FormatHelper;
@@ -31,17 +34,12 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by dmagro on 06/10/2015.
- */
 public class TripSegmentViewHolder
         extends RecyclerView.ViewHolder
-        implements View.OnClickListener,
-                   View.OnLongClickListener
 {
     private TripStatisticsAdapter _adapter;
 
-    private TextView _title;
+    private Toolbar _toolbar;
     private TextView _locationFrom;
     private TextView _locationTo;
     private TextView _startDate;
@@ -56,11 +54,7 @@ public class TripSegmentViewHolder
     private FrameLayout           _mapFrame;
     private TripSegment           _segment;
     private Context               _ctx;
-    private AddressResultReceiver _addressFromReceiver;
-    private AddressResultReceiver _addressToReceiver;
     private int _mapType;
-
-    private TripStatisticsAdapter.OnTripItemClickListener _onTripItemClickListener;
 
     public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx, int mapType)
     {
@@ -70,20 +64,13 @@ public class TripSegmentViewHolder
         _ctx = ctx;
         _mapType = mapType;
 
-        parent.setClickable (true);
-        parent.setLongClickable (true);
+        parent.setClickable (false);
+        parent.setLongClickable (false);
 
-        parent.setOnClickListener (this);
-        parent.setOnLongClickListener (this);
-
-        _title = (TextView) parent.findViewById (R.id.tvSegmentTitle);
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSegmentLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSegmentLocationTo);
-
-        _addressFromReceiver = new AddressResultReceiver (new Handler (), getLocationFrom ());
-        _addressToReceiver = new AddressResultReceiver (new Handler (), getLocationTo ());
 
         _startDate = (TextView) parent.findViewById (R.id.tvTripSegmentStartDate);
         _endDate = (TextView) parent.findViewById (R.id.tvTripSegmentEndDate);
@@ -94,73 +81,43 @@ public class TripSegmentViewHolder
         _maxSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMaxSpeed);
         _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMediumSpeed);
 
-        _onTripItemClickListener = null;
+        _toolbar = (Toolbar) parent.findViewById (R.id.tbSegmentToolbar);
     }
 
-    public TextView getLocationFrom ()
-    {
-        return _locationFrom;
-    }
-
-    public void setLocationFrom (TextView locationFrom)
-    {
-        _locationFrom = locationFrom;
-    }
-
-    public TextView getLocationTo ()
-    {
-        return _locationTo;
-    }
-
-    public void setLocationTo (TextView locationTo)
-    {
-        _locationTo = locationTo;
-    }
-
-    public TripStatisticsAdapter.OnTripItemClickListener getOnTripItemClickListener ()
-    {
-        return _onTripItemClickListener;
-    }
-
-    public void setOnTripItemClickListener (TripStatisticsAdapter.OnTripItemClickListener listener)
-    {
-        _onTripItemClickListener = listener;
-    }
-
-    @Override
-    public void onClick (View v)
-    {
-        if (_adapter.isActionMode ()) {
-            _adapter.toggleSelection (this.getLayoutPosition ());
-        }
-
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemClick (v, this.getAdapterPosition ());
-        }
-    }
-
-    @Override
-    public boolean onLongClick (View v)
-    {
-        itemView.setBackground (
-                ContextCompat.getDrawable (_ctx, R.drawable.trip_list_selector_actionmode));
-
-        _adapter.toggleSelection (this.getLayoutPosition ());
-
-        if (_onTripItemClickListener != null) {
-            _onTripItemClickListener.onTripItemLongClick (v, this.getAdapterPosition ());
-        }
-
-        return false;
-    }
-
-    public void bindView (Fragment parentFragment, TripSegment tripSegment, int position)
+    public void bindView (final TripSegment tripSegment, int position)
     {
         _segment = tripSegment;  // To get locations
 
         TripLocation l;
 
-        _title.setText (String.format (_ctx.getString (R.string.title_segment_num), position));
+        _toolbar.setTitle (String.format (_ctx.getString (R.string.title_segment_num), position));
+        _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
+        _toolbar.setOnMenuItemClickListener (new Toolbar.OnMenuItemClickListener ()
+        {
+            @Override
+            public boolean onMenuItemClick (MenuItem item)
+            {
+                switch (item.getItemId ()) {
+                    case R.id.action_delete_segment:
+                        ConfirmDialog dlg;
+
+                        dlg = new ConfirmDialog (R.string.title_delete, R.string.msg_delete_confirm)
+                        {
+                            @Override
+                            public void onOkClicked ()
+                            {
+                                _adapter.removeItem (tripSegment);
+                                TripManager.deleteSegment (_ctx, tripSegment);
+                            }
+                        };
+
+                        dlg.show (((FragmentActivity) _ctx).getSupportFragmentManager (),
+                                  "deleteTrip");
+                }
+
+                return true;
+            }
+        });
 
         l = _segment.getStartLocation ();
         if (l != null) {
@@ -215,6 +172,11 @@ public class TripSegmentViewHolder
         _mapFrame.addView (mapView);
     }
 
+    public TextView getLocationFrom ()
+    {
+        return _locationFrom;
+    }
+
     public TextView getStartDate ()
     {
         return _startDate;
@@ -225,14 +187,14 @@ public class TripSegmentViewHolder
         return _startTime;
     }
 
+    public TextView getLocationTo ()
+    {
+        return _locationTo;
+    }
+
     public TextView getEndDate ()
     {
         return _endDate;
-    }
-
-    public void setEndDate (TextView endDate)
-    {
-        _endDate = endDate;
     }
 
     public TextView getEndTime ()
@@ -240,19 +202,9 @@ public class TripSegmentViewHolder
         return _endTime;
     }
 
-    public void setEndTime (TextView endTime)
-    {
-        _endTime = endTime;
-    }
-
     public TextView getTotalDistance ()
     {
         return _totalDistance;
-    }
-
-    public void setTotalDistance (TextView totalDistance)
-    {
-        _totalDistance = totalDistance;
     }
 
     public TextView getTotalTime ()
@@ -265,35 +217,11 @@ public class TripSegmentViewHolder
         return _maxSpeed;
     }
 
-    public void setMaxSpeed (TextView maxSpeed)
-    {
-        _maxSpeed = maxSpeed;
-    }
-
     public TextView getMediumSpeed ()
     {
         return _mediumSpeed;
     }
 
-    public void setMediumSpeed (TextView mediumSpeed)
-    {
-        _mediumSpeed = mediumSpeed;
-    }
-
-    public void setTotalTime (TextView totalTime)
-    {
-        _totalTime = totalTime;
-    }
-
-    public void setStartTime (TextView startTime)
-    {
-        _startTime = startTime;
-    }
-
-    public void setStartDate (TextView startDate)
-    {
-        _startDate = startDate;
-    }
 
     private void drawMap (final GoogleMap map)
     {
@@ -320,7 +248,7 @@ public class TripSegmentViewHolder
                                       .toLatLng ());
         map.addMarker (markerOptions);
 
-        track = new ArrayList<LatLng> ();
+        track = new ArrayList<> ();
 
         for (TripLocation p : points) {
             LatLng current;
@@ -355,36 +283,6 @@ public class TripSegmentViewHolder
         map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
     }
 
-    public TripStatisticsAdapter getAdapter ()
-    {
-        return _adapter;
-    }
-
-    public void setAdapter (TripStatisticsAdapter adapter)
-    {
-        _adapter = adapter;
-    }
-
-    public AddressResultReceiver getAddressFromReceiver ()
-    {
-        return _addressFromReceiver;
-    }
-
-    public void setAddressFromReceiver (AddressResultReceiver addressFromReceiver)
-    {
-        _addressFromReceiver = addressFromReceiver;
-    }
-
-    public AddressResultReceiver getAddressToReceiver ()
-    {
-        return _addressToReceiver;
-    }
-
-    public void setAddressToReceiver (AddressResultReceiver addressToReceiver)
-    {
-        _addressToReceiver = addressToReceiver;
-    }
-
     public Context getCtx ()
     {
         return _ctx;
@@ -393,26 +291,6 @@ public class TripSegmentViewHolder
     public void setCtx (Context ctx)
     {
         _ctx = ctx;
-    }
-
-    public FrameLayout getMapFrame ()
-    {
-        return _mapFrame;
-    }
-
-    public void setMapFrame (FrameLayout mapFrame)
-    {
-        _mapFrame = mapFrame;
-    }
-
-    public TripSegment getSegment ()
-    {
-        return _segment;
-    }
-
-    public void setSegment (TripSegment segment)
-    {
-        _segment = segment;
     }
 
     private class MapReadyCallback

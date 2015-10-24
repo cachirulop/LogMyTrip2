@@ -5,15 +5,23 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -23,6 +31,7 @@ import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +41,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -48,12 +58,53 @@ public class TabMapFragment
     private Trip      _trip;
     private LogMyTripService _service = null;
 
-    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onNewLocationReceiver   = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
             drawTrackMainThread ();
+        }
+    };
+    private BroadcastReceiver _onProviderEnabledChange = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            if (LocationBroadcastManager.hasProviderEnable (intent)) {
+                boolean enabled;
+
+                enabled = LocationBroadcastManager.getProviderEnable (intent);
+
+                LogHelper.d ("ProviderEnabled change");
+                if (!enabled) {
+                    Snackbar msg;
+
+                    msg = Snackbar.make (getView (), R.string.msg_gps_disabled,
+                                         Snackbar.LENGTH_LONG);
+                    msg.setAction (R.string.msg_configure_gps, new View.OnClickListener ()
+                    {
+                        @Override
+                        public void onClick (View v)
+                        {
+                            startActivity (new Intent (Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        }
+                    });
+
+                    msg.show ();
+                }
+            }
+        }
+    };
+    private BroadcastReceiver _onProviderStatusChange  = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            ViewStub v;
+
+            v = (ViewStub) getActivity ().findViewById (R.id.vsGPSStatusStub);
+            v.inflate ();
         }
     };
 
@@ -136,6 +187,9 @@ public class TabMapFragment
 
         LocationBroadcastManager.registerNewLocationReceiver (getContext (),
                                                               _onNewLocationReceiver);
+        LocationBroadcastManager.registerProviderEnableChange (getContext (),
+                                                               _onProviderEnabledChange);
+        LocationBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
     }
 
     @Override
@@ -144,6 +198,8 @@ public class TabMapFragment
         super.onPause ();
 
         LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
     }
 
     private void drawTrackMainThread ()
@@ -182,6 +238,11 @@ public class TabMapFragment
             Trip activeTrip;
             int lastSegmentIndex;
             int currentIndex;
+            ArrayList<PolygonOptions> arrows;
+            ArrayList<PolylineOptions> arrowsLine;
+
+            arrows = new ArrayList<> ();
+            arrowsLine = new ArrayList<> ();
 
             activeTrip = TripManager.getActiveTrip (getContext ());
             isActiveTrip = (_trip.equals (activeTrip));
@@ -219,13 +280,119 @@ public class TabMapFragment
 
                 track = new ArrayList<LatLng> ();
 
+                int i = 0;
                 for (TripLocation p : points) {
                     LatLng current;
 
                     current = p.toLatLng ();
 
+                    if ((i % 20) == 0) {
+                        //                        PolygonOptions arrow;
+                        //                        LatLng p1;
+                        //                        LatLng p2;
+                        //                        double factor = 0.0005;
+                        //
+                        //                        // p1 = new LatLng (current.latitude + factor, current.longitude - factor);
+                        //                        // p2 = new LatLng (current.latitude + factor, current.longitude + factor);
+                        //                        p1 = new LatLng (rotateLatitudeAround (current.latitude + factor,
+                        //                                                               current.longitude - factor,
+                        //                                                               p.getBearing (), current),
+                        //                                         rotateLongitudeAround (current.latitude + factor,
+                        //                                                                current.longitude - factor,
+                        //                                                                p.getBearing (), current));
+                        //                        p2 = new LatLng (rotateLatitudeAround (current.latitude + factor,
+                        //                                                               current.longitude + factor,
+                        //                                                               p.getBearing (), current),
+                        //                                         rotateLongitudeAround (current.latitude + factor,
+                        //                                                                current.longitude + factor,
+                        //                                                                p.getBearing (), current));
+                        //
+                        //                        arrow = new PolygonOptions ();
+                        //                        arrow.add (p1, current, p2);
+                        //                        arrow.strokeWidth (5);
+                        //                        arrow.strokeColor (Color.GRAY);
+                        //                        arrow.fillColor (SEGMENT_COLORS[currentColor]);
+                        //                        arrow.zIndex (10);
+                        //
+                        //                        arrows.add (arrow);
+                        //
+                        PolylineOptions arrowLine;
+                        LatLng p1;
+                        LatLng p2;
+                        double factor = 0.00005;
+
+                        // p1 = new LatLng (current.latitude + factor, current.longitude - factor);
+                        // p2 = new LatLng (current.latitude + factor, current.longitude + factor);
+                        p1 = new LatLng (rotateLatitudeAround (current.latitude + factor,
+                                                               current.longitude - factor,
+                                                               p.getBearing (), current),
+                                         rotateLongitudeAround (current.latitude + factor,
+                                                                current.longitude - factor,
+                                                                p.getBearing (), current));
+                        p2 = new LatLng (rotateLatitudeAround (current.latitude + factor,
+                                                               current.longitude + factor,
+                                                               p.getBearing (), current),
+                                         rotateLongitudeAround (current.latitude + factor,
+                                                                current.longitude + factor,
+                                                                p.getBearing (), current));
+
+                        arrowLine = new PolylineOptions ();
+                        arrowLine.add (current, p1);
+                        arrowLine.width (10);
+                        arrowLine.color (Color.GRAY);
+                        arrowLine.zIndex (10);
+
+                        arrowsLine.add (arrowLine);
+
+                        arrowLine = new PolylineOptions ();
+                        arrowLine.add (current, p1);
+                        arrowLine.width (5);
+                        arrowLine.color (SEGMENT_COLORS[currentColor]);
+                        arrowLine.zIndex (11);
+
+                        arrowsLine.add (arrowLine);
+
+                        arrowLine = new PolylineOptions ();
+                        arrowLine.add (current, p2);
+                        arrowLine.width (10);
+                        arrowLine.color (Color.GRAY);
+                        arrowLine.zIndex (10);
+
+                        arrowsLine.add (arrowLine);
+
+                        arrowLine = new PolylineOptions ();
+                        arrowLine.add (current, p2);
+                        arrowLine.width (5);
+                        arrowLine.color (SEGMENT_COLORS[currentColor]);
+                        arrowLine.zIndex (11);
+
+                        arrowsLine.add (arrowLine);
+
+                        //                        MarkerOptions arrowOptions;
+                        //
+                        //                        //                        arrowOptions = new MarkerOptions ();
+                        //                        //                        arrowOptions.position (p.toLatLng ());
+                        //                        //                        arrowOptions.rotation (p.getBearing ());
+                        //                        //                        //arrowOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        //                        //                        //                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
+                        //                        //                        //                                getArrow (p.getBearing ()).getBitmap ()));
+                        //                        //                        _map.addMarker (arrowOptions);
+                        //
+                        //                        arrowOptions = new MarkerOptions ();
+                        //                        arrowOptions.flat (true);
+                        //                        arrowOptions.position (p.toLatLng ());
+                        //                        arrowOptions.rotation (p.getBearing () + 180);
+                        //                        arrowOptions.icon (
+                        //                                BitmapDescriptorFactory.fromResource (R.mipmap.map_track_arrow));
+                        ////                        arrowOptions.icon (BitmapDescriptorFactory.fromBitmap (
+                        ////                                getArrow (p.getBearing ()).getBitmap ()));
+                        //                        _map.addMarker (arrowOptions);
+                    }
+
                     track.add (current);
                     builder.include (current);
+
+                    i++;
                 }
 
                 Polyline route;
@@ -235,13 +402,15 @@ public class TabMapFragment
 
                 routeOptions = new PolylineOptions ();
                 routeOptions.width (5);
-                routeOptions.color (SEGMENT_COLORS[currentColor % SEGMENT_COLORS.length]);
+                routeOptions.color (SEGMENT_COLORS[currentColor]);
                 routeOptions.geodesic (true);
+                routeOptions.zIndex (1);
 
                 borderOptions = new PolylineOptions ();
                 borderOptions.width (10);
                 borderOptions.color (Color.GRAY);
                 borderOptions.geodesic (true);
+                routeOptions.zIndex (0);
 
                 border = _map.addPolyline (borderOptions);
                 route = _map.addPolyline (routeOptions);
@@ -250,7 +419,16 @@ public class TabMapFragment
                 border.setPoints (track);
 
                 currentColor++;
+                currentColor = currentColor % SEGMENT_COLORS.length;
                 currentIndex++;
+            }
+
+            for (PolygonOptions p : arrows) {
+                _map.addPolygon (p);
+            }
+
+            for (PolylineOptions l : arrowsLine) {
+                _map.addPolyline (l);
             }
 
             if (_trip.getSegments ()
@@ -263,7 +441,9 @@ public class TabMapFragment
                     {
                         // Move camera.
                         _map.moveCamera (
-                                CameraUpdateFactory.newLatLngBounds (builder.build (), 20));
+                                CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
+
+                        LogHelper.d ("****************** " + _map.getCameraPosition ().zoom);
 
                         // Remove listener to prevent position reset on camera move.
                         _map.setOnCameraChangeListener (null);
@@ -271,6 +451,46 @@ public class TabMapFragment
                 });
             }
         }
+    }
+
+
+    public double rotateLatitudeAround (double lat, double lon, double angle, LatLng center)
+    {
+        lat = center.latitude + (Math.cos (
+                Math.toRadians (angle)) * (lat - center.latitude) - Math.sin (
+                Math.toRadians (angle)) * (lon - center.longitude));
+
+        return lat;
+    }
+
+    public double rotateLongitudeAround (double lat, double lon, double angle, LatLng center)
+    {
+        lon = center.longitude + (Math.sin (
+                Math.toRadians (angle)) * (lat - center.latitude) + Math.cos (
+                Math.toRadians (angle)) * (lon - center.longitude));
+
+        return lon;
+    }
+
+    public BitmapDrawable getArrow (float angle)
+    {
+        Bitmap arrowBitmap = BitmapFactory.decodeResource (getContext ().getResources (),
+                                                           R.mipmap.map_track_arrow);
+        // Create blank bitmap of equal size
+        Bitmap canvasBitmap = arrowBitmap.copy (Bitmap.Config.ARGB_8888, true);
+        canvasBitmap.eraseColor (0x00000000);
+
+        // Create canvas
+        Canvas canvas = new Canvas (canvasBitmap);
+
+        // Create rotation matrix
+        Matrix rotateMatrix = new Matrix ();
+        rotateMatrix.setRotate (angle, canvas.getWidth () / 2, canvas.getHeight () / 2);
+
+        // Draw bitmap onto canvas using matrix
+        canvas.drawBitmap (arrowBitmap, rotateMatrix, null);
+
+        return new BitmapDrawable (getContext ().getResources (), canvasBitmap);
     }
 
     @Override

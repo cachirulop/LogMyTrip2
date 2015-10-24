@@ -10,6 +10,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.util.FormatHelper;
 
 import java.util.ArrayList;
@@ -101,6 +102,7 @@ public class TripManager
         result = new Trip ();
 
         result.setId (c.getLong (c.getColumnIndex ("id")));
+        result.setTitle (c.getString (c.getColumnIndex ("title")));
         result.setDescription (c.getString (c.getColumnIndex ("description")));
         result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
 
@@ -118,6 +120,25 @@ public class TripManager
                        new String[]{ Long.toString (t.getId ()) });
 
             db.delete (CONST_TRIP_TABLE_NAME, "id = ?", new String[]{ Long.toString (t.getId ()) });
+        }
+        finally {
+            if (db != null) {
+                db.close ();
+            }
+        }
+    }
+
+    public static void deleteSegment (Context ctx, TripSegment segment)
+    {
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
+
+            for (TripLocation l : segment.getLocations ()) {
+                db.delete (CONST_LOCATION_TABLE_NAME, "id = ?",
+                           new String[]{ Long.toString (l.getId ()) });
+            }
         }
         finally {
             if (db != null) {
@@ -280,12 +301,17 @@ public class TripManager
 
         result = new Trip ();
         result.setTripDate (new Date ());
-        result.setDescription (FormatHelper.formatDate (ctx, result.getTripDate ()));
+        result.setTitle (FormatHelper.formatDate (ctx, result.getTripDate ()));
 
-        return saveTrip (ctx, result, true);
+        return insertTrip (ctx, result);
     }
 
-    public static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
+    public static Trip insertTrip (Context ctx, Trip t)
+    {
+        return saveTrip (ctx, t, true);
+    }
+
+    private static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
     {
         SQLiteDatabase db = null;
 
@@ -298,6 +324,7 @@ public class TripManager
 
             values.put ("trip_date", t.getTripDate ()
                                       .getTime ());
+            values.put ("title", t.getTitle ());
             values.put ("description", t.getDescription ());
 
             if (isInsert) {
@@ -327,6 +354,11 @@ public class TripManager
     private static long getLastIdTrip (Context ctx)
     {
         return new LogMyTripDataHelper (ctx).getLastId (CONST_TRIP_TABLE_NAME);
+    }
+
+    public static Trip updateTrip (Context ctx, Trip t)
+    {
+        return saveTrip (ctx, t, false);
     }
 
     public static void unsetActiveTrip (Context ctx)

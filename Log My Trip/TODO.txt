@@ -1,20 +1,17 @@
 
-
-* Allow to change the trip description
-* Add map type selector: normal, satellite, etc.
-* Allow to delete segments
-* Capture the states changes on the location provider
-* Export database on lollipop and Marshmallow
+- Capture the states changes on the location provider -> Done, testing
+* Draw arrow direction on tracks
 * Go to the detail trip on start logging from MainActivity
 * Follow the current trip better in the map view
-* Add a button in the map view to stop logging
 * In statistics map allow to select a segment
 * Change segment start/end marks
 * Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
+* Export database on lollipop and Marshmallow
 
-* Filter bluetooth device to start log
+* Services uses a lot of memory. Could be because the Context reference in receivers. Try to
+  optimize the size.
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip
 * Change the notification messages
@@ -35,3 +32,10 @@ X Ask when delete a trip
 X Make trip statistics tab
 X Don't get all the location request, sometimes the accuracy is very bad
 X Change trip detail title with the trip description
+X Allow to change the trip description
+X Add map type selector: normal, satellite, etc.
+X Show the new trip when click in start save button
+X Allow to delete segments
+X Add a button in the map view to stop logging
+X Filter bluetooth device to start log
+X Change selection of segments with a menu in the cardview

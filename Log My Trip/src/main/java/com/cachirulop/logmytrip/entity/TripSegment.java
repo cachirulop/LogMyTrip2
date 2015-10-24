@@ -130,9 +130,7 @@ public class TripSegment
 
         TripSegment segment = (TripSegment) o;
 
-        return !(_locations != null
-                 ? !_locations.equals (segment._locations)
-                 : segment._locations != null);
+        return segment.hashCode () == this.hashCode ();
 
     }
 

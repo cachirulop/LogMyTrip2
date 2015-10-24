@@ -32,8 +32,6 @@ public class BluetoothDevicePreference
             Set<BluetoothDevice> pairedDevices;
             int i;
 
-            // TODO: Show dialog when no paired devices found
-
             pairedDevices = bta.getBondedDevices ();
             entries = new CharSequence[pairedDevices.size ()];
             entryValues = new CharSequence[pairedDevices.size ()];

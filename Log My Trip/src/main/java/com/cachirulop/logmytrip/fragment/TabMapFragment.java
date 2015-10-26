@@ -5,13 +5,8 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -501,7 +496,6 @@ public class TabMapFragment
         arrowsLine.add (arrowLine);
     }
 
-
     public double rotateLatitudeAround (double lat, double lon, double angle, LatLng center)
     {
         lat = center.latitude + (Math.cos (
@@ -518,27 +512,6 @@ public class TabMapFragment
                 Math.toRadians (angle)) * (lon - center.longitude));
 
         return lon;
-    }
-
-    public BitmapDrawable getArrow (float angle)
-    {
-        Bitmap arrowBitmap = BitmapFactory.decodeResource (getContext ().getResources (),
-                                                           R.mipmap.map_track_arrow);
-        // Create blank bitmap of equal size
-        Bitmap canvasBitmap = arrowBitmap.copy (Bitmap.Config.ARGB_8888, true);
-        canvasBitmap.eraseColor (0x00000000);
-
-        // Create canvas
-        Canvas canvas = new Canvas (canvasBitmap);
-
-        // Create rotation matrix
-        Matrix rotateMatrix = new Matrix ();
-        rotateMatrix.setRotate (angle, canvas.getWidth () / 2, canvas.getHeight () / 2);
-
-        // Draw bitmap onto canvas using matrix
-        canvas.drawBitmap (arrowBitmap, rotateMatrix, null);
-
-        return new BitmapDrawable (getContext ().getResources (), canvasBitmap);
     }
 
     @Override

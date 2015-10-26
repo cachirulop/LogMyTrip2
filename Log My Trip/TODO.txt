@@ -1,14 +1,14 @@
 
 - Capture the states changes on the location provider -> Done, testing
-* Draw arrow direction on tracks
-* Go to the detail trip on start logging from MainActivity
-* Follow the current trip better in the map view
-* In statistics map allow to select a segment
+- Draw arrow direction on tracks -> improve code
 * Change segment start/end marks
+* In statistics map allow to select a segment
 * Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
 * Export database on lollipop and Marshmallow
+* Detail activity crash when rotate the phone
+* Follow the current trip better in the map view
 
 * Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size.
@@ -39,3 +39,4 @@ X Allow to delete segments
 X Add a button in the map view to stop logging
 X Filter bluetooth device to start log
 X Change selection of segments with a menu in the cardview
+X Go to the detail trip on start logging from MainActivity

@@ -130,7 +130,7 @@ public class MainFragment
             });
 
             if (SettingsManager.isLogTrip (_ctx)) {
-                _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
+                startDetailActivity (0);
             }
             else {
                 _fabTripLog.setImageResource (R.mipmap.ic_button_save);
@@ -166,6 +166,8 @@ public class MainFragment
     private void onTripLogClick (View v)
     {
         if (SettingsManager.isLogTrip (_ctx)) {
+            _recyclerView.scrollToPosition (0);
+
             ServiceManager.stopTripLog (_ctx);
 
             _fabTripLog.setImageResource (R.mipmap.ic_button_save);
@@ -173,12 +175,18 @@ public class MainFragment
         else {
             ServiceManager.startTripLog (_ctx);
 
-            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
-
-            updateActionBarSubtitle ();
+            startDetailActivity (0);
         }
+    }
 
-        _recyclerView.scrollToPosition (0);
+    private void startDetailActivity (int position)
+    {
+        Intent i;
+
+        i = new Intent (_ctx, TripDetailActivity.class);
+        i.putExtra (MainFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
+
+        startActivity (i);
     }
 
     public void reloadTrips ()
@@ -216,12 +224,7 @@ public class MainFragment
             updateActionModeTitle ();
         }
         else {
-            Intent i;
-
-            i = new Intent (_ctx, TripDetailActivity.class);
-            i.putExtra (MainFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
-
-            startActivity (i);
+            startDetailActivity (position);
         }
     }
 

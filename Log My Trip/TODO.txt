@@ -1,6 +1,6 @@
 
 - Capture the states changes on the location provider -> Done, testing
-* Draw arrow direction on tracks
+- Draw arrow direction on tracks  -> Done, clean the code a lot!!
 * Go to the detail trip on start logging from MainActivity
 * Follow the current trip better in the map view
 * In statistics map allow to select a segment

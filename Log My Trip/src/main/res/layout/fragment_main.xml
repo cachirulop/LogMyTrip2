@@ -37,8 +37,7 @@
         android:layout_gravity="end|bottom"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:src="@mipmap/ic_button_save"
-        app:backgroundTint="@color/default_background"/>
+        android:src="@mipmap/ic_button_save"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

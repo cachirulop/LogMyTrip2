@@ -1,9 +1,7 @@
 
 - Capture the states changes on the location provider -> Done, testing
 - Draw arrow direction on tracks -> improve code
-* Change segment start/end marks
 * In statistics map allow to select a segment
-* Make general method to paint map tracks
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
 * Export database on lollipop and Marshmallow
@@ -15,6 +13,8 @@
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip
 * Change the notification messages
+* When launch from notification starts a new instance and need to press back twice to exit the
+    application
 * Add actions to notification icon: stop autolog, stop log
 
 * New autostart option 'Always'
@@ -39,4 +39,6 @@ X Allow to delete segments
 X Add a button in the map view to stop logging
 X Filter bluetooth device to start log
 X Change selection of segments with a menu in the cardview
+X Change segment start/end marks -> Drawing arrows not need to show differences between start and end
 X Go to the detail trip on start logging from MainActivity
+X Make general method to paint map tracks

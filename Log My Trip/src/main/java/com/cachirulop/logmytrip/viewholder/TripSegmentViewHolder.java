@@ -20,19 +20,11 @@ import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
 import com.cachirulop.logmytrip.util.FormatHelper;
-import com.google.android.gms.maps.CameraUpdateFactory;
+import com.cachirulop.logmytrip.util.MapHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TripSegmentViewHolder
         extends RecyclerView.ViewHolder
@@ -52,6 +44,8 @@ public class TripSegmentViewHolder
     private TextView _mediumSpeed;
 
     private FrameLayout           _mapFrame;
+    private MapView   _mapView;
+    private MapHelper _mapHelper;
     private TripSegment           _segment;
     private Context               _ctx;
     private int _mapType;
@@ -67,7 +61,19 @@ public class TripSegmentViewHolder
         parent.setClickable (false);
         parent.setLongClickable (false);
 
+        GoogleMapOptions options = new GoogleMapOptions ();
+
+        options.liteMode (true);
+        _mapView = new MapView (_ctx, options);
+        _mapView.onCreate (null);
+        _mapView.getMapAsync (new MapReadyCallback ());
+        _mapView.getMap ()
+                .setMapType (_mapType);
+
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
+        _mapHelper = new MapHelper (_mapView.getMap ());
+
+        _mapFrame.addView (_mapView);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSegmentLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSegmentLocationTo);
@@ -157,19 +163,6 @@ public class TripSegmentViewHolder
         getMaxSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMaxSpeed ()));
         getMediumSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMediumSpeed ()));
 
-        // Map
-        GoogleMapOptions options = new GoogleMapOptions ();
-        MapView          mapView;
-
-        options.liteMode (true);
-
-        mapView = new MapView (_ctx, options);
-        mapView.onCreate (null);
-        mapView.getMapAsync (new MapReadyCallback ());
-        mapView.getMap ()
-               .setMapType (_mapType);
-
-        _mapFrame.addView (mapView);
     }
 
     public TextView getLocationFrom ()
@@ -222,67 +215,6 @@ public class TripSegmentViewHolder
         return _mediumSpeed;
     }
 
-
-    private void drawMap (final GoogleMap map)
-    {
-        final LatLngBounds.Builder builder;
-        List<LatLng>               track;
-
-        builder = new LatLngBounds.Builder ();
-
-        List<TripLocation> points;
-        MarkerOptions      markerOptions;
-
-        points = _segment.getLocations ();
-
-        markerOptions = new MarkerOptions ();
-        markerOptions.position (points.get (0)
-                                      .toLatLng ());
-
-        // TODO: set markeroptions title
-
-        map.addMarker (markerOptions);
-
-        markerOptions = new MarkerOptions ();
-        markerOptions.position (points.get (points.size () - 1)
-                                      .toLatLng ());
-        map.addMarker (markerOptions);
-
-        track = new ArrayList<> ();
-
-        for (TripLocation p : points) {
-            LatLng current;
-
-            current = p.toLatLng ();
-
-            track.add (current);
-            builder.include (current);
-        }
-
-        Polyline        route;
-        PolylineOptions routeOptions;
-        Polyline        border;
-        PolylineOptions borderOptions;
-
-        routeOptions = new PolylineOptions ();
-        routeOptions.width (5);
-        routeOptions.color (Color.RED);
-        routeOptions.geodesic (true);
-
-        borderOptions = new PolylineOptions ();
-        borderOptions.width (10);
-        borderOptions.color (Color.GRAY);
-        borderOptions.geodesic (true);
-
-        border = map.addPolyline (borderOptions);
-        route = map.addPolyline (routeOptions);
-
-        route.setPoints (track);
-        border.setPoints (track);
-
-        map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
-    }
-
     public Context getCtx ()
     {
         return _ctx;
@@ -299,7 +231,7 @@ public class TripSegmentViewHolder
         @Override
         public void onMapReady (GoogleMap googleMap)
         {
-            drawMap (googleMap);
+            _mapHelper.dawSegment (_segment, Color.RED);
         }
     }
 }

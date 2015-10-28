@@ -63,7 +63,7 @@ public class MainFragment
     };
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-    private Context              _ctx;
+    private boolean _backFromDetail = false;
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -79,6 +79,12 @@ public class MainFragment
     }
 
     @Override
+    public void onCreate (Bundle savedInstanceState)
+    {
+        super.onCreate (savedInstanceState);
+    }
+
+    @Override
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         return inflater.inflate (R.layout.fragment_main, container, false);
@@ -87,8 +93,8 @@ public class MainFragment
     @Override
     public void onDestroyView ()
     {
-        LocationBroadcastManager.unregisterReceiver (_ctx, _onTripLogStartReceiver);
-        LocationBroadcastManager.unregisterReceiver (_ctx, _onTripLogStopReceiver);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
 
         super.onDestroyView ();
     }
@@ -99,9 +105,6 @@ public class MainFragment
         super.onViewCreated (view, savedInstanceState);
 
         if (getView () != null) {
-            // Init context
-            _ctx = getActivity ();
-
             // Toolbar
             Toolbar toolbar;
 
@@ -110,7 +113,7 @@ public class MainFragment
 
             // Recyclerview
             _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
-            _recyclerView.setLayoutManager (new LinearLayoutManager (_ctx));
+            _recyclerView.setLayoutManager (new LinearLayoutManager (getContext ()));
             //_recyclerView.setHasFixedSize (true);
 
             _recyclerView.setItemAnimator (new DefaultItemAnimator ());
@@ -129,16 +132,18 @@ public class MainFragment
                 }
             });
 
-            if (SettingsManager.isLogTrip (_ctx)) {
-                startDetailActivity (0);
+            if (SettingsManager.isLogTrip (getContext ())) {
+                _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
             }
             else {
                 _fabTripLog.setImageResource (R.mipmap.ic_button_save);
             }
 
             // Receive the broadcast of the LogMyTripService class
-            LocationBroadcastManager.registerTripLogStartReceiver (_ctx, _onTripLogStartReceiver);
-            LocationBroadcastManager.registerTripLogStopReceiver (_ctx, _onTripLogStopReceiver);
+            LocationBroadcastManager.registerTripLogStartReceiver (getContext (),
+                                                                   _onTripLogStartReceiver);
+            LocationBroadcastManager.registerTripLogStopReceiver (getContext (),
+                                                                  _onTripLogStopReceiver);
         }
     }
 
@@ -148,7 +153,7 @@ public class MainFragment
     private void loadTrips ()
     {
         if (getView () != null) {
-            _adapter = new TripItemAdapter (_ctx);
+            _adapter = new TripItemAdapter (getContext ());
             _adapter.setOnTripItemClickListener (this);
             _recyclerView.setAdapter (_adapter);
         }
@@ -159,32 +164,32 @@ public class MainFragment
         ActionBar bar;
 
         bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        bar.setSubtitle (
-                _ctx.getString (R.string.main_activity_subtitle, _adapter.getItemCount ()));
+        bar.setSubtitle (getContext ().getString (R.string.main_activity_subtitle,
+                                                  _adapter.getItemCount ()));
     }
 
     private void onTripLogClick (View v)
     {
-        if (SettingsManager.isLogTrip (_ctx)) {
+        if (SettingsManager.isLogTrip (getContext ())) {
             _recyclerView.scrollToPosition (0);
 
-            ServiceManager.stopTripLog (_ctx);
+            ServiceManager.stopTripLog (getContext ());
 
             _fabTripLog.setImageResource (R.mipmap.ic_button_save);
         }
         else {
-            ServiceManager.startTripLog (_ctx);
+            ServiceManager.startTripLog (getContext ());
 
-            startDetailActivity (0);
+            startDetailActivity (_adapter.getItem (0));
         }
     }
 
-    private void startDetailActivity (int position)
+    private void startDetailActivity (Trip t)
     {
         Intent i;
 
-        i = new Intent (_ctx, TripDetailActivity.class);
-        i.putExtra (MainFragment.ARG_PARAM_TRIP, _adapter.getItem (position));
+        i = new Intent (getContext (), TripDetailActivity.class);
+        i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
 
         startActivity (i);
     }
@@ -224,7 +229,7 @@ public class MainFragment
             updateActionModeTitle ();
         }
         else {
-            startDetailActivity (position);
+            startDetailActivity (_adapter.getItem (position));
         }
     }
 
@@ -277,7 +282,7 @@ public class MainFragment
                 List<Trip> selectedItems = _adapter.getSelectedItems ();
 
                 for (Trip t : selectedItems) {
-                    TripManager.deleteTrip (_ctx, t);
+                    TripManager.deleteTrip (getContext (), t);
                     _adapter.removeItem (t);
                 }
 
@@ -304,7 +309,8 @@ public class MainFragment
         File folder;
         final String filename;
 
-        folder = new File (Environment.getExternalStorageDirectory () + "/" + _ctx.getText (
+        folder = new File (
+                Environment.getExternalStorageDirectory () + "/" + getContext ().getText (
                 R.string.app_name));
 
         if (!folder.exists ()) {
@@ -317,8 +323,9 @@ public class MainFragment
         // show waiting screen
         final ProgressDialog progDialog;
 
-        progDialog = ProgressDialog.show (_ctx, getString (R.string.app_name),
-                                          _ctx.getString (R.string.msg_exporting_trips), true);
+        progDialog = ProgressDialog.show (getContext (), getString (R.string.app_name),
+                                          getContext ().getString (R.string.msg_exporting_trips),
+                                          true);
 
         final Handler handler = new Handler ()
         {
@@ -338,7 +345,7 @@ public class MainFragment
                     writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Title",
                                                      "Description" });
                     writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
-                                                     DateFormat.getMediumDateFormat (_ctx)
+                                                     DateFormat.getMediumDateFormat (getContext ())
                                                                .format (t.getTripDate ()),
                                                      DateFormat.format ("HH:mm:ss",
                                                                         t.getTripDate ())
@@ -355,7 +362,8 @@ public class MainFragment
                         for (TripLocation l : s.getLocations ()) {
                             writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
                                                              String.format ("%d", l.getIdTrip ()),
-                                                             DateFormat.getMediumDateFormat (_ctx)
+                                                             DateFormat.getMediumDateFormat (
+                                                                     getContext ())
                                                                        .format (
                                                                                l.getLocationTimeAsDate ()),
                                                              DateFormat.format ("HH:mm:ss",

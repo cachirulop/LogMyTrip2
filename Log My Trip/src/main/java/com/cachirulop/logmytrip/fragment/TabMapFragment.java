@@ -217,7 +217,8 @@ public class TabMapFragment
         isActiveTrip = (_trip.equals (activeTrip));
 
         _map = googleMap;
-        _mapHelper = new MapHelper (_map);
+        _mapHelper = new MapHelper ();
+        _mapHelper.setMap (_map);
         _map.setMyLocationEnabled (true);
 
         if (isActiveTrip && SettingsManager.isLogTrip (getContext ())) {

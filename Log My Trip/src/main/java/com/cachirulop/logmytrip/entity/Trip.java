@@ -18,6 +18,10 @@ public class Trip
     private Date _tripDate;
     private String _title;
     private String _description;
+    private double _totalDistance = -1;
+    private long   _totalTime     = -1;
+    private float  _maxSpeed      = -1;
+    private float  _mediumSpeed   = -1;
 
     private transient List<TripSegment> _segments = null;
 
@@ -84,14 +88,15 @@ public class Trip
 
     public double computeTotalDistance ()
     {
-        double result;
+        if (_totalDistance == -1) {
+            _totalDistance = 0;
 
-        result = 0;
-        for (TripSegment s : getSegments ()) {
-            result += s.computeTotalDistance ();
+            for (TripSegment s : getSegments ()) {
+                _totalDistance += s.computeTotalDistance ();
+            }
         }
 
-        return result;
+        return _totalDistance;
     }
 
     public List<TripSegment> getSegments ()
@@ -163,14 +168,15 @@ public class Trip
      */
     public long computeTotalTime ()
     {
-        long result;
+        if (_totalTime == -1) {
+            _totalTime = 0;
 
-        result = 0;
-        for (TripSegment s : getSegments ()) {
-            result += s.computeTotalTime ();
+            for (TripSegment s : getSegments ()) {
+                _totalTime += s.computeTotalTime ();
+            }
         }
 
-        return result;
+        return _totalTime;
     }
 
     public TripLocation getStartLocation ()
@@ -228,37 +234,37 @@ public class Trip
 
     public float computeMaxSpeed ()
     {
-        float max;
+        if (_maxSpeed == -1) {
+            _maxSpeed = 0;
 
-        max = 0;
+            for (TripSegment s : getSegments ()) {
+                float current;
 
-        for (TripSegment s : getSegments ()) {
-            float current;
-
-            current = s.computeMaxSpeed ();
-            if (current > max) {
-                max = current;
+                current = s.computeMaxSpeed ();
+                if (current > _maxSpeed) {
+                    _maxSpeed = current;
+                }
             }
         }
 
-        return max;
+        return _maxSpeed;
     }
 
     public float computeMediumSpeed ()
     {
-        float max;
+        if (_mediumSpeed == -1) {
+            _mediumSpeed = 0;
 
-        max = 0;
+            for (TripSegment s : getSegments ()) {
+                float current;
 
-        for (TripSegment s : getSegments ()) {
-            float current;
-
-            current = s.computeMediumSpeed ();
-            if (current > max) {
-                max = current;
+                current = s.computeMediumSpeed ();
+                if (current > _mediumSpeed) {
+                    _mediumSpeed = current;
+                }
             }
         }
 
-        return max;
+        return _mediumSpeed;
     }
 }

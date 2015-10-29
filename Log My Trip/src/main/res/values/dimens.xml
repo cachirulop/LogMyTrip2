@@ -6,7 +6,7 @@
 
     <dimen name="fab_margin">16dp</dimen>
 
-    <dimen name="card_margin">5dp</dimen>
+    <dimen name="card_margin">2dp</dimen>
     <dimen name="card_elevation">3dp</dimen>
 
     <dimen name="trip_detail_title_height">256dp</dimen>

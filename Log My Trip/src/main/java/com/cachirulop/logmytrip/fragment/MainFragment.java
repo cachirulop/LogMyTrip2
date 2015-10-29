@@ -63,16 +63,16 @@ public class MainFragment
     };
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-    private boolean _backFromDetail = false;
+    private boolean           _backFromDetail         = false;
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
             _adapter.startTripLog ();
+            startDetailActivity (_adapter.getItem (0));
         }
     };
-
 
     public MainFragment ()
     {
@@ -179,19 +179,7 @@ public class MainFragment
         }
         else {
             ServiceManager.startTripLog (getContext ());
-
-            startDetailActivity (_adapter.getItem (0));
         }
-    }
-
-    private void startDetailActivity (Trip t)
-    {
-        Intent i;
-
-        i = new Intent (getContext (), TripDetailActivity.class);
-        i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
-
-        startActivity (i);
     }
 
     public void reloadTrips ()
@@ -231,6 +219,16 @@ public class MainFragment
         else {
             startDetailActivity (_adapter.getItem (position));
         }
+    }
+
+    private void startDetailActivity (Trip t)
+    {
+        Intent i;
+
+        i = new Intent (getContext (), TripDetailActivity.class);
+        i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
+
+        startActivity (i);
     }
 
     @Override

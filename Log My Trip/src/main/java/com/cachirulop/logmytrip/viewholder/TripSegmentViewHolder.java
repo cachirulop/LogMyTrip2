@@ -46,6 +46,7 @@ public class TripSegmentViewHolder
     private FrameLayout           _mapFrame;
     private MapView   _mapView;
     private MapHelper _mapHelper;
+    private MapReadyCallback _mapCallback;
     private TripSegment           _segment;
     private Context               _ctx;
     private int _mapType;
@@ -66,12 +67,10 @@ public class TripSegmentViewHolder
         options.liteMode (true);
         _mapView = new MapView (_ctx, options);
         _mapView.onCreate (null);
-        _mapView.getMapAsync (new MapReadyCallback ());
-        _mapView.getMap ()
-                .setMapType (_mapType);
+        _mapCallback = new MapReadyCallback ();
 
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
-        _mapHelper = new MapHelper (_mapView.getMap ());
+        _mapHelper = new MapHelper ();
 
         _mapFrame.addView (_mapView);
 
@@ -92,9 +91,9 @@ public class TripSegmentViewHolder
 
     public void bindView (final TripSegment tripSegment, int position)
     {
-        _segment = tripSegment;  // To get locations
-
         TripLocation l;
+
+        _segment = tripSegment;  // To get locations
 
         _toolbar.setTitle (String.format (_ctx.getString (R.string.title_segment_num), position));
         _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
@@ -163,6 +162,7 @@ public class TripSegmentViewHolder
         getMaxSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMaxSpeed ()));
         getMediumSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMediumSpeed ()));
 
+        _mapView.getMapAsync (_mapCallback);
     }
 
     public TextView getLocationFrom ()
@@ -231,6 +231,10 @@ public class TripSegmentViewHolder
         @Override
         public void onMapReady (GoogleMap googleMap)
         {
+            googleMap.setMapType (_mapType);
+
+            googleMap.clear ();
+            _mapHelper.setMap (googleMap);
             _mapHelper.dawSegment (_segment, Color.RED);
         }
     }

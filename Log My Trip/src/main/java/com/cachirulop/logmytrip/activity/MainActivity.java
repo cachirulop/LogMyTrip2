@@ -34,10 +34,9 @@ public class MainActivity
         setContentView (R.layout.activity_main);
 
         // Start the log service
-        // startService (new Intent (this, LogMyTripService.class));
-        if (SettingsManager.isLogTrip (this)) {
-            ServiceManager.startTripLog (this);
-        }
+//        if (SettingsManager.isLogTrip (this)) {
+//            ServiceManager.startTripLog (this);
+//        }
 
         if (SettingsManager.isAutoStartLog (this)) {
             ServiceManager.startBluetooth (this);
@@ -49,8 +48,8 @@ public class MainActivity
         bar = getSupportActionBar ();
         if (bar != null) {
             bar.setDisplayShowHomeEnabled (true);
-            bar.setLogo (R.drawable.ic_launcher);
-            bar.setIcon (R.drawable.ic_launcher);
+            bar.setLogo (R.mipmap.ic_launcher);
+            bar.setIcon (R.mipmap.ic_launcher);
             bar.setTitle (R.string.app_name);
         }
 

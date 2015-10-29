@@ -28,12 +28,14 @@ public class MapHelper
                                                            Color.MAGENTA, Color.YELLOW };
     ArrayList<Polyline>    _arrows        = new ArrayList<> ();
     ArrayList<TripSegment> _drawnSegments = new ArrayList<> ();
-    private GoogleMap _map;
+    private GoogleMap _map = null;
     private boolean   _drawn;
 
-    public MapHelper (GoogleMap map)
+    public void setMap (GoogleMap map)
     {
         _map = map;
+        _arrows.clear ();
+        _drawnSegments.clear ();
     }
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
@@ -44,29 +46,32 @@ public class MapHelper
         int                  currentIndex;
         LatLngBounds.Builder builder;
 
-        _drawn = true;
+        if (_map != null) {
 
-        builder = new LatLngBounds.Builder ();
+            _drawn = true;
 
-        segments = trip.getSegments (true);
-        currentIndex = 0;
-        lastSegmentIndex = segments.size () - 1;
+            builder = new LatLngBounds.Builder ();
 
-        currentColor = 0;
+            segments = trip.getSegments (true);
+            currentIndex = 0;
+            lastSegmentIndex = segments.size () - 1;
 
-        // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
-        _map.setOnCameraChangeListener (new CameraListener (_map, builder));
-        // }
+            currentColor = 0;
 
-        for (TripSegment s : segments) {
-            boolean isActiveSegment;
+            // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder));
+            // }
 
-            isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
-            privateDrawSegment (s, builder, isActiveSegment, SEGMENT_COLORS[currentColor]);
+            for (TripSegment s : segments) {
+                boolean isActiveSegment;
 
-            currentColor++;
-            currentColor = currentColor % SEGMENT_COLORS.length;
-            currentIndex++;
+                isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
+                privateDrawSegment (s, builder, isActiveSegment, SEGMENT_COLORS[currentColor]);
+
+                currentColor++;
+                currentColor = currentColor % SEGMENT_COLORS.length;
+                currentIndex++;
+            }
         }
     }
 
@@ -76,74 +81,78 @@ public class MapHelper
         MarkerOptions      markerOptions;
         List<LatLng>       track;
 
-        _drawnSegments.add (segment);
+        if (_map != null) {
+            _drawnSegments.add (segment);
 
-        points = segment.getLocations ();
+            points = segment.getLocations ();
 
-        // Start mark
-        markerOptions = new MarkerOptions ();
-        markerOptions.position (points.get (0)
-                                      .toLatLng ());
-        // markerOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.id_start_log));
-        _map.addMarker (markerOptions);
-
-        // End mark
-        if (!isActiveSegment) {
+            // Start mark
             markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (points.size () - 1)
+            markerOptions.position (points.get (0)
                                           .toLatLng ());
+            // markerOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.id_start_log));
             _map.addMarker (markerOptions);
+
+            // End mark
+            if (!isActiveSegment) {
+                markerOptions = new MarkerOptions ();
+                markerOptions.position (points.get (points.size () - 1)
+                                              .toLatLng ());
+                _map.addMarker (markerOptions);
+            }
+
+            track = new ArrayList<LatLng> ();
+
+            int i = 0;
+            for (TripLocation p : points) {
+                LatLng current;
+
+                current = p.toLatLng ();
+
+                track.add (current);
+                builder.include (current);
+
+                i++;
+            }
+
+            Polyline route;
+            PolylineOptions routeOptions;
+            Polyline border;
+            PolylineOptions borderOptions;
+
+            routeOptions = new PolylineOptions ();
+            routeOptions.width (5);
+            routeOptions.color (color);
+            routeOptions.geodesic (true);
+            routeOptions.zIndex (1);
+
+            borderOptions = new PolylineOptions ();
+            borderOptions.width (10);
+            borderOptions.color (Color.GRAY);
+            borderOptions.geodesic (true);
+            routeOptions.zIndex (0);
+
+            border = _map.addPolyline (borderOptions);
+            route = _map.addPolyline (routeOptions);
+
+            route.setPoints (track);
+            border.setPoints (track);
         }
-
-        track = new ArrayList<LatLng> ();
-
-        int i = 0;
-        for (TripLocation p : points) {
-            LatLng current;
-
-            current = p.toLatLng ();
-
-            track.add (current);
-            builder.include (current);
-
-            i++;
-        }
-
-        Polyline        route;
-        PolylineOptions routeOptions;
-        Polyline        border;
-        PolylineOptions borderOptions;
-
-        routeOptions = new PolylineOptions ();
-        routeOptions.width (5);
-        routeOptions.color (color);
-        routeOptions.geodesic (true);
-        routeOptions.zIndex (1);
-
-        borderOptions = new PolylineOptions ();
-        borderOptions.width (10);
-        borderOptions.color (Color.GRAY);
-        borderOptions.geodesic (true);
-        routeOptions.zIndex (0);
-
-        border = _map.addPolyline (borderOptions);
-        route = _map.addPolyline (routeOptions);
-
-        route.setPoints (track);
-        border.setPoints (track);
     }
 
     public void dawSegment (TripSegment segment, int color)
     {
         LatLngBounds.Builder builder;
 
-        builder = new LatLngBounds.Builder ();
+        if (_map != null) {
+            builder = new LatLngBounds.Builder ();
 
-        _map.setOnCameraChangeListener (new CameraListener (_map, builder));
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder));
 
-        privateDrawSegment (segment, builder, false, color);
+            privateDrawSegment (segment, builder, false, color);
 
-        _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
+            _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
+        }
     }
 
     public void drawArrows ()
@@ -153,64 +162,67 @@ public class MapHelper
         Projection   proj;
         LatLngBounds bounds;
 
-        proj = _map.getProjection ();
-        bounds = proj.getVisibleRegion ().latLngBounds;
+        if (_map != null) {
+            proj = _map.getProjection ();
+            bounds = proj.getVisibleRegion ().latLngBounds;
 
-        for (Polyline arrow : _arrows) {
-            arrow.remove ();
-        }
+            for (Polyline arrow : _arrows) {
+                arrow.remove ();
+            }
 
-        _arrows.clear ();
+            _arrows.clear ();
 
-        ArrayList<PolylineOptions> arrowsLine;
+            ArrayList<PolylineOptions> arrowsLine;
 
-        arrowsLine = new ArrayList<> ();
+            arrowsLine = new ArrayList<> ();
 
-        currentColor = 0;
+            currentColor = 0;
 
-        for (TripSegment s : _drawnSegments) {
-            List<TripLocation> points;
-            ArrayList<TripLocation> validPoints;
+            for (TripSegment s : _drawnSegments) {
+                List<TripLocation> points;
+                ArrayList<TripLocation> validPoints;
 
-            validPoints = new ArrayList<> ();
+                validPoints = new ArrayList<> ();
 
-            points = s.getLocations ();
+                points = s.getLocations ();
 
-            for (int i = 0 ; i < points.size () ; i++) {
-                if (i > 0 && i < (points.size () - 1)) {
-                    TripLocation p;
-                    LatLng current;
+                for (int i = 0 ; i < points.size () ; i++) {
+                    if (i > 0 && i < (points.size () - 1)) {
+                        TripLocation p;
+                        LatLng current;
 
-                    p = points.get (i);
-                    current = p.toLatLng ();
+                        p = points.get (i);
+                        current = p.toLatLng ();
 
-                    if (bounds.contains (current)) {
-                        validPoints.add (p);
+                        if (bounds.contains (current)) {
+                            validPoints.add (p);
+                        }
                     }
                 }
-            }
 
-            int interval;
+                int interval;
 
-            if (validPoints.size () > 5) {
-                interval = validPoints.size () / 5;
-            }
-            else {
-                interval = validPoints.size ();
-            }
-
-            for (int i = 0 ; i < validPoints.size () ; i++) {
-                if (i % interval == 0) {
-                    addArrow (proj, arrowsLine, validPoints.get (i), SEGMENT_COLORS[currentColor]);
+                if (validPoints.size () > 5) {
+                    interval = validPoints.size () / 5;
                 }
+                else {
+                    interval = validPoints.size ();
+                }
+
+                for (int i = 0 ; i < validPoints.size () ; i++) {
+                    if (i % interval == 0) {
+                        addArrow (proj, arrowsLine, validPoints.get (i),
+                                  SEGMENT_COLORS[currentColor]);
+                    }
+                }
+
+                currentColor++;
+                currentColor = currentColor % SEGMENT_COLORS.length;
             }
 
-            currentColor++;
-            currentColor = currentColor % SEGMENT_COLORS.length;
-        }
-
-        for (PolylineOptions l : arrowsLine) {
-            _arrows.add (_map.addPolyline (l));
+            for (PolylineOptions l : arrowsLine) {
+                _arrows.add (_map.addPolyline (l));
+            }
         }
     }
 
@@ -322,7 +334,7 @@ public class MapHelper
         public void onCameraChange (CameraPosition arg0)
         {
             // Move camera.
-            if (_drawn) {
+            if (_drawn && _drawnSegments.size () > 0) {
                 _map.moveCamera (CameraUpdateFactory.newLatLngBounds (_builder.build (), 50));
 
                 _drawn = false;

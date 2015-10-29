@@ -9,9 +9,11 @@ import com.cachirulop.logmytrip.entity.TripSegment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -24,16 +26,25 @@ import java.util.List;
  */
 public class MapHelper
 {
-    private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
-                                                           Color.MAGENTA, Color.YELLOW };
-    ArrayList<Polyline>    _arrows        = new ArrayList<> ();
-    ArrayList<TripSegment> _drawnSegments = new ArrayList<> ();
-    private GoogleMap _map = null;
-    private boolean   _drawn;
+    private static final int[]   SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
+                                                             Color.MAGENTA, Color.YELLOW };
+    private static final float[] MARKER_COLORS  = new float[]{ BitmapDescriptorFactory.HUE_RED,
+                                                               BitmapDescriptorFactory.HUE_BLUE,
+                                                               BitmapDescriptorFactory.HUE_GREEN,
+                                                               BitmapDescriptorFactory.HUE_MAGENTA,
+                                                               BitmapDescriptorFactory.HUE_YELLOW };
+
+
+    private ArrayList<Polyline>    _arrows         = new ArrayList<> ();
+    private ArrayList<TripSegment> _drawnSegments  = new ArrayList<> ();
+    private GoogleMap              _map            = null;
+    private boolean                _drawn          = false;
+    private MarkerClickListener    _markerListener = new MarkerClickListener ();
 
     public void setMap (GoogleMap map)
     {
         _map = map;
+        _map.setOnMarkerClickListener (_markerListener);
         _arrows.clear ();
         _drawnSegments.clear ();
     }
@@ -66,7 +77,8 @@ public class MapHelper
                 boolean isActiveSegment;
 
                 isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
-                privateDrawSegment (s, builder, isActiveSegment, SEGMENT_COLORS[currentColor]);
+                privateDrawSegment (s, builder, isActiveSegment, false,
+                                    SEGMENT_COLORS[currentColor]);
 
                 currentColor++;
                 currentColor = currentColor % SEGMENT_COLORS.length;
@@ -75,7 +87,7 @@ public class MapHelper
         }
     }
 
-    private void privateDrawSegment (TripSegment segment, LatLngBounds.Builder builder, boolean isActiveSegment, int color)
+    private void privateDrawSegment (TripSegment segment, LatLngBounds.Builder builder, boolean isActiveSegment, boolean isSelected, int color)
     {
         List<TripLocation> points;
         MarkerOptions      markerOptions;
@@ -90,7 +102,7 @@ public class MapHelper
             markerOptions = new MarkerOptions ();
             markerOptions.position (points.get (0)
                                           .toLatLng ());
-            // markerOptions.icon (BitmapDescriptorFactory.fromResource (R.mipmap.id_start_log));
+            markerOptions.icon (BitmapDescriptorFactory.defaultMarker (getMarkerColor (color)));
             _map.addMarker (markerOptions);
 
             // End mark
@@ -98,6 +110,7 @@ public class MapHelper
                 markerOptions = new MarkerOptions ();
                 markerOptions.position (points.get (points.size () - 1)
                                               .toLatLng ());
+                markerOptions.icon (BitmapDescriptorFactory.defaultMarker (getMarkerColor (color)));
                 _map.addMarker (markerOptions);
             }
 
@@ -140,6 +153,17 @@ public class MapHelper
         }
     }
 
+    private float getMarkerColor (int color)
+    {
+        for (int i = 0 ; i < SEGMENT_COLORS.length ; i++) {
+            if (SEGMENT_COLORS[i] == color) {
+                return MARKER_COLORS[i];
+            }
+        }
+
+        return MARKER_COLORS[0];
+    }
+
     public void dawSegment (TripSegment segment, int color)
     {
         LatLngBounds.Builder builder;
@@ -149,7 +173,7 @@ public class MapHelper
 
             _map.setOnCameraChangeListener (new CameraListener (_map, builder));
 
-            privateDrawSegment (segment, builder, false, color);
+            privateDrawSegment (segment, builder, false, false, color);
 
             _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
         }
@@ -344,6 +368,41 @@ public class MapHelper
 
             // Remove listener to prevent position reset on camera move.
             // _map.setOnCameraChangeListener (null);
+        }
+    }
+
+    private class MarkerClickListener
+            implements GoogleMap.OnMarkerClickListener
+    {
+        @Override
+        public boolean onMarkerClick (Marker marker)
+        {
+            TripSegment segment;
+
+            segment = locateSegment (marker.getPosition ());
+            if (segment != null) {
+                privateDrawSegment (segment, builder, false, true, color);
+            }
+
+            return false;
+        }
+
+        private TripSegment locateSegment (LatLng position)
+        {
+            for (TripSegment s : _drawnSegments) {
+                List<TripLocation> locations;
+
+                locations = s.getLocations ();
+                if (locations.get (0)
+                             .toLatLng ()
+                             .equals (position) || locations.get (locations.size () - 1)
+                                                            .toLatLng ()
+                                                            .equals (position)) {
+                    return s;
+                }
+            }
+
+            return null;
         }
     }
 }

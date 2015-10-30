@@ -48,7 +48,7 @@ public class LocationReceiver
 
                 TripManager.saveTripLocation (context, tl);
 
-                LocationBroadcastManager.sendNewLocationMessage (context);
+                LocationBroadcastManager.sendNewLocationMessage (context, loc);
             }
         }
     }

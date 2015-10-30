@@ -57,6 +57,8 @@ public class MapHelper
         int                  currentIndex;
         LatLngBounds.Builder builder;
 
+        _drawnSegments.clear ();
+
         if (_map != null) {
 
             _drawn = true;
@@ -70,7 +72,7 @@ public class MapHelper
             currentColor = 0;
 
             // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder));
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder, isActiveTrip));
             // }
 
             for (TripSegment s : segments) {
@@ -171,10 +173,11 @@ public class MapHelper
         if (_map != null) {
             builder = new LatLngBounds.Builder ();
 
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder));
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false));
 
             privateDrawSegment (segment, builder, false, false, color);
 
+            LogHelper.d ("*** drawSegment");
             _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
         }
     }
@@ -347,18 +350,23 @@ public class MapHelper
     {
         private GoogleMap            _map;
         private LatLngBounds.Builder _builder;
+        private boolean _isActiveTrip;
+        private boolean _moved;
 
-        public CameraListener (GoogleMap map, LatLngBounds.Builder builder)
+        public CameraListener (GoogleMap map, LatLngBounds.Builder builder, boolean isActiveTrip)
         {
             _map = map;
             _builder = builder;
+            _isActiveTrip = isActiveTrip;
+            _moved = false;
         }
 
         @Override
         public void onCameraChange (CameraPosition arg0)
         {
             // Move camera.
-            if (_drawn && _drawnSegments.size () > 0) {
+            if (_drawn && _drawnSegments.size () > 0 && !_isActiveTrip) {
+                LogHelper.d ("*** Moving camera");
                 _map.moveCamera (CameraUpdateFactory.newLatLngBounds (_builder.build (), 50));
 
                 _drawn = false;
@@ -367,7 +375,9 @@ public class MapHelper
             drawArrows ();
 
             // Remove listener to prevent position reset on camera move.
-            // _map.setOnCameraChangeListener (null);
+            //_map.setOnCameraChangeListener (null);
+
+            _moved = true;
         }
     }
 
@@ -379,10 +389,10 @@ public class MapHelper
         {
             TripSegment segment;
 
-            segment = locateSegment (marker.getPosition ());
-            if (segment != null) {
-                privateDrawSegment (segment, builder, false, true, color);
-            }
+            //            segment = locateSegment (marker.getPosition ());
+            //            if (segment != null) {
+            //                privateDrawSegment (segment, builder, false, true, color);
+            //            }
 
             return false;
         }

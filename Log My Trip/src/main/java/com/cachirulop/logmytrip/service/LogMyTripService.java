@@ -21,9 +21,14 @@ import com.cachirulop.logmytrip.util.ToastHelper;
 public class LogMyTripService
         extends Service
 {
+    private static boolean _started;
     private LocationManager _locationMgr;
     private LogMyTripServiceBinder _binder = new LogMyTripServiceBinder ();
-    private boolean _started;
+
+    public static boolean isRunning ()
+    {
+        return _started;
+    }
 
     @Override
     public void onCreate ()
@@ -112,6 +117,8 @@ public class LogMyTripService
         LocationBroadcastManager.sendStopTripLogMessage (this, trip);
 
         _locationMgr.removeUpdates (getLocationIntent ());
+
+        _started = false;
     }
 
     private void stopForegroundService ()

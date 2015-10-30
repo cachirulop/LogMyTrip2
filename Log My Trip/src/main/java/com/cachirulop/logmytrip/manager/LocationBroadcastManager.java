@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
+import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.cachirulop.logmytrip.entity.Trip;
@@ -24,6 +26,7 @@ public class LocationBroadcastManager
     private static final String EXTRA_TRIP                    = BROADCAST_PREFIX + "trip";
     private static final String EXTRA_PROVIDER_ENABLE         = BROADCAST_PREFIX + "enabled";
     private static final String EXTRA_STATUS                  = BROADCAST_PREFIX + "status";
+    private static final String EXTRA_LOCATION = BROADCAST_PREFIX + "location";
 
     public static void sendStartTripLogMessage (Context ctx)
     {
@@ -55,6 +58,9 @@ public class LocationBroadcastManager
                 else if (value instanceof Boolean) {
                     intent.putExtra (k, ((Boolean) params.get (k)).booleanValue ());
                 }
+                else if (value instanceof Parcelable) {
+                    intent.putExtra (k, ((Parcelable) params.get (k)));
+                }
             }
         }
 
@@ -72,9 +78,14 @@ public class LocationBroadcastManager
         sendBroadcastMessage (ctx, ACTION_TRIP_LOG_STOP, params);
     }
 
-    public static void sendNewLocationMessage (Context ctx)
+    public static void sendNewLocationMessage (Context ctx, Location loc)
     {
-        sendBroadcastMessage (ctx, ACTION_NEW_LOCATION);
+        HashMap<String, Object> params;
+
+        params = new HashMap<> ();
+        params.put (EXTRA_LOCATION, loc);
+
+        sendBroadcastMessage (ctx, ACTION_NEW_LOCATION, params);
     }
 
     public static void sendProviderEnableChangeMessage (Context context, boolean enabled)
@@ -143,6 +154,12 @@ public class LocationBroadcastManager
     {
         return (Trip) intent.getSerializableExtra (EXTRA_TRIP);
     }
+
+    public static Location getLocation (Intent intent)
+    {
+        return (Location) intent.getParcelableExtra (EXTRA_LOCATION);
+    }
+
 
     public static boolean hasStatus (Intent intent)
     {

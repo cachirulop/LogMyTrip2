@@ -37,6 +37,7 @@ import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.io.File;
@@ -133,6 +134,11 @@ public class MainFragment
             });
 
             if (SettingsManager.isLogTrip (getContext ())) {
+                // Ensure to start log service
+                if (!LogMyTripService.isRunning ()) {
+                    ServiceManager.startTripLog (getContext ());
+                }
+
                 _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
             }
             else {

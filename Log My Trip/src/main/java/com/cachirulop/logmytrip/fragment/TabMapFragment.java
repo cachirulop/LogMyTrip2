@@ -20,7 +20,6 @@ import android.view.ViewStub;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
-import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.util.LogHelper;
 import com.cachirulop.logmytrip.util.MapHelper;
@@ -38,11 +37,18 @@ public class TabMapFragment
     private MapHelper _mapHelper;
     private Trip      _trip;
 
-    private BroadcastReceiver _onNewLocationReceiver   = new BroadcastReceiver ()
+    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
+            Location l;
+
+            l = LocationBroadcastManager.getLocation (intent);
+
+            _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
+                    new LatLng (l.getLatitude (), l.getLongitude ()), 17));
+
             drawTrackMainThread ();
         }
     };
@@ -198,8 +204,7 @@ public class TabMapFragment
                 @Override
                 public void run ()
                 {
-                    // TODO: is active trip?
-                    _mapHelper.drawTrip (_trip, false);
+                    _mapHelper.drawTrip (_trip, true);
                 }
             };
 
@@ -221,20 +226,21 @@ public class TabMapFragment
         _mapHelper.setMap (_map);
         _map.setMyLocationEnabled (true);
 
-        if (isActiveTrip && SettingsManager.isLogTrip (getContext ())) {
-            _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
-            {
-                @Override
-                public void onMyLocationChange (Location location)
-                {
-                    _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
-                            new LatLng (location.getLatitude (), location.getLongitude ()), 50));
-                }
-            });
-        }
+        //        if (isActiveTrip && SettingsManager.isLogTrip (getContext ())) {
+        //            _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
+        //            {
+        //                @Override
+        //                public void onMyLocationChange (Location location)
+        //                {
+        //                    LogHelper.d ("*** onMapReady");
+        //
+        //                    _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
+        //                            new LatLng (location.getLatitude (), location.getLongitude ()), 50));
+        //                }
+        //            });
+        //        }
 
-        // TODO: is active trip?
-        _mapHelper.drawTrip (_trip, false);
+        _mapHelper.drawTrip (_trip, isActiveTrip);
     }
 
     public void setMapType (int mapType)

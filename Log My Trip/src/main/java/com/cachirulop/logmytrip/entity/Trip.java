@@ -1,5 +1,7 @@
 package com.cachirulop.logmytrip.entity;
 
+import android.location.Location;
+
 import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.io.Serializable;
@@ -130,11 +132,24 @@ public class Trip
                 _segments.add (current);
             }
             else {
+                boolean newSegment;
+
                 cal.setTime (last.getLocationTimeAsDate ());
                 cal.add (Calendar.HOUR, 2);
 
-                if (l.getLocationTimeAsDate ()
-                     .after (cal.getTime ())) {
+                newSegment = (l.getLocationTimeAsDate ()
+                               .after (cal.getTime ()));
+                if (!newSegment) {
+                    Location lastLocation;
+                    Location currentLocation;
+
+                    lastLocation = last.toLocation ();
+                    currentLocation = l.toLocation ();
+
+                    newSegment = (lastLocation.distanceTo (currentLocation)) > 100;
+                }
+
+                if (newSegment) {
                     current = new TripSegment ();
                     current.getLocations ()
                            .add (l);

@@ -146,7 +146,7 @@ public class Trip
                     lastLocation = last.toLocation ();
                     currentLocation = l.toLocation ();
 
-                    newSegment = (lastLocation.distanceTo (currentLocation)) > 100;
+                    newSegment = (lastLocation.distanceTo (currentLocation)) > 300;
                 }
 
                 if (newSegment) {

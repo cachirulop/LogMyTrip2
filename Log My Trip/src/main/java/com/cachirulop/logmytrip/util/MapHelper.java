@@ -36,7 +36,8 @@ public class MapHelper
 
 
     private ArrayList<Polyline>    _arrows         = new ArrayList<> ();
-    private ArrayList<TripSegment> _drawnSegments  = new ArrayList<> ();
+    private List<TripSegment> _drawnSegments = new ArrayList<> ();
+    private TripSegment _selectedSegment;
     private GoogleMap              _map            = null;
     private boolean                _drawn          = false;
     private MarkerClickListener    _markerListener = new MarkerClickListener ();
@@ -51,21 +52,23 @@ public class MapHelper
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
-        List<TripSegment>    segments;
+        if (_map != null) {
+            drawSegmentList (trip.getSegments (true), isActiveTrip);
+        }
+    }
+
+    private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)
+    {
+        LatLngBounds.Builder builder;
         int                  currentColor;
         int                  lastSegmentIndex;
         int                  currentIndex;
-        LatLngBounds.Builder builder;
-
-        _drawnSegments.clear ();
 
         if (_map != null) {
-
             _drawn = true;
 
             builder = new LatLngBounds.Builder ();
 
-            segments = trip.getSegments (true);
             currentIndex = 0;
             lastSegmentIndex = segments.size () - 1;
 
@@ -79,24 +82,32 @@ public class MapHelper
                 boolean isActiveSegment;
 
                 isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
-                privateDrawSegment (s, builder, isActiveSegment, false,
-                                    SEGMENT_COLORS[currentColor]);
+                privateDrawSegment (s, builder, isActiveSegment, SEGMENT_COLORS[currentColor]);
 
-                currentColor++;
-                currentColor = currentColor % SEGMENT_COLORS.length;
+                currentColor = (currentColor + 1) % SEGMENT_COLORS.length;
                 currentIndex++;
             }
         }
     }
 
-    private void privateDrawSegment (TripSegment segment, LatLngBounds.Builder builder, boolean isActiveSegment, boolean isSelected, int color)
+    private void privateDrawSegment (TripSegment segment, LatLngBounds.Builder builder, boolean isActiveSegment, int color)
     {
         List<TripLocation> points;
         MarkerOptions      markerOptions;
         List<LatLng>       track;
+        int zIndex;
 
         if (_map != null) {
-            _drawnSegments.add (segment);
+            if (!_drawnSegments.contains (segment)) {
+                _drawnSegments.add (segment);
+            }
+
+            if (_selectedSegment != null && _selectedSegment.equals (segment)) {
+                zIndex = 10;
+            }
+            else {
+                zIndex = 0;
+            }
 
             points = segment.getLocations ();
 
@@ -139,13 +150,13 @@ public class MapHelper
             routeOptions.width (5);
             routeOptions.color (color);
             routeOptions.geodesic (true);
-            routeOptions.zIndex (1);
+            routeOptions.zIndex (zIndex + 1);
 
             borderOptions = new PolylineOptions ();
             borderOptions.width (10);
             borderOptions.color (Color.GRAY);
             borderOptions.geodesic (true);
-            routeOptions.zIndex (0);
+            routeOptions.zIndex (zIndex);
 
             border = _map.addPolyline (borderOptions);
             route = _map.addPolyline (routeOptions);
@@ -175,9 +186,8 @@ public class MapHelper
 
             _map.setOnCameraChangeListener (new CameraListener (_map, builder, false));
 
-            privateDrawSegment (segment, builder, false, false, color);
+            privateDrawSegment (segment, builder, false, color);
 
-            LogHelper.d ("*** drawSegment");
             _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
         }
     }
@@ -366,7 +376,6 @@ public class MapHelper
         {
             // Move camera.
             if (_drawn && _drawnSegments.size () > 0 && !_isActiveTrip) {
-                LogHelper.d ("*** Moving camera");
                 _map.moveCamera (CameraUpdateFactory.newLatLngBounds (_builder.build (), 50));
 
                 _drawn = false;
@@ -389,12 +398,10 @@ public class MapHelper
         {
             TripSegment segment;
 
-            //            segment = locateSegment (marker.getPosition ());
-            //            if (segment != null) {
-            //                privateDrawSegment (segment, builder, false, true, color);
-            //            }
+            _selectedSegment = locateSegment (marker.getPosition ());
+            drawSegmentList (_drawnSegments, false);
 
-            return false;
+            return true;
         }
 
         private TripSegment locateSegment (LatLng position)

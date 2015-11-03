@@ -86,7 +86,9 @@ public class MainFragment
     }
 
     @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView (LayoutInflater inflater,
+                              ViewGroup container,
+                              Bundle savedInstanceState)
     {
         return inflater.inflate (R.layout.fragment_main, container, false);
     }
@@ -212,8 +214,8 @@ public class MainFragment
 
     private void updateActionModeTitle ()
     {
-        _actionMode.setTitle (
-                getString (R.string.title_selected_count, _adapter.getSelectedItemCount ()));
+        _actionMode.setTitle (getString (R.string.title_selected_count,
+                                         _adapter.getSelectedItemCount ()));
     }
 
     @Override
@@ -313,8 +315,7 @@ public class MainFragment
         File folder;
         final String filename;
 
-        folder = new File (
-                Environment.getExternalStorageDirectory () + "/" + getContext ().getText (
+        folder = new File (Environment.getExternalStorageDirectory () + "/" + getContext ().getText (
                 R.string.app_name));
 
         if (!folder.exists ()) {
@@ -346,15 +347,16 @@ public class MainFragment
                 try {
                     FileWriter fw = new FileWriter (filename);
 
-                    writeFileLine (fw, new String[]{ "Trip ID", "Date", "Time", "Title",
-                                                     "Description" });
-                    writeFileLine (fw, new String[]{ String.format ("%d", t.getId ()),
-                                                     DateFormat.getMediumDateFormat (getContext ())
-                                                               .format (t.getTripDate ()),
-                                                     DateFormat.format ("HH:mm:ss",
-                                                                        t.getTripDate ())
-                                                               .toString (), t.getTitle (),
-                                                     t.getDescription () });
+                    writeFileLine (fw,
+                                   new String[]{ "Trip ID", "Date", "Time", "Title",
+                                                 "Description" });
+                    writeFileLine (fw,
+                                   new String[]{ String.format ("%d", t.getId ()),
+                                                 DateFormat.getMediumDateFormat (getContext ())
+                                                           .format (t.getTripDate ()),
+                                                 DateFormat.format ("HH:mm:ss", t.getTripDate ())
+                                                           .toString (), t.getTitle (),
+                                                 t.getDescription () });
 
                     writeFileLine (fw, new String[]{ " " });
 
@@ -364,24 +366,22 @@ public class MainFragment
                                                  "Bearing", "Time as number" });
                     for (TripSegment s : t.getSegments ()) {
                         for (TripLocation l : s.getLocations ()) {
-                            writeFileLine (fw, new String[]{ String.format ("%d", l.getId ()),
-                                                             String.format ("%d", l.getIdTrip ()),
-                                                             DateFormat.getMediumDateFormat (
-                                                                     getContext ())
-                                                                       .format (
-                                                                               l.getLocationTimeAsDate ()),
-                                                             DateFormat.format ("HH:mm:ss",
-                                                                                l.getLocationTimeAsDate ())
-                                                                       .toString (),
-                                                             String.format ("%f", l.getLatitude ()),
-                                                             String.format ("%f",
-                                                                            l.getLongitude ()),
-                                                             String.format ("%f", l.getAltitude ()),
-                                                             String.format ("%f", l.getSpeed ()),
-                                                             String.format ("%f", l.getAccuracy ()),
-                                                             String.format ("%f", l.getBearing ()),
-                                                             String.format ("%d",
-                                                                            l.getLocationTime ()) });
+                            writeFileLine (fw,
+                                           new String[]{ String.format ("%d", l.getId ()),
+                                                         String.format ("%d", l.getIdTrip ()),
+                                                         DateFormat.getMediumDateFormat (getContext ())
+                                                                   .format (l.getLocationTimeAsDate ()),
+                                                         DateFormat.format ("HH:mm:ss",
+                                                                            l.getLocationTimeAsDate ())
+                                                                   .toString (),
+                                                         String.format ("%f", l.getLatitude ()),
+                                                         String.format ("%f", l.getLongitude ()),
+                                                         String.format ("%f", l.getAltitude ()),
+                                                         String.format ("%f", l.getSpeed ()),
+                                                         String.format ("%f", l.getAccuracy ()),
+                                                         String.format ("%f", l.getBearing ()),
+                                                         String.format ("%d",
+                                                                        l.getLocationTime ()) });
                         }
 
                         writeFileLine (fw, new String[]{ " " });

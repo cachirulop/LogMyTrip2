@@ -33,11 +33,6 @@ public class MainActivity
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_main);
 
-        // Start the log service
-//        if (SettingsManager.isLogTrip (this)) {
-//            ServiceManager.startTripLog (this);
-//        }
-
         if (SettingsManager.isAutoStartLog (this)) {
             ServiceManager.startBluetooth (this);
         }
@@ -54,8 +49,7 @@ public class MainActivity
         }
 
         // gets the main fragment
-        _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (
-                R.id.fMainFragment);
+        _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (R.id.fMainFragment);
     }
 
     @Override

@@ -114,7 +114,7 @@ public class FetchAddressService
         catch (IllegalArgumentException illegalArgumentException) {
             // Catch invalid latitude or longitude values.
             LogHelper.e ("Invalid location: " +
-                    "Latitude = " + location.getLatitude () +
+                                 "Latitude = " + location.getLatitude () +
                                  ", Longitude = " + location.getLongitude ());
         }
 

@@ -63,18 +63,15 @@ public class LogMyTripDataHelper
 
             Toast.makeText (ctx,
                             String.format (ctx.getString (R.string.msg_database_exporting), backup),
-                            Toast.LENGTH_LONG)
-                 .show ();
+                            Toast.LENGTH_LONG).show ();
 
-            copyFile (ctx, ctx.getDatabasePath (DATABASE_NAME)
-                              .getAbsolutePath (), backup, false);
+            copyFile (ctx, ctx.getDatabasePath (DATABASE_NAME).getAbsolutePath (), backup, false);
 
             Toast.makeText (ctx, ctx.getString (R.string.msg_database_exported), Toast.LENGTH_LONG)
                  .show ();
         }
         catch (Exception e) {
-            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG)
-                 .show ();
+            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG).show ();
         }
     }
 
@@ -186,18 +183,15 @@ public class LogMyTripDataHelper
 
             Toast.makeText (ctx,
                             String.format (ctx.getString (R.string.msg_database_importing), backup),
-                            Toast.LENGTH_LONG)
-                 .show ();
+                            Toast.LENGTH_LONG).show ();
 
-            copyFile (ctx, backup, ctx.getDatabasePath (DATABASE_NAME)
-                                      .getAbsolutePath (), false);
+            copyFile (ctx, backup, ctx.getDatabasePath (DATABASE_NAME).getAbsolutePath (), false);
 
             Toast.makeText (ctx, ctx.getString (R.string.msg_database_imported), Toast.LENGTH_LONG)
                  .show ();
         }
         catch (Exception e) {
-            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG)
-                 .show ();
+            Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG).show ();
         }
     }
 
@@ -209,8 +203,7 @@ public class LogMyTripDataHelper
     @Override
     public void onUpgrade (SQLiteDatabase db, int oldVersion, int newVersion)
     {
-        String[] sql = _ctx.getString (R.string.SQL_on_upgrade)
-                           .split (";");
+        String[] sql = _ctx.getString (R.string.SQL_on_upgrade).split (";");
 
         db.beginTransaction ();
 
@@ -238,8 +231,7 @@ public class LogMyTripDataHelper
     private void execMultipleSQL (SQLiteDatabase db, String[] sql)
     {
         for (String s : sql) {
-            if (s.trim ()
-                 .length () > 0) {
+            if (s.trim ().length () > 0) {
                 db.execSQL (s);
             }
         }
@@ -252,8 +244,7 @@ public class LogMyTripDataHelper
     @Override
     public void onCreate (SQLiteDatabase db)
     {
-        String[] sql = _ctx.getString (R.string.SQL_on_create)
-                           .split (";");
+        String[] sql = _ctx.getString (R.string.SQL_on_create).split (";");
 
         db.beginTransaction ();
         try {
@@ -284,8 +275,14 @@ public class LogMyTripDataHelper
 
         try {
             sdb = getReadableDatabase ();
-            cursor = sdb.query ("sqlite_sequence", new String[]{ "seq" }, "name = ?",
-                                new String[]{ table }, null, null, null, null);
+            cursor = sdb.query ("sqlite_sequence",
+                                new String[]{ "seq" },
+                                "name = ?",
+                                new String[]{ table },
+                                null,
+                                null,
+                                null,
+                                null);
 
             if (cursor.moveToFirst ()) {
                 index = cursor.getLong (cursor.getColumnIndex ("seq"));

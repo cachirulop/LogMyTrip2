@@ -28,7 +28,7 @@ public class TripStatisticsAdapter
 
     private Context _ctx;
     private Trip    _trip;
-    private int                           _mapType;
+    private int _mapType;
 
     public TripStatisticsAdapter (Context ctx, Fragment parentFragment, Trip trip)
     {
@@ -43,8 +43,7 @@ public class TripStatisticsAdapter
     {
         View rowView = null;
 
-        LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (
-                Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
 
         switch (viewType) {
             case ITEM_TYPE_TRIP:
@@ -72,8 +71,7 @@ public class TripStatisticsAdapter
             case ITEM_TYPE_SEGMENT:
                 TripSegment segment;
 
-                segment = _trip.getSegments ()
-                               .get (position - 1);
+                segment = _trip.getSegments ().get (position - 1);
                 ((TripSegmentViewHolder) holder).bindView (segment, position);
 
                 break;
@@ -102,8 +100,7 @@ public class TripStatisticsAdapter
     {
         int numSegments;
 
-        numSegments = _trip.getSegments ()
-                           .size ();
+        numSegments = _trip.getSegments ().size ();
         if (numSegments <= 1) {
             // 1 or 0 segments, only show the summary
             return 1;

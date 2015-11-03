@@ -59,8 +59,7 @@ public class TripDetailActivity
 
         todayTrip = TripManager.getTodayTrip (this);
         item = menu.findItem (R.id.action_start_stop_log);
-        if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (
-                todayTrip))) {
+        if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (todayTrip))) {
             item.setVisible (true);
 
             updateMenuItemState (item);
@@ -180,12 +179,10 @@ public class TripDetailActivity
                 EditText txt;
 
                 txt = (EditText) view.findViewById (R.id.etEditTripTitle);
-                _trip.setTitle (txt.getText ()
-                                   .toString ());
+                _trip.setTitle (txt.getText ().toString ());
 
                 txt = (EditText) view.findViewById (R.id.etEditTripDescription);
-                _trip.setDescription (txt.getText ()
-                                         .toString ());
+                _trip.setDescription (txt.getText ().toString ());
 
                 TripManager.updateTrip (TripDetailActivity.this, _trip);
 

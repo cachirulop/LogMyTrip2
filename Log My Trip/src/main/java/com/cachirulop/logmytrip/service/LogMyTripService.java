@@ -21,8 +21,8 @@ import com.cachirulop.logmytrip.util.ToastHelper;
 public class LogMyTripService
         extends Service
 {
-    private static boolean _started;
-    private LocationManager _locationMgr;
+    private static boolean         _started;
+    private        LocationManager _locationMgr;
     private LogMyTripServiceBinder _binder = new LogMyTripServiceBinder ();
 
     public static boolean isRunning ()

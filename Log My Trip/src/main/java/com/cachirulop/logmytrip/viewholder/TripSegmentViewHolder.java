@@ -43,15 +43,18 @@ public class TripSegmentViewHolder
     private TextView _maxSpeed;
     private TextView _mediumSpeed;
 
-    private FrameLayout           _mapFrame;
-    private MapView   _mapView;
-    private MapHelper _mapHelper;
+    private FrameLayout _mapFrame;
+    private MapView     _mapView;
+    private MapHelper   _mapHelper;
     private MapReadyCallback _mapCallback;
-    private TripSegment           _segment;
-    private Context               _ctx;
-    private int _mapType;
+    private TripSegment _segment;
+    private Context     _ctx;
+    private int         _mapType;
 
-    public TripSegmentViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx, int mapType)
+    public TripSegmentViewHolder (TripStatisticsAdapter adapter,
+                                  View parent,
+                                  Context ctx,
+                                  int mapType)
     {
         super (parent);
 
@@ -70,7 +73,7 @@ public class TripSegmentViewHolder
         _mapCallback = new MapReadyCallback ();
 
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
-        _mapHelper = new MapHelper ();
+        _mapHelper = new MapHelper (_ctx);
 
         _mapFrame.addView (_mapView);
 
@@ -95,7 +98,7 @@ public class TripSegmentViewHolder
 
         _segment = tripSegment;  // To get locations
 
-        _toolbar.setTitle (String.format (_ctx.getString (R.string.title_segment_num), position));
+        _toolbar.setTitle (_segment.getTitle (_ctx));
         _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
         _toolbar.setOnMenuItemClickListener (new Toolbar.OnMenuItemClickListener ()
         {
@@ -130,8 +133,9 @@ public class TripSegmentViewHolder
             getStartDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
             getStartTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
 
-            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
-                                                                               getLocationFrom ()),
+            FetchAddressService.startService (_ctx,
+                                              new AddressResultReceiver (new Handler (),
+                                                                         getLocationFrom ()),
                                               l.toLocation ());
         }
         else {
@@ -146,8 +150,9 @@ public class TripSegmentViewHolder
             getEndDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
             getEndTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
 
-            FetchAddressService.startService (_ctx, new AddressResultReceiver (new Handler (),
-                                                                               getLocationTo ()),
+            FetchAddressService.startService (_ctx,
+                                              new AddressResultReceiver (new Handler (),
+                                                                         getLocationTo ()),
                                               l.toLocation ());
         }
         else {
@@ -156,8 +161,7 @@ public class TripSegmentViewHolder
             getEndTime ().setText ("");
         }
 
-        getTotalDistance ().setText (
-                FormatHelper.formatDistance (_segment.computeTotalDistance ()));
+        getTotalDistance ().setText (FormatHelper.formatDistance (_segment.computeTotalDistance ()));
         getTotalTime ().setText (FormatHelper.formatDuration (_segment.computeTotalTime ()));
         getMaxSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMaxSpeed ()));
         getMediumSpeed ().setText (FormatHelper.formatSpeed (_segment.computeMediumSpeed ()));

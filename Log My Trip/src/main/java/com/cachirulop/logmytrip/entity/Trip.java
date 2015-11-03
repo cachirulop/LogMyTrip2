@@ -1,12 +1,6 @@
 package com.cachirulop.logmytrip.entity;
 
-import android.location.Location;
-
-import com.cachirulop.logmytrip.manager.TripManager;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +19,7 @@ public class Trip
     private float  _maxSpeed      = -1;
     private float  _mediumSpeed   = -1;
 
-    private transient List<TripSegment> _segments = null;
+    private List<TripSegment> _segments = null;
 
     public Trip ()
     {
@@ -72,6 +66,7 @@ public class Trip
     {
         _title = title;
     }
+
     /**
      * @return the _description
      */
@@ -93,7 +88,7 @@ public class Trip
         if (_totalDistance == -1) {
             _totalDistance = 0;
 
-            for (TripSegment s : getSegments ()) {
+            for (TripSegment s : _segments) {
                 _totalDistance += s.computeTotalDistance ();
             }
         }
@@ -103,77 +98,12 @@ public class Trip
 
     public List<TripSegment> getSegments ()
     {
-        if (_segments == null) {
-            loadSegments ();
-        }
-
         return _segments;
     }
 
-    private void loadSegments ()
+    public void setSegments (List<TripSegment> segments)
     {
-        List<TripLocation> all;
-        TripLocation       last;
-        Calendar           cal;
-        TripSegment        current = null;
-
-        cal = Calendar.getInstance ();
-
-        _segments = new ArrayList<> ();
-
-        all = TripManager.getTripLocationList (this);
-        last = null;
-        for (TripLocation l : all) {
-            if (last == null) {
-                current = new TripSegment ();
-
-                current.getLocations ()
-                       .add (l);
-                _segments.add (current);
-            }
-            else {
-                boolean newSegment;
-
-                cal.setTime (last.getLocationTimeAsDate ());
-                cal.add (Calendar.HOUR, 2);
-
-                newSegment = (l.getLocationTimeAsDate ()
-                               .after (cal.getTime ()));
-                if (!newSegment) {
-                    Location lastLocation;
-                    Location currentLocation;
-
-                    lastLocation = last.toLocation ();
-                    currentLocation = l.toLocation ();
-
-                    newSegment = (lastLocation.distanceTo (currentLocation)) > 300;
-                }
-
-                if (newSegment) {
-                    current = new TripSegment ();
-                    current.getLocations ()
-                           .add (l);
-
-                    _segments.add (current);
-                }
-                else {
-                    current.getLocations ()
-                           .add (l);
-                }
-            }
-
-            last = l;
-        }
-    }
-
-    public List<TripSegment> getSegments (boolean refresh)
-    {
-        if (refresh) {
-            _segments.clear ();
-            _segments = null;
-        }
-
-        return getSegments ();
+        _segments = segments;
     }
 
     /**
@@ -186,7 +116,7 @@ public class Trip
         if (_totalTime == -1) {
             _totalTime = 0;
 
-            for (TripSegment s : getSegments ()) {
+            for (TripSegment s : _segments) {
                 _totalTime += s.computeTotalTime ();
             }
         }
@@ -196,9 +126,8 @@ public class Trip
 
     public TripLocation getStartLocation ()
     {
-        if (getSegments ().size () > 0) {
-            return getSegments ().get (0)
-                                 .getStartLocation ();
+        if (_segments.size () > 0) {
+            return _segments.get (0).getStartLocation ();
         }
         else {
             return null;
@@ -207,15 +136,13 @@ public class Trip
 
     public TripLocation getEndLocation ()
     {
-        if (getSegments ().size () > 0) {
-            return getSegments ().get (getSegments ().size () - 1)
-                                 .getEndLocation ();
+        if (_segments.size () > 0) {
+            return _segments.get (_segments.size () - 1).getEndLocation ();
         }
         else {
             return null;
         }
     }
-
 
 
     @Override
@@ -252,7 +179,7 @@ public class Trip
         if (_maxSpeed == -1) {
             _maxSpeed = 0;
 
-            for (TripSegment s : getSegments ()) {
+            for (TripSegment s : _segments) {
                 float current;
 
                 current = s.computeMaxSpeed ();
@@ -270,7 +197,7 @@ public class Trip
         if (_mediumSpeed == -1) {
             _mediumSpeed = 0;
 
-            for (TripSegment s : getSegments ()) {
+            for (TripSegment s : _segments) {
                 float current;
 
                 current = s.computeMediumSpeed ();

@@ -68,4 +68,9 @@ public class FormatHelper
     {
         return String.format ("%.1f km/h", speed);
     }
+
+    public static String formatDateTime (Context ctx, Date d)
+    {
+        return String.format ("%s - %s", formatDate (ctx, d), formatTime (ctx, d));
+    }
 }

@@ -232,7 +232,7 @@ public class TripLocation
     @Override
     public String toString ()
     {
-        return String.format(" %.6f,%.6f", getLatitude (), getLongitude ());
+        return String.format (" %.6f,%.6f", getLatitude (), getLongitude ());
     }
 
     @Override

@@ -65,7 +65,8 @@ public abstract class ListDialog
                                           new DialogInterface.OnClickListener ()
                                           {
                                               @Override
-                                              public void onClick (DialogInterface dialog, int which)
+                                              public void onClick (DialogInterface dialog,
+                                                                   int which)
                                               {
                                                   _selectedItem = which;
 
@@ -79,7 +80,9 @@ public abstract class ListDialog
                                          new DialogInterface.OnMultiChoiceClickListener ()
                                          {
                                              @Override
-                                             public void onClick (DialogInterface dialog, int which, boolean isChecked)
+                                             public void onClick (DialogInterface dialog,
+                                                                  int which,
+                                                                  boolean isChecked)
                                              {
                                                  _selectedItems[which] = isChecked;
                                              }

@@ -77,8 +77,7 @@ public class LocationReceiver
         return location != null &&
                 (location.hasAccuracy () && location.getAccuracy () <= SettingsManager.getGpsAccuracy (
                         ctx)) &&
-                (Math.abs (location.getLatitude ()) <= 90 && Math.abs (
-                        location.getLongitude ()) <= 180);
+                (Math.abs (location.getLatitude ()) <= 90 && Math.abs (location.getLongitude ()) <= 180);
     }
 
 }

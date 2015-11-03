@@ -38,7 +38,9 @@ public class LocationBroadcastManager
         sendBroadcastMessage (ctx, action, null);
     }
 
-    private static void sendBroadcastMessage (Context ctx, String action, HashMap<String, Object> params)
+    private static void sendBroadcastMessage (Context ctx,
+                                              String action,
+                                              HashMap<String, Object> params)
     {
         Intent intent;
 
@@ -64,8 +66,7 @@ public class LocationBroadcastManager
             }
         }
 
-        LocalBroadcastManager.getInstance (ctx)
-                             .sendBroadcast (intent);
+        LocalBroadcastManager.getInstance (ctx).sendBroadcast (intent);
     }
 
     public static void sendStopTripLogMessage (Context ctx, Trip trip)
@@ -141,8 +142,7 @@ public class LocationBroadcastManager
 
     public static void unregisterReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .unregisterReceiver (receiver);
+        LocalBroadcastManager.getInstance (ctx).unregisterReceiver (receiver);
     }
 
     public static boolean hasTrip (Intent intent)

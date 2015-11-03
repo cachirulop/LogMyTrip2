@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
@@ -14,6 +13,7 @@ import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.util.FormatHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -76,7 +76,7 @@ public class TripManager
 
             if (c.moveToFirst ()) {
                 while (!c.isAfterLast ()) {
-                    result.add (createTripFromCursor (c));
+                    result.add (createTripFromCursor (db, c));
 
                     c.moveToNext ();
                 }
@@ -95,7 +95,7 @@ public class TripManager
         }
     }
 
-    private static Trip createTripFromCursor (Cursor c)
+    private static Trip createTripFromCursor (SQLiteDatabase db, Cursor c)
     {
         Trip result;
 
@@ -105,6 +105,8 @@ public class TripManager
         result.setTitle (c.getString (c.getColumnIndex ("title")));
         result.setDescription (c.getString (c.getColumnIndex ("description")));
         result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
+
+        loadTripSegments (db, result);
 
         return result;
     }
@@ -147,35 +149,18 @@ public class TripManager
         }
     }
 
-    public static List<TripLocation> getTripLocationList (Trip trip)
-    {
-        Cursor c = null;
-        SQLiteDatabase db = null;
-
-        try {
-            db = new LogMyTripDataHelper (
-                    LogMyTripApplication.getAppContext ()).getReadableDatabase ();
-
-            c = db.query (CONST_LOCATION_TABLE_NAME, null, "id_trip = ?",
-                          new String[]{ Long.toString (trip.getId ()) }, null, null,
-                          "location_time ASC");
-
-            return createLocationList (c);
-        }
-        finally {
-            if (c != null) {
-                c.close ();
-            }
-
-            if (db != null) {
-                db.close ();
-            }
-        }
-    }
-
-    private static List<TripLocation> createLocationList (Cursor c)
+    private static List<TripLocation> createLocationList (SQLiteDatabase db, Trip t)
     {
         ArrayList<TripLocation> result;
+        Cursor c = null;
+
+        c = db.query (CONST_LOCATION_TABLE_NAME,
+                      null,
+                      "id_trip = ?",
+                      new String[]{ Long.toString (t.getId ()) },
+                      null,
+                      null,
+                      "location_time ASC");
 
         result = new ArrayList<TripLocation> ();
 
@@ -232,11 +217,16 @@ public class TripManager
         try {
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
 
-            c = db.query (CONST_TRIP_TABLE_NAME, null, "id = ?",
-                          new String[]{ Long.toString (idTrip) }, null, null, null);
+            c = db.query (CONST_TRIP_TABLE_NAME,
+                          null,
+                          "id = ?",
+                          new String[]{ Long.toString (idTrip) },
+                          null,
+                          null,
+                          null);
 
             if (c != null && c.moveToFirst ()) {
-                return createTripFromCursor (c);
+                return createTripFromCursor (db, c);
             }
             else {
                 return null;
@@ -252,6 +242,51 @@ public class TripManager
             }
         }
     }
+
+    private static void loadTripSegments (SQLiteDatabase db, Trip t)
+    {
+        List<TripSegment>  result;
+        List<TripLocation> all;
+        TripLocation       last;
+        Calendar           cal;
+        TripSegment        current = null;
+
+        cal = Calendar.getInstance ();
+
+        result = new ArrayList<> ();
+
+        all = createLocationList (db, t);
+        last = null;
+        for (TripLocation l : all) {
+            boolean newSegment;
+
+            if (last == null) {
+                newSegment = true;
+            }
+            else {
+                cal.setTime (last.getLocationTimeAsDate ());
+                cal.add (Calendar.HOUR, 2);
+
+                newSegment = (l.getLocationTimeAsDate ().after (cal.getTime ()));
+            }
+
+            if (newSegment) {
+                current = new TripSegment ();
+                current.getLocations ().add (l);
+                current.setIndex (result.size ());
+
+                result.add (current);
+            }
+            else {
+                current.getLocations ().add (l);
+            }
+
+            last = l;
+        }
+
+        t.setSegments (result);
+    }
+
 
     public static Trip startTrip (Context ctx)
     {
@@ -278,7 +313,7 @@ public class TripManager
             c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_trip), null);
 
             if (c != null && c.moveToFirst ()) {
-                return createTripFromCursor (c);
+                return createTripFromCursor (db, c);
             }
             else {
                 return null;
@@ -322,8 +357,7 @@ public class TripManager
 
             values = new ContentValues ();
 
-            values.put ("trip_date", t.getTripDate ()
-                                      .getTime ());
+            values.put ("trip_date", t.getTripDate ().getTime ());
             values.put ("title", t.getTitle ());
             values.put ("description", t.getDescription ());
 

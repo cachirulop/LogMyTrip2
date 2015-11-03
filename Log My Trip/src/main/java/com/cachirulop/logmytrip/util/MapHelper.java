@@ -1,5 +1,6 @@
 package com.cachirulop.logmytrip.util;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
 
@@ -35,12 +36,18 @@ public class MapHelper
                                                                BitmapDescriptorFactory.HUE_YELLOW };
 
 
-    private ArrayList<Polyline>    _arrows         = new ArrayList<> ();
-    private List<TripSegment> _drawnSegments = new ArrayList<> ();
+    private ArrayList<Polyline> _arrows        = new ArrayList<> ();
+    private List<TripSegment>   _drawnSegments = new ArrayList<> ();
     private TripSegment _selectedSegment;
-    private GoogleMap              _map            = null;
-    private boolean                _drawn          = false;
-    private MarkerClickListener    _markerListener = new MarkerClickListener ();
+    private GoogleMap           _map            = null;
+    private boolean             _drawn          = false;
+    private MarkerClickListener _markerListener = new MarkerClickListener ();
+    private Context _ctx;
+
+    public MapHelper (Context ctx)
+    {
+        _ctx = ctx;
+    }
 
     public void setMap (GoogleMap map)
     {
@@ -53,7 +60,8 @@ public class MapHelper
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
         if (_map != null) {
-            drawSegmentList (trip.getSegments (true), isActiveTrip);
+            // TODO: Refresh segments
+            drawSegmentList (trip.getSegments (), isActiveTrip);
         }
     }
 
@@ -65,6 +73,7 @@ public class MapHelper
         int                  currentIndex;
 
         if (_map != null) {
+            _map.clear ();
             _drawn = true;
 
             builder = new LatLngBounds.Builder ();
@@ -90,40 +99,74 @@ public class MapHelper
         }
     }
 
-    private void privateDrawSegment (TripSegment segment, LatLngBounds.Builder builder, boolean isActiveSegment, int color)
+    private void privateDrawSegment (TripSegment segment,
+                                     LatLngBounds.Builder builder,
+                                     boolean isActiveSegment,
+                                     int color)
     {
         List<TripLocation> points;
         MarkerOptions      markerOptions;
         List<LatLng>       track;
-        int zIndex;
+        int     zIndex;
+        float   alpha;
+        boolean showInfo;
+        Marker  marker;
+        int     lineWidth;
+        int     borderWidth;
 
         if (_map != null) {
             if (!_drawnSegments.contains (segment)) {
                 _drawnSegments.add (segment);
             }
 
-            if (_selectedSegment != null && _selectedSegment.equals (segment)) {
-                zIndex = 10;
-            }
-            else {
-                zIndex = 0;
+            zIndex = 0;
+            alpha = 1.0f;
+            showInfo = false;
+            lineWidth = 5;
+            borderWidth = 10;
+
+            if (_selectedSegment != null) {
+                if (_selectedSegment.equals (segment)) {
+                    zIndex = 10;
+                    showInfo = true;
+                    lineWidth = 8;
+                    borderWidth = lineWidth * 2;
+                }
+                else {
+                    alpha = 0.2f;
+                }
             }
 
             points = segment.getLocations ();
 
             // Start mark
             markerOptions = new MarkerOptions ();
-            markerOptions.position (points.get (0)
-                                          .toLatLng ());
+            markerOptions.position (points.get (0).toLatLng ());
             markerOptions.icon (BitmapDescriptorFactory.defaultMarker (getMarkerColor (color)));
-            _map.addMarker (markerOptions);
+            markerOptions.alpha (alpha);
+            markerOptions.title (segment.getTitle (_ctx));
+
+            if (segment.getStartLocation () != null) {
+                markerOptions.snippet (String.format ("%s\n%s",
+                                                      FormatHelper.formatDateTime (_ctx,
+                                                                                   segment.getStartDate ()),
+                                                      FormatHelper.formatDateTime (_ctx,
+                                                                                   segment.getStartDate ())));
+            }
+
+            marker = _map.addMarker (markerOptions);
+            if (showInfo) {
+                marker.showInfoWindow ();
+            }
+
 
             // End mark
             if (!isActiveSegment) {
                 markerOptions = new MarkerOptions ();
-                markerOptions.position (points.get (points.size () - 1)
-                                              .toLatLng ());
+                markerOptions.position (points.get (points.size () - 1).toLatLng ());
                 markerOptions.icon (BitmapDescriptorFactory.defaultMarker (getMarkerColor (color)));
+                markerOptions.alpha (alpha);
+
                 _map.addMarker (markerOptions);
             }
 
@@ -147,13 +190,13 @@ public class MapHelper
             PolylineOptions borderOptions;
 
             routeOptions = new PolylineOptions ();
-            routeOptions.width (5);
+            routeOptions.width (lineWidth);
             routeOptions.color (color);
             routeOptions.geodesic (true);
             routeOptions.zIndex (zIndex + 1);
 
             borderOptions = new PolylineOptions ();
-            borderOptions.width (10);
+            borderOptions.width (borderWidth);
             borderOptions.color (Color.GRAY);
             borderOptions.geodesic (true);
             routeOptions.zIndex (zIndex);
@@ -263,7 +306,10 @@ public class MapHelper
         }
     }
 
-    private void addArrow (Projection proj, List<PolylineOptions> arrowsLine, TripLocation location, int color)
+    private void addArrow (Projection proj,
+                           List<PolylineOptions> arrowsLine,
+                           TripLocation location,
+                           int color)
     {
         LatLng p1;
         LatLng p2;
@@ -293,12 +339,22 @@ public class MapHelper
         p1 = proj.fromScreenLocation (left);
         p2 = proj.fromScreenLocation (right);
 
-        p1 = new LatLng (
-                rotateLatitudeAround (p1.latitude, p1.longitude, location.getBearing (), current),
-                rotateLongitudeAround (p1.latitude, p1.longitude, location.getBearing (), current));
-        p2 = new LatLng (
-                rotateLatitudeAround (p2.latitude, p2.longitude, location.getBearing (), current),
-                rotateLongitudeAround (p2.latitude, p2.longitude, location.getBearing (), current));
+        p1 = new LatLng (rotateLatitudeAround (p1.latitude,
+                                               p1.longitude,
+                                               location.getBearing (),
+                                               current),
+                         rotateLongitudeAround (p1.latitude,
+                                                p1.longitude,
+                                                location.getBearing (),
+                                                current));
+        p2 = new LatLng (rotateLatitudeAround (p2.latitude,
+                                               p2.longitude,
+                                               location.getBearing (),
+                                               current),
+                         rotateLongitudeAround (p2.latitude,
+                                                p2.longitude,
+                                                location.getBearing (),
+                                                current));
 
         PolylineOptions arrowLine;
 
@@ -337,8 +393,7 @@ public class MapHelper
 
     public double rotateLatitudeAround (double lat, double lon, double angle, LatLng center)
     {
-        lat = center.latitude + (Math.cos (
-                Math.toRadians (angle)) * (lat - center.latitude) - Math.sin (
+        lat = center.latitude + (Math.cos (Math.toRadians (angle)) * (lat - center.latitude) - Math.sin (
                 Math.toRadians (angle)) * (lon - center.longitude));
 
         return lat;
@@ -346,9 +401,8 @@ public class MapHelper
 
     public double rotateLongitudeAround (double lat, double lon, double angle, LatLng center)
     {
-        lon = center.longitude + (Math.sin (
-                Math.toRadians (angle)) * (lat - center.latitude) + Math.cos (
-                Math.toRadians (angle)) * (lon - center.longitude));
+        lon = center.longitude + (Math.sin (Math.toRadians (angle)) * (lat - center.latitude) + Math
+                .cos (Math.toRadians (angle)) * (lon - center.longitude));
 
         return lon;
     }
@@ -381,7 +435,8 @@ public class MapHelper
                 _drawn = false;
             }
 
-            drawArrows ();
+            // TODO: Improve the method
+            // drawArrows ();
 
             // Remove listener to prevent position reset on camera move.
             //_map.setOnCameraChangeListener (null);

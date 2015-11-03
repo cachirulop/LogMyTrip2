@@ -38,8 +38,7 @@ public class BluetoothDevicePreference
             i = 0;
             for (BluetoothDevice dev : pairedDevices) {
                 entries[i] = dev.getName ();
-                if (entries[i].toString ()
-                              .equals ("")) {
+                if (entries[i].toString ().equals ("")) {
                     entries[i] = dev.getAddress ();
                 }
 

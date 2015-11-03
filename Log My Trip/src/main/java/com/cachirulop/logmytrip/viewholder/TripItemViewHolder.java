@@ -105,7 +105,10 @@ public class TripItemViewHolder
         return false;
     }
 
-    public void bindView (Trip trip, boolean activated, int background, RecyclerViewItemClickListener listener)
+    public void bindView (Trip trip,
+                          boolean activated,
+                          int background,
+                          RecyclerViewItemClickListener listener)
     {
         int imgId;
 
@@ -131,9 +134,9 @@ public class TripItemViewHolder
             getDescription ().setVisibility (View.GONE);
         }
 
-        getDuration ().setText (
-                String.format ("%s - %s", FormatHelper.formatDuration (trip.computeTotalTime ()),
-                               FormatHelper.formatDistance (trip.computeTotalDistance ())));
+        getDuration ().setText (String.format ("%s - %s",
+                                               FormatHelper.formatDuration (trip.computeTotalTime ()),
+                                               FormatHelper.formatDistance (trip.computeTotalDistance ())));
         getDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
         getTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));
 
@@ -141,8 +144,7 @@ public class TripItemViewHolder
 
         itemView.setActivated (activated);
 
-        ((CardView) itemView).setCardBackgroundColor (_ctx.getResources ()
-                                                          .getColor (background));
+        ((CardView) itemView).setCardBackgroundColor (_ctx.getResources ().getColor (background));
     }
 
     public ImageView getStatus ()

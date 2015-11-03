@@ -1,7 +1,11 @@
 package com.cachirulop.logmytrip.entity;
 
+import android.content.Context;
 import android.location.Location;
 
+import com.cachirulop.logmytrip.R;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,12 +14,29 @@ import java.util.List;
  * Created by david on 23/09/15.
  */
 public class TripSegment
+        implements Serializable
 {
     private List<TripLocation> _locations = new ArrayList<> ();
 
     private double _totalDistance = -1;
     private float  _maxSpeed      = -1;
     private float  _mediumSpeed   = -1;
+    private int _index;
+
+    public String getTitle (Context ctx)
+    {
+        return String.format (ctx.getString (R.string.title_segment_num), _index + 1);
+    }
+
+    public int getIndex ()
+    {
+        return _index;
+    }
+
+    public void setIndex (int index)
+    {
+        _index = index;
+    }
 
     public List<TripLocation> getLocations ()
     {

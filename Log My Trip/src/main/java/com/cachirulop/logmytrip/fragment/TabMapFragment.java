@@ -46,8 +46,9 @@ public class TabMapFragment
 
             l = LocationBroadcastManager.getLocation (intent);
 
-            _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
-                    new LatLng (l.getLatitude (), l.getLongitude ()), 17));
+            _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
+                                                                               l.getLongitude ()),
+                                                                   17));
 
             drawTrackMainThread ();
         }
@@ -67,7 +68,8 @@ public class TabMapFragment
                 if (!enabled) {
                     Snackbar msg;
 
-                    msg = Snackbar.make (getView (), R.string.msg_gps_disabled,
+                    msg = Snackbar.make (getView (),
+                                         R.string.msg_gps_disabled,
                                          Snackbar.LENGTH_LONG);
                     msg.setAction (R.string.msg_configure_gps, new View.OnClickListener ()
                     {
@@ -137,7 +139,9 @@ public class TabMapFragment
     }
 
     @Override
-    public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    public View onCreateView (LayoutInflater inflater,
+                              ViewGroup container,
+                              Bundle savedInstanceState)
     {
         // Inflate the layout for this fragment
         return inflater.inflate (R.layout.fragment_tab_map, container, false);
@@ -157,8 +161,8 @@ public class TabMapFragment
 
         fm = getFragmentManager ();
 
-        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (
-                R.id.gmTripDetail)).getMapAsync (this);
+        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (R.id.gmTripDetail)).getMapAsync (
+                this);
     }
 
     @Override
@@ -222,7 +226,7 @@ public class TabMapFragment
         isActiveTrip = (_trip.equals (activeTrip));
 
         _map = googleMap;
-        _mapHelper = new MapHelper ();
+        _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);
         _map.setMyLocationEnabled (true);
 

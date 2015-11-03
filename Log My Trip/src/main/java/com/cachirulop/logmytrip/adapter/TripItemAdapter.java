@@ -55,8 +55,7 @@ public class TripItemAdapter
     {
         View rowView;
 
-        LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (
-                Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
         rowView = inflater.inflate (R.layout.triplist_item, parent, false);
 
         return new TripItemViewHolder (_ctx, this, rowView);
@@ -92,8 +91,7 @@ public class TripItemAdapter
     @Override
     public long getItemId (int position)
     {
-        return _items.get (position)
-                     .getId ();
+        return _items.get (position).getId ();
     }
 
     @Override

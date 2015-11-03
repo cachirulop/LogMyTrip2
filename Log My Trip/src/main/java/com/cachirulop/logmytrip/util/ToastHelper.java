@@ -8,13 +8,11 @@ public class ToastHelper
 
     public static void showLong (Context ctx, String msg)
     {
-        Toast.makeText (ctx, msg, Toast.LENGTH_LONG)
-             .show ();
+        Toast.makeText (ctx, msg, Toast.LENGTH_LONG).show ();
     }
 
     public static void showShort (Context ctx, String msg)
     {
-        Toast.makeText (ctx, msg, Toast.LENGTH_SHORT)
-             .show ();
+        Toast.makeText (ctx, msg, Toast.LENGTH_SHORT).show ();
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
 
+import com.cachirulop.logmytrip.adapter.TripSegmentMapInfoWindowAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
@@ -52,6 +53,7 @@ public class MapHelper
     public void setMap (GoogleMap map)
     {
         _map = map;
+        _map.setInfoWindowAdapter (new TripSegmentMapInfoWindowAdapter (_ctx));
         _map.setOnMarkerClickListener (_markerListener);
         _arrows.clear ();
         _drawnSegments.clear ();

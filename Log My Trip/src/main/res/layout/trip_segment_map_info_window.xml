@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+                                    xmlns:app="http://schemas.android.com/apk/res-auto"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_margin="@dimen/card_margin"
+                                    app:cardElevation="@dimen/card_elevation">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2">
+
+        <!-- Location From -->
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentLocationFromTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="@string/title_location_from"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentLocationFrom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Paseo 8 de Marzo, Alcobendas, Madrid, España"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+        <!-- Location To -->
+        <TableRow>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentLocationToTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="@string/title_location_to"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentLocationTo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Paseo 8 de Marzo, Alcobendas, Madrid, España"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+        <View style="@style/SeparatorViewStyle"/>
+
+        <!-- Start date and start time -->
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentStartDateTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/title_start_date"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentStartDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="12/12/2012"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentStartTimeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/title_start_time"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentStartTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="15:35:20"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+
+        <!-- End date and end time -->
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentEndDateTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="@string/title_end_date"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentEndDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="12/12/2012"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentEndTimeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="@string/title_end_time"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+
+                <TextView
+                    android:id="@+id/tvTripSegmentEndTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="15:35:20"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+        <View style="@style/SeparatorViewStyle"/>
+
+        <!-- Total distance and total time -->
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentTotalDistanceTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="@string/title_total_distance"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentTotalDistance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="200,4 Km"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentTotalTimeTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="@string/title_total_time"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentTotalTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="15:35:20"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+        <!-- Max speed and Medium speed -->
+        <TableRow
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentMaxSpeedTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="@string/title_max_speed"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentMaxSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
+                    android:layout_gravity="center"
+                    android:text="200,4 Km"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dip"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:background="@drawable/trip_cell_border"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTripSegmentMediumTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="@string/title_medium_speed"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/default_background_dark"/>
+
+                <TextView
+                    android:id="@+id/tvTripSegmentMediumSpeed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
+                    android:layout_gravity="center"
+                    android:text="15:35:20"
+                    android:textAppearance="?android:attr/textAppearanceMedium"/>
+            </LinearLayout>
+        </TableRow>
+
+    </TableLayout>
+
+</android.support.v7.widget.CardView>

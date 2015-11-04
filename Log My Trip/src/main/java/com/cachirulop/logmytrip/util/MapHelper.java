@@ -3,8 +3,11 @@ package com.cachirulop.logmytrip.util;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
-import com.cachirulop.logmytrip.adapter.TripSegmentMapInfoWindowAdapter;
+import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
@@ -22,6 +25,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 /**
  * Created by dmagro on 27/10/2015.
@@ -40,9 +44,10 @@ public class MapHelper
     private ArrayList<Polyline> _arrows        = new ArrayList<> ();
     private List<TripSegment>   _drawnSegments = new ArrayList<> ();
     private TripSegment _selectedSegment;
-    private GoogleMap           _map            = null;
-    private boolean             _drawn          = false;
-    private MarkerClickListener _markerListener = new MarkerClickListener ();
+    private GoogleMap                        _map            = null;
+    private boolean                          _drawn          = false;
+    private MarkerClickListener              _markerListener = new MarkerClickListener ();
+    private WeakHashMap<Marker, TripSegment> _markerSegment  = new WeakHashMap<> ();
     private Context _ctx;
 
     public MapHelper (Context ctx)
@@ -61,10 +66,10 @@ public class MapHelper
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
-        if (_map != null) {
-            // TODO: Refresh segments
-            drawSegmentList (trip.getSegments (), isActiveTrip);
-        }
+        //        if (_map != null) {
+        //            // TODO: Refresh segments
+        //            drawSegmentList (trip.getSegments (), isActiveTrip);
+        //        }
     }
 
     private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)
@@ -157,10 +162,10 @@ public class MapHelper
             }
 
             marker = _map.addMarker (markerOptions);
+            _markerSegment.put (marker, segment);
             if (showInfo) {
                 marker.showInfoWindow ();
             }
-
 
             // End mark
             if (!isActiveSegment) {
@@ -479,6 +484,111 @@ public class MapHelper
             return null;
         }
     }
+
+    //////////////////////////////////////////////////////////////////
+
+    public class TripSegmentMapInfoWindowAdapter
+            implements GoogleMap.InfoWindowAdapter
+    {
+        private Context _ctx;
+
+        public TripSegmentMapInfoWindowAdapter (Context ctx)
+        {
+            _ctx = ctx;
+        }
+
+        @Override
+        public View getInfoContents (Marker marker)
+        {
+            LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
+            View           result;
+            TripSegment    segment;
+
+            result = inflater.inflate (R.layout.trip_segment_map_info_window, null);
+
+            segment = _markerSegment.get (marker);
+
+            bindData (result, segment);
+
+            return result;
+        }
+
+        private void bindData (View view, TripSegment segment)
+        {
+            TripLocation l;
+
+            l = segment.getStartLocation ();
+            if (l != null) {
+                setText (view, R.id.tvTripSegmentMapInfoLocationFrom, l.toString ());
+                setText (view,
+                         R.id.tvTripSegmentMapInfoStartDate,
+                         FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
+                setText (view,
+                         R.id.tvTripSegmentMapInfoStartTime,
+                         FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
+
+                //                FetchAddressService.startService (_ctx,
+                //                                                  new AddressResultReceiver (new Handler (),
+                //                                                                             getLocationFrom ()),
+                //                                                  l.toLocation ());
+            }
+            else {
+                setText (view, R.id.tvTripSegmentMapInfoLocationFrom, "");
+                setText (view, R.id.tvTripSegmentMapInfoStartDate, "");
+                setText (view, R.id.tvTripSegmentMapInfoStartTime, "");
+            }
+
+            l = segment.getEndLocation ();
+            if (l != null) {
+                setText (view, R.id.tvTripSegmentMapInfoLocationTo, l.toString ());
+                setText (view,
+                         R.id.tvTripSegmentMapInfoEndDate,
+                         FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
+                setText (view,
+                         R.id.tvTripSegmentMapInfoEndTime,
+                         FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
+
+                //                FetchAddressService.startService (_ctx,
+                //                                                  new AddressResultReceiver (new Handler (),
+                //                                                                             getLocationFrom ()),
+                //                                                  l.toLocation ());
+            }
+            else {
+                setText (view, R.id.tvTripSegmentMapInfoLocationTo, "");
+                setText (view, R.id.tvTripSegmentMapInfoEndDate, "");
+                setText (view, R.id.tvTripSegmentMapInfoEndTime, "");
+            }
+
+            setText (view,
+                     R.id.tvTripSegmentMapInfoTotalDistance,
+                     FormatHelper.formatDistance (segment.computeTotalDistance ()));
+            setText (view,
+                     R.id.tvTripSegmentMapInfoTotalTime,
+                     FormatHelper.formatDuration (segment.computeTotalTime ()));
+            setText (view,
+                     R.id.tvTripSegmentMapInfoMaxSpeed,
+                     FormatHelper.formatSpeed (segment.computeMaxSpeed ()));
+            setText (view,
+                     R.id.tvTripSegmentMapInfoMediumSpeed,
+                     FormatHelper.formatSpeed (segment.computeMediumSpeed ()));
+        }
+
+        private void setText (View view, int id, String text)
+        {
+            TextView tv;
+
+            tv = (TextView) view.findViewById (id);
+
+            tv.setText (text);
+        }
+
+        @Override
+        public View getInfoWindow (Marker marker)
+        {
+            return null;
+        }
+    }
+
 }
 
 

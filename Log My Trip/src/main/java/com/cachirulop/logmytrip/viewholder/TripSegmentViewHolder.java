@@ -90,6 +90,7 @@ public class TripSegmentViewHolder
         _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMediumSpeed);
 
         _toolbar = (Toolbar) parent.findViewById (R.id.tbSegmentToolbar);
+        _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
     }
 
     public void bindView (final TripSegment tripSegment, int position)
@@ -99,7 +100,6 @@ public class TripSegmentViewHolder
         _segment = tripSegment;  // To get locations
 
         _toolbar.setTitle (_segment.getTitle (_ctx));
-        _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
         _toolbar.setOnMenuItemClickListener (new Toolbar.OnMenuItemClickListener ()
         {
             @Override

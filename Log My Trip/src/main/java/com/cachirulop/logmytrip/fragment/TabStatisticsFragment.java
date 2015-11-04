@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.TripManager;
 
 
 public class TabStatisticsFragment
@@ -40,7 +41,7 @@ public class TabStatisticsFragment
         Bundle                args;
 
         args = new Bundle ();
-        args.putSerializable (MainFragment.ARG_PARAM_TRIP, trip);
+        args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
 
         fragment = new TabStatisticsFragment ();
         fragment.setArguments (args);
@@ -53,7 +54,11 @@ public class TabStatisticsFragment
     {
         super.onCreate (savedInstanceState);
         if (getArguments () != null) {
-            _trip = (Trip) getArguments ().getSerializable (MainFragment.ARG_PARAM_TRIP);
+            long tripId;
+
+            tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
+
+            _trip = TripManager.getTrip (getContext (), tripId);
         }
     }
 

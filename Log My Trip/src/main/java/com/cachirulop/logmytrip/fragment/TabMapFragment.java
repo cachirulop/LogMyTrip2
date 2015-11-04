@@ -115,7 +115,7 @@ public class TabMapFragment
         Bundle         args;
 
         args = new Bundle ();
-        args.putSerializable (MainFragment.ARG_PARAM_TRIP, trip);
+        args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
 
         fragment = new TabMapFragment ();
         fragment.setArguments (args);
@@ -134,7 +134,11 @@ public class TabMapFragment
     {
         super.onCreate (savedInstanceState);
         if (getArguments () != null) {
-            _trip = (Trip) getArguments ().getSerializable (MainFragment.ARG_PARAM_TRIP);
+            long tripId;
+
+            tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
+
+            _trip = TripManager.getTrip (getContext (), tripId);
         }
     }
 

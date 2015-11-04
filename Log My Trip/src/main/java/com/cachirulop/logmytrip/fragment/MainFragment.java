@@ -50,7 +50,7 @@ public class MainFragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
-    public static final String ARG_PARAM_TRIP = "PARAMETER_TRIP";
+    public static final String ARG_PARAM_TRIP_ID = "PARAMETER_TRIP_ID";
 
     private RecyclerView    _recyclerView;
     private TripItemAdapter _adapter;
@@ -234,7 +234,8 @@ public class MainFragment
         Intent i;
 
         i = new Intent (getContext (), TripDetailActivity.class);
-        i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
+        // i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
+        i.putExtra (MainFragment.ARG_PARAM_TRIP_ID, t.getId ());
 
         startActivity (i);
     }

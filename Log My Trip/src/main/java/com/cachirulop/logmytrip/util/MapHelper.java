@@ -66,10 +66,10 @@ public class MapHelper
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
-        //        if (_map != null) {
-        //            // TODO: Refresh segments
-        //            drawSegmentList (trip.getSegments (), isActiveTrip);
-        //        }
+        if (_map != null) {
+            // TODO: Refresh segments
+            drawSegmentList (trip.getSegments (), isActiveTrip);
+        }
     }
 
     private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)

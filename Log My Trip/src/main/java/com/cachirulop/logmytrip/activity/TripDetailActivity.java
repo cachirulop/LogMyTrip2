@@ -34,16 +34,21 @@ public class TripDetailActivity
         // Set the fragment content
         if (findViewById (R.id.tripDetailActivityContainer) != null) {
             if (savedInstanceState == null) {
+                long tripId;
 
-                _trip = (Trip) getIntent ().getSerializableExtra (MainFragment.ARG_PARAM_TRIP);
+                tripId = getIntent ().getLongExtra (MainFragment.ARG_PARAM_TRIP_ID, 0);
+                if (tripId != 0) {
+                    _trip = TripManager.getTrip (this, tripId);
 
-                _detailFragment = new TripDetailFragment ();
+                    _detailFragment = new TripDetailFragment ();
 
-                _detailFragment.setArguments (getIntent ().getExtras ());
+                    _detailFragment.setArguments (getIntent ().getExtras ());
 
-                getSupportFragmentManager ().beginTransaction ()
-                                            .add (R.id.tripDetailActivityContainer, _detailFragment)
-                                            .commit ();
+                    getSupportFragmentManager ().beginTransaction ()
+                                                .add (R.id.tripDetailActivityContainer,
+                                                      _detailFragment)
+                                                .commit ();
+                }
 
             }
         }

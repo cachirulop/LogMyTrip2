@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripDetailViewPagerAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.maps.GoogleMap;
 
 /**
@@ -49,8 +50,10 @@ public class TripDetailFragment
         ActionBar         ab;
         AppCompatActivity app;
         Trip trip;
+        long tripId;
 
-        trip = (Trip) getArguments ().getSerializable (MainFragment.ARG_PARAM_TRIP);
+        tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
+        trip = TripManager.getTrip (getContext (), tripId);
         app = (AppCompatActivity) getActivity ();
 
         // Toolbar and back button

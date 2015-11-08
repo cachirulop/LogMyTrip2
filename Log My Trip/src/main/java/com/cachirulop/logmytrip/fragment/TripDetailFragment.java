@@ -15,6 +15,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripDetailViewPagerAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.GoogleMap;
 
 /**
@@ -52,8 +53,10 @@ public class TripDetailFragment
         Trip trip;
         long tripId;
 
+        LogHelper.d ("*** onViewCreated TripDetailFragment");
+
         tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
-        trip = TripManager.getTrip (getContext (), tripId);
+        trip = TripManager.getInstance ().getTrip (tripId);
         app = (AppCompatActivity) getActivity ();
 
         // Toolbar and back button
@@ -89,6 +92,8 @@ public class TripDetailFragment
                 }
             }
         });
+
+        LogHelper.d ("*** onViewCreated TripDetailFragment DONE");
     }
 
     public int getMapType ()

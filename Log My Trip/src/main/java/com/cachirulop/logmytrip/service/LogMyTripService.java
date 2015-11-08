@@ -55,7 +55,7 @@ public class LogMyTripService
     private void startLog ()
     {
         if (_locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            TripManager.startTrip (this);
+            TripManager.getInstance ().startTrip (this);
 
             LocationBroadcastManager.sendStartTripLogMessage (this);
 
@@ -110,9 +110,9 @@ public class LogMyTripService
     {
         Trip trip;
 
-        trip = TripManager.getActiveTrip (this);
+        trip = TripManager.getInstance ().getActiveTrip (this);
 
-        TripManager.unsetActiveTrip (this);
+        TripManager.getInstance ().unsetActiveTrip (this);
 
         LocationBroadcastManager.sendStopTripLogMessage (this, trip);
 

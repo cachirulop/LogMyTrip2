@@ -32,13 +32,25 @@ import java.util.WeakHashMap;
  */
 public class MapHelper
 {
+    private static final int   COLOR_TRANSPARENCY        = 40;
     private static final int[]   SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
                                                              Color.MAGENTA, Color.YELLOW };
+    private static final int[] SEGMENT_COLORS_UNSELECTED = new int[]{
+            Color.argb (COLOR_TRANSPARENCY, 255, 0, 0), Color.argb (COLOR_TRANSPARENCY, 0, 0, 255),
+            Color.argb (COLOR_TRANSPARENCY, 0, 255, 0),
+            Color.argb (COLOR_TRANSPARENCY, 255, 0, 255),
+            Color.argb (COLOR_TRANSPARENCY, 255, 255, 0) };
+
+    private static final int SEGMENT_BACKGROUND_COLOR            = Color.GRAY;
     private static final float[] MARKER_COLORS  = new float[]{ BitmapDescriptorFactory.HUE_RED,
                                                                BitmapDescriptorFactory.HUE_BLUE,
                                                                BitmapDescriptorFactory.HUE_GREEN,
                                                                BitmapDescriptorFactory.HUE_MAGENTA,
                                                                BitmapDescriptorFactory.HUE_YELLOW };
+    private static final int SEGMENT_BACKGROUND_COLOR_UNSELECTED = Color.argb (COLOR_TRANSPARENCY,
+                                                                               88,
+                                                                               88,
+                                                                               88);
 
 
     private ArrayList<Polyline> _arrows        = new ArrayList<> ();
@@ -66,16 +78,19 @@ public class MapHelper
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
+        LogHelper.d ("*** MapHelper drawTrip");
+
         if (_map != null) {
             // TODO: Refresh segments
             drawSegmentList (trip.getSegments (), isActiveTrip);
         }
+
+        LogHelper.d ("*** MapHelper drawTrip DONE");
     }
 
     private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)
     {
         LatLngBounds.Builder builder;
-        int                  currentColor;
         int                  lastSegmentIndex;
         int                  currentIndex;
 
@@ -88,8 +103,6 @@ public class MapHelper
             currentIndex = 0;
             lastSegmentIndex = segments.size () - 1;
 
-            currentColor = 0;
-
             // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
             _map.setOnCameraChangeListener (new CameraListener (_map, builder, isActiveTrip));
             // }
@@ -98,18 +111,15 @@ public class MapHelper
                 boolean isActiveSegment;
 
                 isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
-                privateDrawSegment (s, builder, isActiveSegment, SEGMENT_COLORS[currentColor]);
+                privateDrawSegment (s, builder, isActiveSegment);
 
-                currentColor = (currentColor + 1) % SEGMENT_COLORS.length;
                 currentIndex++;
             }
         }
     }
 
     private void privateDrawSegment (TripSegment segment,
-                                     LatLngBounds.Builder builder,
-                                     boolean isActiveSegment,
-                                     int color)
+                                     LatLngBounds.Builder builder, boolean isActiveSegment)
     {
         List<TripLocation> points;
         MarkerOptions      markerOptions;
@@ -120,6 +130,9 @@ public class MapHelper
         Marker  marker;
         int     lineWidth;
         int     borderWidth;
+        int colorIndex;
+        int color;
+        int backgroundColor;
 
         if (_map != null) {
             if (!_drawnSegments.contains (segment)) {
@@ -131,6 +144,9 @@ public class MapHelper
             showInfo = false;
             lineWidth = 5;
             borderWidth = 10;
+            colorIndex = segment.getIndex () % SEGMENT_COLORS.length;
+            color = SEGMENT_COLORS[colorIndex];
+            backgroundColor = SEGMENT_BACKGROUND_COLOR;
 
             if (_selectedSegment != null) {
                 if (_selectedSegment.equals (segment)) {
@@ -140,7 +156,9 @@ public class MapHelper
                     borderWidth = lineWidth * 2;
                 }
                 else {
-                    alpha = 0.2f;
+                    alpha = ((float) COLOR_TRANSPARENCY) / 100;
+                    color = SEGMENT_COLORS_UNSELECTED[colorIndex];
+                    backgroundColor = SEGMENT_BACKGROUND_COLOR_UNSELECTED;
                 }
             }
 
@@ -204,7 +222,7 @@ public class MapHelper
 
             borderOptions = new PolylineOptions ();
             borderOptions.width (borderWidth);
-            borderOptions.color (Color.GRAY);
+            borderOptions.color (backgroundColor);
             borderOptions.geodesic (true);
             routeOptions.zIndex (zIndex);
 
@@ -219,7 +237,7 @@ public class MapHelper
     private float getMarkerColor (int color)
     {
         for (int i = 0 ; i < SEGMENT_COLORS.length ; i++) {
-            if (SEGMENT_COLORS[i] == color) {
+            if (SEGMENT_COLORS[i] == color || SEGMENT_COLORS_UNSELECTED[i] == color) {
                 return MARKER_COLORS[i];
             }
         }
@@ -227,7 +245,7 @@ public class MapHelper
         return MARKER_COLORS[0];
     }
 
-    public void dawSegment (TripSegment segment, int color)
+    public void dawSegment (TripSegment segment)
     {
         LatLngBounds.Builder builder;
 
@@ -236,7 +254,7 @@ public class MapHelper
 
             _map.setOnCameraChangeListener (new CameraListener (_map, builder, false));
 
-            privateDrawSegment (segment, builder, false, color);
+            privateDrawSegment (segment, builder, false);
 
             _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
         }
@@ -516,47 +534,25 @@ public class MapHelper
         private void bindData (View view, TripSegment segment)
         {
             TripLocation l;
+            StringBuffer timeInfo;
+
+            setText (view, R.id.tvTripSegmentMapInfoTitle, segment.getTitle (_ctx));
+
+            timeInfo = new StringBuffer ();
 
             l = segment.getStartLocation ();
             if (l != null) {
-                setText (view, R.id.tvTripSegmentMapInfoLocationFrom, l.toString ());
-                setText (view,
-                         R.id.tvTripSegmentMapInfoStartDate,
-                         FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
-                setText (view,
-                         R.id.tvTripSegmentMapInfoStartTime,
-                         FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
-
-                //                FetchAddressService.startService (_ctx,
-                //                                                  new AddressResultReceiver (new Handler (),
-                //                                                                             getLocationFrom ()),
-                //                                                  l.toLocation ());
-            }
-            else {
-                setText (view, R.id.tvTripSegmentMapInfoLocationFrom, "");
-                setText (view, R.id.tvTripSegmentMapInfoStartDate, "");
-                setText (view, R.id.tvTripSegmentMapInfoStartTime, "");
+                timeInfo.append (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
             }
 
             l = segment.getEndLocation ();
             if (l != null) {
-                setText (view, R.id.tvTripSegmentMapInfoLocationTo, l.toString ());
-                setText (view,
-                         R.id.tvTripSegmentMapInfoEndDate,
-                         FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
-                setText (view,
-                         R.id.tvTripSegmentMapInfoEndTime,
-                         FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
-
-                //                FetchAddressService.startService (_ctx,
-                //                                                  new AddressResultReceiver (new Handler (),
-                //                                                                             getLocationFrom ()),
-                //                                                  l.toLocation ());
+                timeInfo.append (" - ");
+                timeInfo.append (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
             }
-            else {
-                setText (view, R.id.tvTripSegmentMapInfoLocationTo, "");
-                setText (view, R.id.tvTripSegmentMapInfoEndDate, "");
-                setText (view, R.id.tvTripSegmentMapInfoEndTime, "");
+
+            if (timeInfo.length () > 0) {
+                setText (view, R.id.tvTripSegmentMapInfoTimeInfo, timeInfo.toString ());
             }
 
             setText (view,
@@ -565,12 +561,6 @@ public class MapHelper
             setText (view,
                      R.id.tvTripSegmentMapInfoTotalTime,
                      FormatHelper.formatDuration (segment.computeTotalTime ()));
-            setText (view,
-                     R.id.tvTripSegmentMapInfoMaxSpeed,
-                     FormatHelper.formatSpeed (segment.computeMaxSpeed ()));
-            setText (view,
-                     R.id.tvTripSegmentMapInfoMediumSpeed,
-                     FormatHelper.formatSpeed (segment.computeMediumSpeed ()));
         }
 
         private void setText (View view, int id, String text)

@@ -16,6 +16,7 @@ import com.cachirulop.logmytrip.fragment.TripDetailFragment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.GoogleMap;
 
 public class TripDetailActivity
@@ -36,9 +37,11 @@ public class TripDetailActivity
             if (savedInstanceState == null) {
                 long tripId;
 
+                LogHelper.d ("*** OnCreate detail activity");
+
                 tripId = getIntent ().getLongExtra (MainFragment.ARG_PARAM_TRIP_ID, 0);
                 if (tripId != 0) {
-                    _trip = TripManager.getTrip (this, tripId);
+                    _trip = TripManager.getInstance ().getTrip (tripId);
 
                     _detailFragment = new TripDetailFragment ();
 
@@ -50,6 +53,7 @@ public class TripDetailActivity
                                                 .commit ();
                 }
 
+                LogHelper.d ("*** OnCreate detail activity DONE");
             }
         }
     }
@@ -62,7 +66,7 @@ public class TripDetailActivity
 
         getMenuInflater ().inflate (R.menu.menu_trip_detail, menu);
 
-        todayTrip = TripManager.getTodayTrip (this);
+        todayTrip = TripManager.getInstance ().getTodayTrip ();
         item = menu.findItem (R.id.action_start_stop_log);
         if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (todayTrip))) {
             item.setVisible (true);
@@ -189,7 +193,7 @@ public class TripDetailActivity
                 txt = (EditText) view.findViewById (R.id.etEditTripDescription);
                 _trip.setDescription (txt.getText ().toString ());
 
-                TripManager.updateTrip (TripDetailActivity.this, _trip);
+                TripManager.getInstance ().updateTrip (TripDetailActivity.this, _trip);
 
                 // TODO: Refresh the trip data
             }

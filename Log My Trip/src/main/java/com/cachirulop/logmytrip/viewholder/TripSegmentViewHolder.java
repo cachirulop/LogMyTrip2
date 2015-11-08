@@ -1,7 +1,6 @@
 package com.cachirulop.logmytrip.viewholder;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
@@ -115,7 +114,7 @@ public class TripSegmentViewHolder
                             public void onOkClicked ()
                             {
                                 _adapter.removeItem (tripSegment);
-                                TripManager.deleteSegment (_ctx, tripSegment);
+                                TripManager.getInstance ().deleteSegment (_ctx, tripSegment);
                             }
                         };
 
@@ -239,7 +238,7 @@ public class TripSegmentViewHolder
 
             googleMap.clear ();
             _mapHelper.setMap (googleMap);
-            _mapHelper.dawSegment (_segment, Color.RED);
+            _mapHelper.dawSegment (_segment);
         }
     }
 }

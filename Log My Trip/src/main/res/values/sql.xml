@@ -20,6 +20,9 @@
                                     bearing REAL,
                                     provider TEXT,
                                     FOREIGN KEY(id_trip) REFERENCES trip(id));
+
+        CREATE INDEX idx_location_trip ON trip_location (id_trip);
+        CREATE INDEX idx_location_time ON trip_location (location_time ASC);
     </string>
 
     <!-- Drop all the tables. -->
@@ -27,16 +30,20 @@
     <!--DROP TABLE trip;-->
     <string name="SQL_on_upgrade" translatable="false">
     <![CDATA[
-            CREATE TABLE trip_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                           title TEXT NOT NULL,
-                           description TEXT,
-                           trip_date TIMESTAMP NOT NULL);
-
-            INSERT INTO trip_new SELECT id, description, null, trip_date FROM trip;
-            DROP TABLE trip;
-            ALTER TABLE trip_new RENAME TO trip;
+            CREATE INDEX IF NOT EXISTS idx_location_trip ON trip_location (id_trip);
+            CREATE INDEX IF NOT EXISTS idx_location_time ON trip_location (location_time ASC);
+            REINDEX idx_location_trip;
+            REINDEX idx_location_time;
     ]]>
     </string>
+
+    <string name="SQL_reindex" translatable="false">
+    <![CDATA[
+            REINDEX idx_location_trip;
+            REINDEX idx_location_time;
+    ]]>
+    </string>
+
     
     <string name="SQL_get_last_active_trip">
         <![CDATA[

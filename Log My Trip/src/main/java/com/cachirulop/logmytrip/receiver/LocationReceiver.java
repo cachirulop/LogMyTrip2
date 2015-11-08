@@ -40,13 +40,13 @@ public class LocationReceiver
         if (loc != null && isValidLocation (context, loc)) {
             Trip trip;
 
-            trip = TripManager.getActiveTrip (context);
+            trip = TripManager.getInstance ().getActiveTrip (context);
             if (trip != null) {
                 TripLocation tl;
 
                 tl = new TripLocation (trip, loc);
 
-                TripManager.saveTripLocation (context, tl);
+                TripManager.getInstance ().saveTripLocation (context, tl);
 
                 LocationBroadcastManager.sendNewLocationMessage (context, loc);
             }

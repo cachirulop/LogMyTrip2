@@ -114,11 +114,15 @@ public class TabMapFragment
         TabMapFragment fragment;
         Bundle         args;
 
+        LogHelper.d ("*** TabMapFragment newInstance");
+
         args = new Bundle ();
         args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
 
         fragment = new TabMapFragment ();
         fragment.setArguments (args);
+
+        LogHelper.d ("*** TabMapFragment newInstance DONE");
 
         return fragment;
     }
@@ -132,14 +136,18 @@ public class TabMapFragment
     @Override
     public void onCreate (Bundle savedInstanceState)
     {
+        LogHelper.d ("*** TabMapFragment onCreate");
+
         super.onCreate (savedInstanceState);
         if (getArguments () != null) {
             long tripId;
 
             tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
 
-            _trip = TripManager.getTrip (getContext (), tripId);
+            _trip = TripManager.getInstance ().getTrip (tripId);
         }
+
+        LogHelper.d ("*** TabMapFragment onCreate DONE");
     }
 
     @Override
@@ -163,10 +171,14 @@ public class TabMapFragment
     {
         FragmentManager fm;
 
+        LogHelper.d ("*** TabMapFragment setupMap");
+
         fm = getFragmentManager ();
 
         ((SupportMapFragment) getChildFragmentManager ().findFragmentById (R.id.gmTripDetail)).getMapAsync (
                 this);
+
+        LogHelper.d ("*** TabMapFragment setupMap DONE");
     }
 
     @Override
@@ -226,7 +238,7 @@ public class TabMapFragment
         Trip    activeTrip;
         boolean isActiveTrip;
 
-        activeTrip = TripManager.getActiveTrip (getContext ());
+        activeTrip = TripManager.getInstance ().getActiveTrip (getContext ());
         isActiveTrip = (_trip.equals (activeTrip));
 
         _map = googleMap;

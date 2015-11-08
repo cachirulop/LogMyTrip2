@@ -33,7 +33,7 @@ public class TripItemAdapter
     public TripItemAdapter (Context ctx)
     {
         _ctx = ctx;
-        _items = TripManager.LoadTrips (_ctx);
+        _items = TripManager.getInstance ().loadTrips (_ctx);
 
         _onTripItemClickListener = null;
 
@@ -110,7 +110,7 @@ public class TripItemAdapter
         Trip current;
         int position;
 
-        current = TripManager.getActiveTrip (_ctx);
+        current = TripManager.getInstance ().getActiveTrip (_ctx);
         if (current != null) {
             position = _items.indexOf (current);
             if (position == -1) {
@@ -201,7 +201,7 @@ public class TripItemAdapter
     public void reloadTrips ()
     {
         _items.clear ();
-        _items = TripManager.LoadTrips (_ctx);
+        _items = TripManager.getInstance ().reloadTrips (_ctx);
         notifyDataSetChanged ();
     }
 

@@ -83,8 +83,22 @@ public class Trip
         this._description = description;
     }
 
+    public List<TripSegment> getSegments ()
+    {
+        return _segments;
+    }
+
+    public void setSegments (List<TripSegment> segments)
+    {
+        _segments = segments;
+    }
+
     public double computeTotalDistance ()
     {
+        if (_segments == null) {
+            return 0.0d;
+        }
+
         if (_totalDistance == -1) {
             _totalDistance = 0;
 
@@ -96,16 +110,6 @@ public class Trip
         return _totalDistance;
     }
 
-    public List<TripSegment> getSegments ()
-    {
-        return _segments;
-    }
-
-    public void setSegments (List<TripSegment> segments)
-    {
-        _segments = segments;
-    }
-
     /**
      * Total time of the trip in milliseconds
      *
@@ -113,6 +117,10 @@ public class Trip
      */
     public long computeTotalTime ()
     {
+        if (_segments == null) {
+            return 0;
+        }
+
         if (_totalTime == -1) {
             _totalTime = 0;
 
@@ -126,7 +134,7 @@ public class Trip
 
     public TripLocation getStartLocation ()
     {
-        if (_segments.size () > 0) {
+        if (_segments != null && _segments.size () > 0) {
             return _segments.get (0).getStartLocation ();
         }
         else {
@@ -136,7 +144,7 @@ public class Trip
 
     public TripLocation getEndLocation ()
     {
-        if (_segments.size () > 0) {
+        if (_segments != null && _segments.size () > 0) {
             return _segments.get (_segments.size () - 1).getEndLocation ();
         }
         else {
@@ -176,6 +184,10 @@ public class Trip
 
     public float computeMaxSpeed ()
     {
+        if (_segments == null) {
+            return 0.0f;
+        }
+
         if (_maxSpeed == -1) {
             _maxSpeed = 0;
 
@@ -194,6 +206,10 @@ public class Trip
 
     public float computeMediumSpeed ()
     {
+        if (_segments == null) {
+            return 0.0f;
+        }
+
         if (_mediumSpeed == -1) {
             _mediumSpeed = 0;
 
@@ -208,5 +224,19 @@ public class Trip
         }
 
         return _mediumSpeed;
+    }
+
+    public void addLocation (TripLocation location)
+    {
+        if (_segments != null && _segments.size () > 0) {
+            _segments.get (_segments.size () - 1).addLocation (location);
+        }
+    }
+
+    public void removeSegment (TripSegment segment)
+    {
+        if (_segments != null) {
+            _segments.remove (segment);
+        }
     }
 }

@@ -21,21 +21,31 @@ public class TripSegment
     private double _totalDistance = -1;
     private float  _maxSpeed      = -1;
     private float  _mediumSpeed   = -1;
-    private int _index;
+    private Trip _trip;
+
+    public TripSegment (Trip trip)
+    {
+        _trip = trip;
+    }
 
     public String getTitle (Context ctx)
     {
-        return String.format (ctx.getString (R.string.title_segment_num), _index + 1);
+        return String.format (ctx.getString (R.string.title_segment_num), getIndex () + 1);
+    }
+
+    public Trip getTrip ()
+    {
+        return _trip;
+    }
+
+    public void setTrip (Trip trip)
+    {
+        _trip = trip;
     }
 
     public int getIndex ()
     {
-        return _index;
-    }
-
-    public void setIndex (int index)
-    {
-        _index = index;
+        return _trip.getSegments ().indexOf (this);
     }
 
     public List<TripLocation> getLocations ()
@@ -200,5 +210,10 @@ public class TripSegment
         }
 
         return _mediumSpeed;
+    }
+
+    public void addLocation (TripLocation location)
+    {
+        _locations.add (location);
     }
 }

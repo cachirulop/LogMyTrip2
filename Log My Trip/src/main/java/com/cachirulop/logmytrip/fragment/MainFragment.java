@@ -233,11 +233,14 @@ public class MainFragment
     {
         Intent i;
 
+        LogHelper.d ("*** Starting detail activity");
+
         i = new Intent (getContext (), TripDetailActivity.class);
-        // i.putExtra (MainFragment.ARG_PARAM_TRIP, t);
         i.putExtra (MainFragment.ARG_PARAM_TRIP_ID, t.getId ());
 
         startActivity (i);
+
+        LogHelper.d ("*** Starting detail activity DONE");
     }
 
     @Override
@@ -289,7 +292,7 @@ public class MainFragment
                 List<Trip> selectedItems = _adapter.getSelectedItems ();
 
                 for (Trip t : selectedItems) {
-                    TripManager.deleteTrip (getContext (), t);
+                    TripManager.getInstance ().deleteTrip (getContext (), t);
                     _adapter.removeItem (t);
                 }
 

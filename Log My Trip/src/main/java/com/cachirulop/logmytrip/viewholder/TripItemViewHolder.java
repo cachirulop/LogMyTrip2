@@ -117,7 +117,7 @@ public class TripItemViewHolder
         if (SettingsManager.isLogTrip (_ctx)) {
             Trip active;
 
-            active = TripManager.getActiveTrip (_ctx);
+            active = TripManager.getInstance ().getActiveTrip (_ctx);
             if (active != null && trip.equals (active)) {
                 imgId = R.mipmap.ic_trip_status_logging;
             }

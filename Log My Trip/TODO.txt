@@ -1,7 +1,6 @@
 
 - Capture the states changes on the location provider -> Done, testing
 - Draw arrow direction on tracks -> improve code
-* In statistics map allow to select a segment
 * Don't show static maps until it has been drawn
 * Don't allow to click on static maps
 * Export database on lollipop and Marshmallow
@@ -43,3 +42,4 @@ X Change selection of segments with a menu in the cardview
 X Change segment start/end marks -> Drawing arrows not need to show differences between start and end
 X Go to the detail trip on start logging from MainActivity
 X Make general method to paint map tracks
+X In statistics map allow to select a segment

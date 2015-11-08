@@ -34,7 +34,7 @@ public class LogMyTripDataHelper
     /**
      * Current version
      */
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 11;
 
     /**
      * Context where the object is created
@@ -187,12 +187,22 @@ public class LogMyTripDataHelper
 
             copyFile (ctx, backup, ctx.getDatabasePath (DATABASE_NAME).getAbsolutePath (), false);
 
+            new LogMyTripDataHelper (ctx).reindex ();
+
             Toast.makeText (ctx, ctx.getString (R.string.msg_database_imported), Toast.LENGTH_LONG)
                  .show ();
         }
         catch (Exception e) {
             Toast.makeText (ctx, e.getMessage (), Toast.LENGTH_LONG).show ();
         }
+    }
+
+    private void reindex ()
+    {
+        SQLiteDatabase sdb = null;
+
+        sdb = getWritableDatabase ();
+        execMultipleSQL (sdb, _ctx.getString (R.string.SQL_reindex).split (";"));
     }
 
     /**

@@ -8,6 +8,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.TabMapFragment;
 import com.cachirulop.logmytrip.fragment.TabStatisticsFragment;
+import com.cachirulop.logmytrip.util.LogHelper;
 
 /**
  * Created by hp1 on 21-01-2015.
@@ -23,6 +24,8 @@ public class TripDetailViewPagerAdapter
     {
         super (activity.getSupportFragmentManager ());
 
+        LogHelper.d ("*** TripDetailViewPagerAdapter constructor");
+
         _titles = new CharSequence[2];
         _titles[0] = activity.getString (R.string.title_map);
         _titles[1] = activity.getString (R.string.title_statistics);
@@ -30,6 +33,8 @@ public class TripDetailViewPagerAdapter
         _fragments = new Fragment[2];
         _fragments[0] = TabMapFragment.newInstance (trip);
         _fragments[1] = TabStatisticsFragment.newInstance (trip);
+
+        LogHelper.d ("*** TripDetailViewPagerAdapter constructor DONE");
     }
 
     //This method return the fragment for the every position in the View Pager

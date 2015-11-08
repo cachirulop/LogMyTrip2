@@ -14,6 +14,7 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.util.LogHelper;
 
 
 public class TabStatisticsFragment
@@ -40,11 +41,15 @@ public class TabStatisticsFragment
         TabStatisticsFragment fragment;
         Bundle                args;
 
+        LogHelper.d ("*** TabStatisticsFragment newInstance");
+
         args = new Bundle ();
         args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
 
         fragment = new TabStatisticsFragment ();
         fragment.setArguments (args);
+
+        LogHelper.d ("*** TabStatisticsFragment newInstance DONE");
 
         return fragment;
     }
@@ -52,14 +57,18 @@ public class TabStatisticsFragment
     @Override
     public void onCreate (Bundle savedInstanceState)
     {
+        LogHelper.d ("*** TabStatisticsFragment onCreate");
+
         super.onCreate (savedInstanceState);
         if (getArguments () != null) {
             long tripId;
 
             tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
 
-            _trip = TripManager.getTrip (getContext (), tripId);
+            _trip = TripManager.getInstance ().getTrip (tripId);
         }
+
+        LogHelper.d ("*** TabStatisticsFragment onCreate DONE");
     }
 
     @Override
@@ -75,6 +84,8 @@ public class TabStatisticsFragment
     {
         super.onViewCreated (view, savedInstanceState);
 
+        LogHelper.d ("*** TabStatisticsFragment onViewCreated");
+
         _ctx = getActivity ();
 
         _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvSegments);
@@ -85,6 +96,8 @@ public class TabStatisticsFragment
 
         _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
         _recyclerView.setAdapter (_adapter);
+
+        LogHelper.d ("*** TabStatisticsFragment onViewCreated DONE");
     }
 
     public void setMapType (int mapType)

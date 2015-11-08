@@ -11,7 +11,6 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.util.FormatHelper;
-import com.cachirulop.logmytrip.util.LogHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -139,8 +138,6 @@ public class TripManager
     {
         Trip result;
 
-        LogHelper.d ("*** createTripFromCursor");
-
         result = new Trip ();
 
         result.setId (c.getLong (c.getColumnIndex ("id")));
@@ -148,11 +145,7 @@ public class TripManager
         result.setDescription (c.getString (c.getColumnIndex ("description")));
         result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
 
-        LogHelper.d ("*** createTripFromCursor loadTripSegments");
-
         loadTripSegments (db, result);
-
-        LogHelper.d ("*** createTripFromCursor DONE");
 
         return result;
     }
@@ -259,43 +252,6 @@ public class TripManager
         }
     }
 
-    //    public Trip getTrip (Context ctx, long idTrip)
-    //    {
-    //        SQLiteDatabase db = null;
-    //        Cursor c = null;
-    //        Trip result = null;
-    //
-    //        try {
-    //            LogHelper.d ("*** Loading trip");
-    //            db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
-    //
-    //            c = db.query (CONST_TRIP_TABLE_NAME,
-    //                          null,
-    //                          "id = ?",
-    //                          new String[]{ Long.toString (idTrip) },
-    //                          null,
-    //                          null,
-    //                          null);
-    //
-    //            if (c != null && c.moveToFirst ()) {
-    //                result = createTripFromCursor (db, c);
-    //            }
-    //
-    //            LogHelper.d ("*** Loading trip DONE");
-    //
-    //            return result;
-    //        }
-    //        finally {
-    //            if (c != null) {
-    //                c.close ();
-    //            }
-    //
-    //            if (db != null) {
-    //                db.close ();
-    //            }
-    //        }
-    //    }
-
     private void loadTripSegments (SQLiteDatabase db, Trip t)
     {
         List<TripSegment>  result;
@@ -304,16 +260,12 @@ public class TripManager
         Calendar           cal;
         TripSegment        current = null;
 
-        LogHelper.d ("*** loadTripSegments");
-
         cal = Calendar.getInstance ();
 
         result = new ArrayList<> ();
 
         all = createLocationList (db, t);
         last = null;
-
-        LogHelper.d ("*** loadTripSegments processing segments");
 
         for (TripLocation l : all) {
             boolean newSegment;
@@ -342,8 +294,6 @@ public class TripManager
         }
 
         t.setSegments (result);
-
-        LogHelper.d ("*** loadTripSegments DONE");
     }
 
 
@@ -392,34 +342,6 @@ public class TripManager
 
         return sdf.format (date1).equals (sdf.format (date2));
     }
-
-    //    public static Trip getTodayTrip (Context ctx)
-    //    {
-    //        SQLiteDatabase db = null;
-    //        Cursor         c  = null;
-    //
-    //        try {
-    //            db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
-    //
-    //            c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_trip), null);
-    //
-    //            if (c != null && c.moveToFirst ()) {
-    //                return createTripFromCursor (db, c);
-    //            }
-    //            else {
-    //                return null;
-    //            }
-    //        }
-    //        finally {
-    //            if (c != null) {
-    //                c.close ();
-    //            }
-    //
-    //            if (db != null) {
-    //                db.close ();
-    //            }
-    //        }
-    //    }
 
     private Trip createTodayTrip (Context ctx)
     {

@@ -70,16 +70,14 @@ public class NotifyManager
         }
 
         notificationIntent = new Intent (ctx, MainActivity.class);
-        pi = PendingIntent.getActivity (ctx, 0, notificationIntent, 0);
+        pi = PendingIntent.getActivity (ctx,
+                                        0,
+                                        notificationIntent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.setContentIntent (pi);
 
         return builder.build ();
-    }
-
-    public static void showWaitingBluetooth (Context ctx, CharSequence contentText)
-    {
-        showNotification (ctx, contentText, NOTIFICATION_WAITING_BLUETOOTH);
     }
 
     public static Notification createTripLogging (Context ctx, CharSequence contentText)

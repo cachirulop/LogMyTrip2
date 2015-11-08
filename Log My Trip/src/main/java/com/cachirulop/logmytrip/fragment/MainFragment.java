@@ -233,14 +233,10 @@ public class MainFragment
     {
         Intent i;
 
-        LogHelper.d ("*** Starting detail activity");
-
         i = new Intent (getContext (), TripDetailActivity.class);
         i.putExtra (MainFragment.ARG_PARAM_TRIP_ID, t.getId ());
 
         startActivity (i);
-
-        LogHelper.d ("*** Starting detail activity DONE");
     }
 
     @Override

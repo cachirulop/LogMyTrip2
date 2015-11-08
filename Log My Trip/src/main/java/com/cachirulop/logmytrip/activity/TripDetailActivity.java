@@ -16,7 +16,6 @@ import com.cachirulop.logmytrip.fragment.TripDetailFragment;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.util.LogHelper;
 import com.google.android.gms.maps.GoogleMap;
 
 public class TripDetailActivity
@@ -37,8 +36,6 @@ public class TripDetailActivity
             if (savedInstanceState == null) {
                 long tripId;
 
-                LogHelper.d ("*** OnCreate detail activity");
-
                 tripId = getIntent ().getLongExtra (MainFragment.ARG_PARAM_TRIP_ID, 0);
                 if (tripId != 0) {
                     _trip = TripManager.getInstance ().getTrip (tripId);
@@ -52,8 +49,6 @@ public class TripDetailActivity
                                                       _detailFragment)
                                                 .commit ();
                 }
-
-                LogHelper.d ("*** OnCreate detail activity DONE");
             }
         }
     }

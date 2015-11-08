@@ -6,16 +6,16 @@
 * Export database on lollipop and Marshmallow
 * Detail activity crash when rotate the phone
 * Follow the current trip better in the map view
-* Improve the method to draw the arrows
+* Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
 
 * Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size.
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip
 * Change the notification messages
+* Add actions to notification icon: stop autolog, stop log
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
-* Add actions to notification icon: stop autolog, stop log
 
 * New autostart option 'Always'
 

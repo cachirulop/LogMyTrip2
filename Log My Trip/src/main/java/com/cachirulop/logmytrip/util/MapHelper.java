@@ -78,14 +78,10 @@ public class MapHelper
 
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
-        LogHelper.d ("*** MapHelper drawTrip");
-
         if (_map != null) {
             // TODO: Refresh segments
             drawSegmentList (trip.getSegments (), isActiveTrip);
         }
-
-        LogHelper.d ("*** MapHelper drawTrip DONE");
     }
 
     private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)

@@ -49,6 +49,8 @@ public class MainFragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
+    private boolean         _tripsLoaded;
+    private boolean         _startLog;
     private RecyclerView    _recyclerView;
     private TripItemAdapter _adapter;
     public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
@@ -61,19 +63,24 @@ public class MainFragment
     };
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-    private boolean           _backFromDetail         = false;
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.startTripLog ();
-            startDetailActivity (_adapter.getItem (0));
+            if (_tripsLoaded) {
+                autoStartLog ();
+            }
+            else {
+                _startLog = true;
+            }
         }
     };
 
     public MainFragment ()
     {
+        _tripsLoaded = false;
+        _startLog = false;
     }
 
     @Override
@@ -91,15 +98,6 @@ public class MainFragment
     }
 
     @Override
-    public void onDestroyView ()
-    {
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
-
-        super.onDestroyView ();
-    }
-
-    @Override
     public void onViewCreated (View view, Bundle savedInstanceState)
     {
         super.onViewCreated (view, savedInstanceState);
@@ -114,7 +112,6 @@ public class MainFragment
             // Recyclerview
             _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
             _recyclerView.setLayoutManager (new LinearLayoutManager (getContext ()));
-            //_recyclerView.setHasFixedSize (true);
 
             _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
@@ -137,18 +134,9 @@ public class MainFragment
                 if (!LogMyTripService.isRunning ()) {
                     ServiceManager.startTripLog (getContext ());
                 }
-
-                _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
-            }
-            else {
-                _fabTripLog.setImageResource (R.mipmap.ic_button_save);
             }
 
-            // Receive the broadcast of the LogMyTripService class
-            LocationBroadcastManager.registerTripLogStartReceiver (getContext (),
-                                                                   _onTripLogStartReceiver);
-            LocationBroadcastManager.registerTripLogStopReceiver (getContext (),
-                                                                  _onTripLogStopReceiver);
+            refreshFabTrip ();
         }
     }
 
@@ -165,6 +153,12 @@ public class MainFragment
                                                 public void onTripListLoaded ()
                                                 {
                                                     updateActionBarSubtitle ();
+                                                    _tripsLoaded = true;
+
+                                                    if (_startLog) {
+                                                        autoStartLog ();
+                                                        _startLog = false;
+                                                    }
                                                 }
                                             });
 
@@ -196,10 +190,45 @@ public class MainFragment
         }
     }
 
+    private void refreshFabTrip ()
+    {
+        if (SettingsManager.isLogTrip (getContext ())) {
+            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
+        }
+        else {
+            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
+        }
+    }
+
+    private void autoStartLog ()
+    {
+        _adapter.startTripLog ();
+        startDetailActivity (_adapter.getItem (0));
+    }
+
+    private void startDetailActivity (Trip t)
+    {
+        Intent i;
+
+        i = new Intent (getContext (), TripDetailActivity.class);
+
+        SelectedTripHolder.getInstance ().setSelectedTrip (t);
+
+        startActivity (i);
+    }
+
     @Override
     public void onResume ()
     {
         _adapter.reloadTrips ();
+
+        // Receive the broadcast of the LogMyTripService class
+        LocationBroadcastManager.registerTripLogStartReceiver (getContext (),
+                                                               _onTripLogStartReceiver);
+        LocationBroadcastManager.registerTripLogStopReceiver (getContext (),
+                                                              _onTripLogStopReceiver);
+
+        refreshFabTrip ();
 
         super.onResume ();
     }
@@ -208,6 +237,8 @@ public class MainFragment
     public void onPause ()
     {
         _adapter.clearTrips ();
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
 
         super.onPause ();
     }
@@ -249,17 +280,6 @@ public class MainFragment
         else {
             startDetailActivity (_adapter.getItem (position));
         }
-    }
-
-    private void startDetailActivity (Trip t)
-    {
-        Intent i;
-
-        i = new Intent (getContext (), TripDetailActivity.class);
-
-        SelectedTripHolder.getInstance ().setSelectedTrip (t);
-
-        startActivity (i);
     }
 
     @Override

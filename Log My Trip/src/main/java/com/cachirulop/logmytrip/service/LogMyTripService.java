@@ -74,9 +74,19 @@ public class LogMyTripService
     private void startForegroundService ()
     {
         Notification note;
+        CharSequence msg;
+        Trip         current;
 
-        note = NotifyManager.createTripLogging (this,
-                                                this.getText (R.string.notif_ContentLoggingTrip));
+        current = TripManager.getActiveTrip (this);
+        if (current != null) {
+            msg = String.format ("%s - %d", current.getTitle (), current.computeTotalTime ());
+        }
+        else {
+            msg = this.getText (R.string.notif_ContentLoggingTrip);
+        }
+
+
+        note = NotifyManager.createTripLogging (this, msg);
 
         startForeground (NotifyManager.NOTIFICATION_TRIP_LOGGING, note);
     }

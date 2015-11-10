@@ -27,7 +27,6 @@ public class TripItemAdapter
 
     private Context    _ctx;
     private List<Trip> _items;
-    private Object _itemsSync = new Object ();
 
     private SparseBooleanArray            _selectedItems;
     private boolean                       _actionMode;
@@ -59,9 +58,7 @@ public class TripItemAdapter
         {
             public void run ()
             {
-                synchronized (_itemsSync) {
-                    _items = TripManager.loadTrips (_ctx);
-                }
+                _items = TripManager.loadTrips (_ctx);
 
                 onTripLoadedMainThread ();
 
@@ -132,12 +129,10 @@ public class TripItemAdapter
         }
 
         // Set data into the view.
-        synchronized (_itemsSync) {
-            vh.bindView (_items.get (position),
-                         _selectedItems.get (position, false),
-                         background,
-                         _onTripItemClickListener);
-        }
+        vh.bindView (_items.get (position),
+                     _selectedItems.get (position, false),
+                     background,
+                     _onTripItemClickListener);
     }
 
     public boolean isSelected (int pos)
@@ -148,21 +143,17 @@ public class TripItemAdapter
     @Override
     public long getItemId (int position)
     {
-        synchronized (_itemsSync) {
-            return _items.get (position).getId ();
-        }
+        return _items.get (position).getId ();
     }
 
     @Override
     public int getItemCount ()
     {
-        synchronized (_itemsSync) {
-            if (_items == null) {
-                return 0;
-            }
-            else {
-                return _items.size ();
-            }
+        if (_items == null) {
+            return 0;
+        }
+        else {
+            return _items.size ();
         }
     }
 
@@ -172,17 +163,15 @@ public class TripItemAdapter
         int position;
 
         current = TripManager.getActiveTrip (_ctx);
-        synchronized (_itemsSync) {
-            if (current != null && _items != null) {
-                position = _items.indexOf (current);
-                if (position == -1) {
-                    _items.add (0, current);
+        if (current != null && _items != null) {
+            position = _items.indexOf (current);
+            if (position == -1) {
+                _items.add (0, current);
 
-                    notifyItemInserted (0);
-                }
-                else {
-                    notifyItemChanged (position);
-                }
+                notifyItemInserted (0);
+            }
+            else {
+                notifyItemChanged (position);
             }
         }
     }
@@ -191,11 +180,9 @@ public class TripItemAdapter
     {
         int position;
 
-        synchronized (_itemsSync) {
-            position = _items.indexOf (trip);
-            if (position != -1) {
-                notifyItemChanged (position);
-            }
+        position = _items.indexOf (trip);
+        if (position != -1) {
+            notifyItemChanged (position);
         }
     }
 
@@ -229,10 +216,8 @@ public class TripItemAdapter
 
         result = new ArrayList<Trip> (_selectedItems.size ());
 
-        synchronized (_itemsSync) {
-            for (int i = 0 ; i < _selectedItems.size () ; i++) {
-                result.add (_items.get (_selectedItems.keyAt (i)));
-            }
+        for (int i = 0 ; i < _selectedItems.size () ; i++) {
+            result.add (_items.get (_selectedItems.keyAt (i)));
         }
 
         return result;
@@ -253,28 +238,22 @@ public class TripItemAdapter
     {
         int pos;
 
-        synchronized (_itemsSync) {
-            pos = _items.indexOf (t);
-            if (pos != -1) {
-                _items.remove (t);
-                notifyItemChanged (pos);
-            }
+        pos = _items.indexOf (t);
+        if (pos != -1) {
+            _items.remove (t);
+            notifyItemChanged (pos);
         }
     }
 
     public Trip getItem (int position)
     {
-        synchronized (_itemsSync) {
-            return _items.get (position);
-        }
+        return _items.get (position);
     }
 
     public void reloadTrips ()
     {
-        synchronized (_itemsSync) {
-            if (_items != null) {
-                _items.clear ();
-            }
+        if (_items != null) {
+            _items.clear ();
         }
 
         loadTrips ();
@@ -282,10 +261,8 @@ public class TripItemAdapter
 
     public void clearTrips ()
     {
-        synchronized (_itemsSync) {
-            if (_items != null) {
-                _items.clear ();
-            }
+        if (_items != null) {
+            _items.clear ();
         }
     }
 

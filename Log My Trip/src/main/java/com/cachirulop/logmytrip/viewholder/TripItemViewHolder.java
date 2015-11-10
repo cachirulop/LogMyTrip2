@@ -134,9 +134,7 @@ public class TripItemViewHolder
             getDescription ().setVisibility (View.GONE);
         }
 
-        getDuration ().setText (String.format ("%s - %s",
-                                               FormatHelper.formatDuration (trip.computeTotalTime ()),
-                                               FormatHelper.formatDistance (trip.computeTotalDistance ())));
+        getDuration ().setText (trip.getSummary ());
         getDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
         getTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));
 

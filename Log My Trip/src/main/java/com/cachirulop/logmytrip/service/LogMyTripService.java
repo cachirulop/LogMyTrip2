@@ -21,7 +21,7 @@ import com.cachirulop.logmytrip.util.ToastHelper;
 public class LogMyTripService
         extends Service
 {
-    private static boolean         _started;
+    private static boolean _started;
     private LogMyTripServiceBinder _binder = null;
 
     public static boolean isRunning ()
@@ -79,7 +79,7 @@ public class LogMyTripService
 
         current = TripManager.getActiveTrip (this);
         if (current != null) {
-            msg = String.format ("%s - %d", current.getTitle (), current.computeTotalTime ());
+            msg = String.format ("%s - %s", current.getTitle (), current.getSummary ());
         }
         else {
             msg = this.getText (R.string.notif_ContentLoggingTrip);

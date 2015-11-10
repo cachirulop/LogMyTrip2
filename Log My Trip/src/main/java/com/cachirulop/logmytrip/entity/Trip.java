@@ -1,5 +1,7 @@
 package com.cachirulop.logmytrip.entity;
 
+import com.cachirulop.logmytrip.util.FormatHelper;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -93,21 +95,11 @@ public class Trip
         _segments = segments;
     }
 
-    public double computeTotalDistance ()
+    public String getSummary ()
     {
-        if (_segments == null) {
-            return 0.0d;
-        }
-
-        if (_totalDistance == -1) {
-            _totalDistance = 0;
-
-            for (TripSegment s : _segments) {
-                _totalDistance += s.computeTotalDistance ();
-            }
-        }
-
-        return _totalDistance;
+        return String.format ("%s - %s",
+                            FormatHelper.formatDuration (computeTotalTime ()),
+                            FormatHelper.formatDistance (computeTotalDistance ()));
     }
 
     /**
@@ -130,6 +122,23 @@ public class Trip
         }
 
         return _totalTime;
+    }
+
+    public double computeTotalDistance ()
+    {
+        if (_segments == null) {
+            return 0.0d;
+        }
+
+        if (_totalDistance == -1) {
+            _totalDistance = 0;
+
+            for (TripSegment s : _segments) {
+                _totalDistance += s.computeTotalDistance ();
+            }
+        }
+
+        return _totalDistance;
     }
 
     public TripLocation getStartLocation ()

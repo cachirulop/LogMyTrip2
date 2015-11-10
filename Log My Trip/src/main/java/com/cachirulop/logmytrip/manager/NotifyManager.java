@@ -59,8 +59,18 @@ public class NotifyManager
         builder.setTicker (ctx.getText (R.string.notif_Tricker));
         builder.setContentText (contextText);
 
+        notificationIntent = new Intent (ctx, MainActivity.class);
+        pi = PendingIntent.getActivity (ctx,
+                                        0,
+                                        notificationIntent,
+                                        PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent (pi);
+
         switch (id) {
             case NOTIFICATION_TRIP_LOGGING:
+                builder.addAction (android.R.drawable.ic_media_pause,
+                                   ctx.getText (R.string.action_stop_log),
+                                   pi);
                 builder.setSmallIcon (R.mipmap.ic_trip_status_logging);
                 break;
 
@@ -68,14 +78,6 @@ public class NotifyManager
                 builder.setSmallIcon (R.mipmap.ic_waiting_bluetooth);
                 break;
         }
-
-        notificationIntent = new Intent (ctx, MainActivity.class);
-        pi = PendingIntent.getActivity (ctx,
-                                        0,
-                                        notificationIntent,
-                                        PendingIntent.FLAG_UPDATE_CURRENT);
-
-        builder.setContentIntent (pi);
 
         return builder.build ();
     }

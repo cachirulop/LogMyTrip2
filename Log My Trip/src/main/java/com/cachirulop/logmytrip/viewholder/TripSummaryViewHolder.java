@@ -106,7 +106,9 @@ public class TripSummaryViewHolder
 
         l = trip.getStartLocation ();
         if (l != null) {
-            getLocationFrom ().setText (l.toString ());
+            if (getLocationFrom ().getText ().equals ("")) {
+                getLocationFrom ().setText (l.toString ());
+            }
 
             FetchAddressService.startService (_ctx,
                                               new AddressResultReceiver (new Handler (),
@@ -119,7 +121,9 @@ public class TripSummaryViewHolder
 
         l = trip.getEndLocation ();
         if (l != null) {
-            getLocationTo ().setText (l.toString ());
+            if (getLocationTo ().getText ().equals ("")) {
+                getLocationTo ().setText (l.toString ());
+            }
             getEndDate ().setText (FormatHelper.formatDate (_ctx, l.getLocationTimeAsDate ()));
             getEndTime ().setText (FormatHelper.formatTime (_ctx, l.getLocationTimeAsDate ()));
 

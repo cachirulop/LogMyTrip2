@@ -11,8 +11,8 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.dialog.ListDialog;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.fragment.MainFragment;
 import com.cachirulop.logmytrip.fragment.TripDetailFragment;
+import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
@@ -34,12 +34,8 @@ public class TripDetailActivity
         // Set the fragment content
         if (findViewById (R.id.tripDetailActivityContainer) != null) {
             if (savedInstanceState == null) {
-                long tripId;
-
-                tripId = getIntent ().getLongExtra (MainFragment.ARG_PARAM_TRIP_ID, 0);
-                if (tripId != 0) {
-                    _trip = TripManager.getInstance ().getTrip (tripId);
-
+                _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+                if (_trip != null) {
                     _detailFragment = new TripDetailFragment ();
 
                     _detailFragment.setArguments (getIntent ().getExtras ());
@@ -61,7 +57,7 @@ public class TripDetailActivity
 
         getMenuInflater ().inflate (R.menu.menu_trip_detail, menu);
 
-        todayTrip = TripManager.getInstance ().getTodayTrip ();
+        todayTrip = TripManager.getTodayTrip (this);
         item = menu.findItem (R.id.action_start_stop_log);
         if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (todayTrip))) {
             item.setVisible (true);
@@ -188,7 +184,7 @@ public class TripDetailActivity
                 txt = (EditText) view.findViewById (R.id.etEditTripDescription);
                 _trip.setDescription (txt.getText ().toString ());
 
-                TripManager.getInstance ().updateTrip (TripDetailActivity.this, _trip);
+                TripManager.updateTrip (TripDetailActivity.this, _trip);
 
                 // TODO: Refresh the trip data
             }

@@ -22,8 +22,7 @@ public class LogMyTripService
         extends Service
 {
     private static boolean         _started;
-    private        LocationManager _locationMgr;
-    private LogMyTripServiceBinder _binder = new LogMyTripServiceBinder ();
+    private LogMyTripServiceBinder _binder = null;
 
     public static boolean isRunning ()
     {
@@ -36,7 +35,6 @@ public class LogMyTripService
         super.onCreate ();
 
         _started = false;
-        _locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
     }
 
     @Override
@@ -54,15 +52,19 @@ public class LogMyTripService
 
     private void startLog ()
     {
-        if (_locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            TripManager.getInstance ().startTrip (this);
+        LocationManager locationMgr;
+
+        locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
+
+        if (locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
+            TripManager.startTrip (this);
 
             LocationBroadcastManager.sendStartTripLogMessage (this);
 
-            _locationMgr.requestLocationUpdates (LocationManager.GPS_PROVIDER,
-                                                 SettingsManager.getGpsTimeInterval (this),
-                                                 SettingsManager.getGpsDistanceInterval (this),
-                                                 getLocationIntent ());
+            locationMgr.requestLocationUpdates (LocationManager.GPS_PROVIDER,
+                                                SettingsManager.getGpsTimeInterval (this),
+                                                SettingsManager.getGpsDistanceInterval (this),
+                                                getLocationIntent ());
         }
         else {
             ToastHelper.showLong (this, "No GPS activated");
@@ -92,6 +94,9 @@ public class LogMyTripService
     @Override
     public IBinder onBind (Intent intent)
     {
+        if (_binder == null) {
+            _binder = new LogMyTripServiceBinder ();
+        }
         return _binder;
     }
 
@@ -109,14 +114,16 @@ public class LogMyTripService
     private void stopLog ()
     {
         Trip trip;
+        LocationManager locationMgr;
 
-        trip = TripManager.getInstance ().getActiveTrip (this);
-
-        TripManager.getInstance ().unsetActiveTrip (this);
+        trip = TripManager.getActiveTrip (this);
 
         LocationBroadcastManager.sendStopTripLogMessage (this, trip);
 
-        _locationMgr.removeUpdates (getLocationIntent ());
+        locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
+        locationMgr.removeUpdates (getLocationIntent ());
+
+        TripManager.unsetActiveTrip (this);
 
         _started = false;
     }

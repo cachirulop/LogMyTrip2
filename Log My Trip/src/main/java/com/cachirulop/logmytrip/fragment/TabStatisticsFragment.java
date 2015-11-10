@@ -1,6 +1,8 @@
 package com.cachirulop.logmytrip.fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,7 +15,8 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 
 
 public class TabStatisticsFragment
@@ -23,6 +26,15 @@ public class TabStatisticsFragment
     private TripStatisticsAdapter _adapter;
     private Trip                  _trip;
     private Context               _ctx;
+
+    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            _adapter.notifyDataSetChanged ();
+        }
+    };
 
     public TabStatisticsFragment ()
     {
@@ -37,29 +49,15 @@ public class TabStatisticsFragment
      */
     public static TabStatisticsFragment newInstance (Trip trip)
     {
-        TabStatisticsFragment fragment;
-        Bundle                args;
-
-        args = new Bundle ();
-        args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
-
-        fragment = new TabStatisticsFragment ();
-        fragment.setArguments (args);
-
-        return fragment;
+        return new TabStatisticsFragment ();
     }
 
     @Override
     public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate (savedInstanceState);
-        if (getArguments () != null) {
-            long tripId;
 
-            tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
-
-            _trip = TripManager.getInstance ().getTrip (tripId);
-        }
+        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
     }
 
     @Override
@@ -68,6 +66,23 @@ public class TabStatisticsFragment
                               Bundle savedInstanceState)
     {
         return inflater.inflate (R.layout.fragment_tab_statistics, container, false);
+    }
+
+    @Override
+    public void onResume ()
+    {
+        super.onResume ();
+
+        LocationBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                              _onNewLocationReceiver);
+    }
+
+    @Override
+    public void onPause ()
+    {
+        super.onPause ();
+
+        LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
     }
 
     @Override

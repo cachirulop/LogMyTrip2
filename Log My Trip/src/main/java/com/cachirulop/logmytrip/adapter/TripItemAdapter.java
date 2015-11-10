@@ -1,6 +1,8 @@
 package com.cachirulop.logmytrip.adapter;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -23,21 +25,72 @@ public class TripItemAdapter
         extends RecyclerView.Adapter
 {
 
-    Context _ctx;
-    List<Trip> _items;
+    private Context    _ctx;
+    private List<Trip> _items;
+    private Object _itemsSync = new Object ();
 
     private SparseBooleanArray            _selectedItems;
     private boolean                       _actionMode;
     private RecyclerViewItemClickListener _onTripItemClickListener;
+    private TripItemAdapterListener _listener = null;
 
-    public TripItemAdapter (Context ctx)
+    public TripItemAdapter (Context ctx, TripItemAdapterListener listener)
     {
         _ctx = ctx;
-        _items = TripManager.getInstance ().loadTrips (_ctx);
+        _listener = listener;
+
+        loadTrips ();
 
         _onTripItemClickListener = null;
 
         _selectedItems = new SparseBooleanArray ();
+    }
+
+    public void loadTrips ()
+    {
+        final ProgressDialog progDialog;
+
+        progDialog = ProgressDialog.show (_ctx,
+                                          _ctx.getString (R.string.msg_loading_trips),
+                                          null,
+                                          true);
+
+        new Thread ()
+        {
+            public void run ()
+            {
+                synchronized (_itemsSync) {
+                    _items = TripManager.loadTrips (_ctx);
+                }
+
+                onTripLoadedMainThread ();
+
+                progDialog.dismiss ();
+            }
+        }.start ();
+    }
+
+    private void onTripLoadedMainThread ()
+    {
+        Handler  main;
+        Runnable runInMain;
+
+        main = new Handler (_ctx.getMainLooper ());
+
+        runInMain = new Runnable ()
+        {
+            @Override
+            public void run ()
+            {
+                notifyDataSetChanged ();
+
+                if (_listener != null) {
+                    _listener.onTripListLoaded ();
+                }
+            }
+        };
+
+        main.post (runInMain);
     }
 
     public RecyclerViewItemClickListener getOnTripItemClickListener ()
@@ -79,8 +132,12 @@ public class TripItemAdapter
         }
 
         // Set data into the view.
-        vh.bindView (_items.get (position), _selectedItems.get (position, false), background,
-                     _onTripItemClickListener);
+        synchronized (_itemsSync) {
+            vh.bindView (_items.get (position),
+                         _selectedItems.get (position, false),
+                         background,
+                         _onTripItemClickListener);
+        }
     }
 
     public boolean isSelected (int pos)
@@ -91,17 +148,21 @@ public class TripItemAdapter
     @Override
     public long getItemId (int position)
     {
-        return _items.get (position).getId ();
+        synchronized (_itemsSync) {
+            return _items.get (position).getId ();
+        }
     }
 
     @Override
     public int getItemCount ()
     {
-        if (_items == null) {
-            return 0;
-        }
-        else {
-            return _items.size ();
+        synchronized (_itemsSync) {
+            if (_items == null) {
+                return 0;
+            }
+            else {
+                return _items.size ();
+            }
         }
     }
 
@@ -110,16 +171,18 @@ public class TripItemAdapter
         Trip current;
         int position;
 
-        current = TripManager.getInstance ().getActiveTrip (_ctx);
-        if (current != null) {
-            position = _items.indexOf (current);
-            if (position == -1) {
-                _items.add (0, current);
+        current = TripManager.getActiveTrip (_ctx);
+        synchronized (_itemsSync) {
+            if (current != null && _items != null) {
+                position = _items.indexOf (current);
+                if (position == -1) {
+                    _items.add (0, current);
 
-                notifyItemInserted (0);
-            }
-            else {
-                notifyItemChanged (position);
+                    notifyItemInserted (0);
+                }
+                else {
+                    notifyItemChanged (position);
+                }
             }
         }
     }
@@ -128,9 +191,11 @@ public class TripItemAdapter
     {
         int position;
 
-        position = _items.indexOf (trip);
-        if (position != -1) {
-            notifyItemChanged (position);
+        synchronized (_itemsSync) {
+            position = _items.indexOf (trip);
+            if (position != -1) {
+                notifyItemChanged (position);
+            }
         }
     }
 
@@ -164,8 +229,10 @@ public class TripItemAdapter
 
         result = new ArrayList<Trip> (_selectedItems.size ());
 
-        for (int i = 0 ; i < _selectedItems.size () ; i++) {
-            result.add (_items.get (_selectedItems.keyAt (i)));
+        synchronized (_itemsSync) {
+            for (int i = 0 ; i < _selectedItems.size () ; i++) {
+                result.add (_items.get (_selectedItems.keyAt (i)));
+            }
         }
 
         return result;
@@ -186,23 +253,44 @@ public class TripItemAdapter
     {
         int pos;
 
-        pos = _items.indexOf (t);
-        if (pos != -1) {
-            _items.remove (t);
-            notifyItemChanged (pos);
+        synchronized (_itemsSync) {
+            pos = _items.indexOf (t);
+            if (pos != -1) {
+                _items.remove (t);
+                notifyItemChanged (pos);
+            }
         }
     }
 
     public Trip getItem (int position)
     {
-        return _items.get (position);
+        synchronized (_itemsSync) {
+            return _items.get (position);
+        }
     }
 
     public void reloadTrips ()
     {
-        _items.clear ();
-        _items = TripManager.getInstance ().reloadTrips (_ctx);
-        notifyDataSetChanged ();
+        synchronized (_itemsSync) {
+            if (_items != null) {
+                _items.clear ();
+            }
+        }
+
+        loadTrips ();
     }
 
+    public void clearTrips ()
+    {
+        synchronized (_itemsSync) {
+            if (_items != null) {
+                _items.clear ();
+            }
+        }
+    }
+
+    public interface TripItemAdapterListener
+    {
+        void onTripListLoaded ();
+    }
 }

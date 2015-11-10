@@ -114,7 +114,7 @@ public class TripSegmentViewHolder
                             public void onOkClicked ()
                             {
                                 _adapter.removeItem (tripSegment);
-                                TripManager.getInstance ().deleteSegment (_ctx, tripSegment);
+                                TripManager.deleteSegment (_ctx, tripSegment);
                             }
                         };
 

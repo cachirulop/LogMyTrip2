@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -34,6 +32,7 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
@@ -50,8 +49,6 @@ public class MainFragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
-    public static final String ARG_PARAM_TRIP_ID = "PARAMETER_TRIP_ID";
-
     private RecyclerView    _recyclerView;
     private TripItemAdapter _adapter;
     public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
@@ -161,7 +158,16 @@ public class MainFragment
     private void loadTrips ()
     {
         if (getView () != null) {
-            _adapter = new TripItemAdapter (getContext ());
+            _adapter = new TripItemAdapter (getContext (),
+                                            new TripItemAdapter.TripItemAdapterListener ()
+                                            {
+                                                @Override
+                                                public void onTripListLoaded ()
+                                                {
+                                                    updateActionBarSubtitle ();
+                                                }
+                                            });
+
             _adapter.setOnTripItemClickListener (this);
             _recyclerView.setAdapter (_adapter);
         }
@@ -188,6 +194,22 @@ public class MainFragment
         else {
             ServiceManager.startTripLog (getContext ());
         }
+    }
+
+    @Override
+    public void onResume ()
+    {
+        _adapter.reloadTrips ();
+
+        super.onResume ();
+    }
+
+    @Override
+    public void onPause ()
+    {
+        _adapter.clearTrips ();
+
+        super.onPause ();
     }
 
     public void reloadTrips ()
@@ -234,7 +256,8 @@ public class MainFragment
         Intent i;
 
         i = new Intent (getContext (), TripDetailActivity.class);
-        i.putExtra (MainFragment.ARG_PARAM_TRIP_ID, t.getId ());
+
+        SelectedTripHolder.getInstance ().setSelectedTrip (t);
 
         startActivity (i);
     }
@@ -288,7 +311,7 @@ public class MainFragment
                 List<Trip> selectedItems = _adapter.getSelectedItems ();
 
                 for (Trip t : selectedItems) {
-                    TripManager.getInstance ().deleteTrip (getContext (), t);
+                    TripManager.deleteTrip (getContext (), t);
                     _adapter.removeItem (t);
                 }
 
@@ -331,14 +354,6 @@ public class MainFragment
         progDialog = ProgressDialog.show (getContext (), getString (R.string.app_name),
                                           getContext ().getString (R.string.msg_exporting_trips),
                                           true);
-
-        final Handler handler = new Handler ()
-        {
-            @Override
-            public void handleMessage (Message msg)
-            {
-            }
-        };
 
         new Thread ()
         {
@@ -394,7 +409,6 @@ public class MainFragment
                     LogHelper.e ("Error writing file: " + e.getLocalizedMessage ());
                 }
 
-                handler.sendEmptyMessage (0);
                 progDialog.dismiss ();
             }
         }.start ();

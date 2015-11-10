@@ -19,7 +19,9 @@ import android.view.ViewStub;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.util.LogHelper;
 import com.cachirulop.logmytrip.util.MapHelper;
@@ -42,9 +44,13 @@ public class TabMapFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            Location l;
+            Location     l;
+            TripLocation tl;
 
             l = LocationBroadcastManager.getLocation (intent);
+            tl = new TripLocation (_trip, l);
+
+            _trip.getSegments ().get (_trip.getSegments ().size () - 1).getLocations ().add (tl);
 
             _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
                                                                                l.getLongitude ()),
@@ -111,16 +117,7 @@ public class TabMapFragment
      */
     public static TabMapFragment newInstance (Trip trip)
     {
-        TabMapFragment fragment;
-        Bundle         args;
-
-        args = new Bundle ();
-        args.putLong (MainFragment.ARG_PARAM_TRIP_ID, trip.getId ());
-
-        fragment = new TabMapFragment ();
-        fragment.setArguments (args);
-
-        return fragment;
+        return new TabMapFragment ();
     }
 
     @Override
@@ -133,13 +130,8 @@ public class TabMapFragment
     public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate (savedInstanceState);
-        if (getArguments () != null) {
-            long tripId;
 
-            tripId = getArguments ().getLong (MainFragment.ARG_PARAM_TRIP_ID);
-
-            _trip = TripManager.getInstance ().getTrip (tripId);
-        }
+        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
     }
 
     @Override
@@ -226,7 +218,7 @@ public class TabMapFragment
         Trip    activeTrip;
         boolean isActiveTrip;
 
-        activeTrip = TripManager.getInstance ().getActiveTrip (getContext ());
+        activeTrip = TripManager.getActiveTrip (getContext ());
         isActiveTrip = (_trip.equals (activeTrip));
 
         _map = googleMap;

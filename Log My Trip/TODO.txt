@@ -13,7 +13,6 @@
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip
 * Change the notification messages
-* Add actions to notification icon: stop autolog, stop log
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 
@@ -43,3 +42,4 @@ X Change segment start/end marks -> Drawing arrows not need to show differences 
 X Go to the detail trip on start logging from MainActivity
 X Make general method to paint map tracks
 X In statistics map allow to select a segment
+X Add actions to notification icon: stop autolog, stop log

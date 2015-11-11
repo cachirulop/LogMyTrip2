@@ -20,7 +20,7 @@ import android.view.ViewStub;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.util.LogHelper;
@@ -47,7 +47,7 @@ public class TabMapFragment
             Location     l;
             TripLocation tl;
 
-            l = LocationBroadcastManager.getLocation (intent);
+            l = LogMyTripBroadcastManager.getLocation (intent);
             tl = new TripLocation (_trip, l);
 
             _trip.getSegments ().get (_trip.getSegments ().size () - 1).getLocations ().add (tl);
@@ -65,10 +65,10 @@ public class TabMapFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            if (LocationBroadcastManager.hasProviderEnable (intent)) {
+            if (LogMyTripBroadcastManager.hasProviderEnable (intent)) {
                 boolean enabled;
 
-                enabled = LocationBroadcastManager.getProviderEnable (intent);
+                enabled = LogMyTripBroadcastManager.getProviderEnable (intent);
 
                 LogHelper.d ("ProviderEnabled change");
                 if (!enabled) {
@@ -172,11 +172,11 @@ public class TabMapFragment
     {
         super.onResume ();
 
-        LocationBroadcastManager.registerNewLocationReceiver (getContext (),
-                                                              _onNewLocationReceiver);
-        LocationBroadcastManager.registerProviderEnableChange (getContext (),
-                                                               _onProviderEnabledChange);
-        LocationBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
+        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                               _onNewLocationReceiver);
+        LogMyTripBroadcastManager.registerProviderEnableChange (getContext (),
+                                                                _onProviderEnabledChange);
+        LogMyTripBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
     }
 
     @Override
@@ -184,9 +184,9 @@ public class TabMapFragment
     {
         super.onPause ();
 
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
     }
 
     private void drawTrackMainThread ()

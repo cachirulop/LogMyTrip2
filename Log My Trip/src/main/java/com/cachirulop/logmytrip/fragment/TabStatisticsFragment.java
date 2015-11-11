@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 
 
@@ -73,8 +73,8 @@ public class TabStatisticsFragment
     {
         super.onResume ();
 
-        LocationBroadcastManager.registerNewLocationReceiver (getContext (),
-                                                              _onNewLocationReceiver);
+        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                               _onNewLocationReceiver);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class TabStatisticsFragment
     {
         super.onPause ();
 
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
     }
 
     @Override

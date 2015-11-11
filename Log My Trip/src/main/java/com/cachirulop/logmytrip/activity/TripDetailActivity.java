@@ -1,5 +1,8 @@
 package com.cachirulop.logmytrip.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -12,6 +15,7 @@ import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.dialog.ListDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.TripDetailFragment;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -21,8 +25,28 @@ import com.google.android.gms.maps.GoogleMap;
 public class TripDetailActivity
         extends AppCompatActivity
 {
-    TripDetailFragment _detailFragment;
-    private Trip _trip;
+    private TripDetailFragment _detailFragment;
+    private Trip               _trip;
+    private MenuItem           _menuStartStopLog;
+
+    private BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            updateMenuItemState ();
+        }
+    };
+
+    private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            updateMenuItemState ();
+        }
+    };
+
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
@@ -50,36 +74,55 @@ public class TripDetailActivity
     }
 
     @Override
+    protected void onResume ()
+    {
+        super.onResume ();
+
+        LogMyTripBroadcastManager.registerTripLogStartReceiver (this, _onTripLogStartReceiver);
+        LogMyTripBroadcastManager.registerTripLogStopReceiver (this, _onTripLogStopReceiver);
+    }
+
+    @Override
+    protected void onPause ()
+    {
+        super.onPause ();
+
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogStartReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogStopReceiver);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu (Menu menu)
     {
-        MenuItem item;
         Trip     todayTrip;
 
         getMenuInflater ().inflate (R.menu.menu_trip_detail, menu);
 
         todayTrip = TripManager.getTodayTrip (this);
-        item = menu.findItem (R.id.action_start_stop_log);
+        _menuStartStopLog = menu.findItem (R.id.action_start_stop_log);
         if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (todayTrip))) {
-            item.setVisible (true);
+            _menuStartStopLog.setVisible (true);
 
-            updateMenuItemState (item);
+            updateMenuItemState ();
         }
         else {
-            item.setVisible (false);
+            _menuStartStopLog.setVisible (false);
         }
 
         return true;
     }
 
-    private void updateMenuItemState (MenuItem item)
+    private void updateMenuItemState ()
     {
-        if (SettingsManager.isLogTrip (this)) {
-            item.setTitle (R.string.action_stop_log);
-            item.setIcon (android.R.drawable.ic_media_pause);
-        }
-        else {
-            item.setTitle (R.string.action_start_log);
-            item.setIcon (android.R.drawable.ic_menu_save);
+        if (_menuStartStopLog != null) {
+            if (SettingsManager.isLogTrip (this)) {
+                _menuStartStopLog.setTitle (R.string.action_stop_log);
+                _menuStartStopLog.setIcon (android.R.drawable.ic_media_pause);
+            }
+            else {
+                _menuStartStopLog.setTitle (R.string.action_start_log);
+                _menuStartStopLog.setIcon (android.R.drawable.ic_menu_save);
+            }
         }
     }
 
@@ -95,7 +138,7 @@ public class TripDetailActivity
                     ServiceManager.startTripLog (this);
                 }
 
-                updateMenuItemState (item);
+                updateMenuItemState ();
 
                 return true;
 

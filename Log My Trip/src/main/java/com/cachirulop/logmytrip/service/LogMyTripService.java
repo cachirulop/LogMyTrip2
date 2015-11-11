@@ -10,7 +10,7 @@ import android.os.IBinder;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
@@ -59,7 +59,7 @@ public class LogMyTripService
         if (locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
             TripManager.startTrip (this);
 
-            LocationBroadcastManager.sendStartTripLogMessage (this);
+            LogMyTripBroadcastManager.sendStartTripLogMessage (this);
 
             locationMgr.requestLocationUpdates (LocationManager.GPS_PROVIDER,
                                                 SettingsManager.getGpsTimeInterval (this),
@@ -79,7 +79,7 @@ public class LogMyTripService
 
         current = TripManager.getActiveTrip (this);
         if (current != null) {
-            msg = String.format ("%s - %s", current.getTitle (), current.getSummary ());
+            msg = current.getTitle ();
         }
         else {
             msg = this.getText (R.string.notif_ContentLoggingTrip);
@@ -128,7 +128,7 @@ public class LogMyTripService
 
         trip = TripManager.getActiveTrip (this);
 
-        LocationBroadcastManager.sendStopTripLogMessage (this, trip);
+        LogMyTripBroadcastManager.sendStopTripLogMessage (this, trip);
 
         locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
         locationMgr.removeUpdates (getLocationIntent ());

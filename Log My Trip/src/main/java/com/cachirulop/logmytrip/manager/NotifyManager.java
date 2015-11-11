@@ -8,6 +8,7 @@ import android.content.Intent;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.MainActivity;
+import com.cachirulop.logmytrip.receiver.NotifyReceiver;
 
 public class NotifyManager
 {
@@ -68,18 +69,43 @@ public class NotifyManager
 
         switch (id) {
             case NOTIFICATION_TRIP_LOGGING:
-                builder.addAction (android.R.drawable.ic_media_pause,
-                                   ctx.getText (R.string.action_stop_log),
-                                   pi);
+                addAction (ctx,
+                           builder,
+                           NotifyReceiver.ACTION_STOP_LOG,
+                           android.R.drawable.ic_media_pause,
+                           R.string.action_stop_log);
+
                 builder.setSmallIcon (R.mipmap.ic_trip_status_logging);
                 break;
 
             case NOTIFICATION_WAITING_BLUETOOTH:
+                addAction (ctx,
+                           builder,
+                           NotifyReceiver.ACTION_STOP_BLUETOOTH,
+                           android.R.drawable.stat_sys_data_bluetooth,
+                           R.string.action_stop_bluetooth);
+
                 builder.setSmallIcon (R.mipmap.ic_waiting_bluetooth);
                 break;
         }
 
         return builder.build ();
+    }
+
+    private static void addAction (Context ctx,
+                                   Notification.Builder builder,
+                                   String action,
+                                   int icon,
+                                   int title)
+    {
+        PendingIntent pi;
+        Intent        i;
+
+        i = new Intent (ctx, NotifyReceiver.class);
+        i.setAction (action);
+        pi = PendingIntent.getBroadcast (ctx, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.addAction (icon, ctx.getString (title), pi);
     }
 
     public static Notification createTripLogging (Context ctx, CharSequence contentText)

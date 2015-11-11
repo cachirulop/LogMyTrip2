@@ -13,6 +13,7 @@
     <string name="action_import_db">Import database</string>
     <string name="action_export_db">Export database</string>
     <string name="action_stop_log">Stop trip logging</string>
+    <string name="action_stop_bluetooth">Stop auto log</string>
     <string name="action_start_log">Start trip logging</string>
 
     <!-- Activity subtitles -->

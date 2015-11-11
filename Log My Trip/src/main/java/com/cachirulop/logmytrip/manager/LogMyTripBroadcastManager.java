@@ -15,23 +15,23 @@ import java.util.HashMap;
 /**
  * Created by david on 9/10/15.
  */
-public class LocationBroadcastManager
+public class LogMyTripBroadcastManager
 {
-    private static final String BROADCAST_PREFIX              = "com.cachirulop.logmytrip.LocationBroadcastManager.";
+    private static final String BROADCAST_PREFIX = LogMyTripBroadcastManager.class.getPackage ()
+                                                                                  .getName ();
+
     private static final String ACTION_TRIP_LOG_START         = BROADCAST_PREFIX + "start";
     private static final String ACTION_TRIP_LOG_STOP          = BROADCAST_PREFIX + "stop";
     private static final String ACTION_NEW_LOCATION           = BROADCAST_PREFIX + "new_location";
     private static final String ACTION_PROVIDER_ENABLE_CHANGE = BROADCAST_PREFIX + "provider_change";
     private static final String ACTION_STATUS_CHANGE          = BROADCAST_PREFIX + "status_change";
-    private static final String EXTRA_TRIP                    = BROADCAST_PREFIX + "trip";
-    private static final String EXTRA_PROVIDER_ENABLE         = BROADCAST_PREFIX + "enabled";
-    private static final String EXTRA_STATUS                  = BROADCAST_PREFIX + "status";
-    private static final String EXTRA_LOCATION = BROADCAST_PREFIX + "location";
+    private static final String ACTION_BLUETOOTH_START = BROADCAST_PREFIX + "bluetooth_start";
+    private static final String ACTION_BLUETOOTH_STOP  = BROADCAST_PREFIX + "bluetooth_start";
 
-    public static void sendStartTripLogMessage (Context ctx)
-    {
-        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_START);
-    }
+    private static final String EXTRA_TRIP            = BROADCAST_PREFIX + "trip";
+    private static final String EXTRA_PROVIDER_ENABLE = BROADCAST_PREFIX + "enabled";
+    private static final String EXTRA_STATUS          = BROADCAST_PREFIX + "status";
+    private static final String EXTRA_LOCATION        = BROADCAST_PREFIX + "location";
 
     private static void sendBroadcastMessage (Context ctx, String action)
     {
@@ -67,6 +67,11 @@ public class LocationBroadcastManager
         }
 
         LocalBroadcastManager.getInstance (ctx).sendBroadcast (intent);
+    }
+
+    public static void sendStartTripLogMessage (Context ctx)
+    {
+        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_START);
     }
 
     public static void sendStopTripLogMessage (Context ctx, Trip trip)
@@ -109,6 +114,16 @@ public class LocationBroadcastManager
         sendBroadcastMessage (context, ACTION_STATUS_CHANGE, params);
     }
 
+    public static void sendStartBluetoothMessage (Context ctx)
+    {
+        sendBroadcastMessage (ctx, ACTION_BLUETOOTH_START);
+    }
+
+    public static void sendStopBluetoothMessage (Context ctx)
+    {
+        sendBroadcastMessage (ctx, ACTION_BLUETOOTH_STOP);
+    }
+
     public static void registerTripLogStartReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
@@ -138,6 +153,19 @@ public class LocationBroadcastManager
     {
         LocalBroadcastManager.getInstance (ctx)
                              .registerReceiver (receiver, new IntentFilter (ACTION_STATUS_CHANGE));
+    }
+
+    public static void registerBluetoothStartReceiver (Context ctx, BroadcastReceiver receiver)
+    {
+        LocalBroadcastManager.getInstance (ctx)
+                             .registerReceiver (receiver,
+                                                new IntentFilter (ACTION_BLUETOOTH_START));
+    }
+
+    public static void registerBluetoothStopReceiver (Context ctx, BroadcastReceiver receiver)
+    {
+        LocalBroadcastManager.getInstance (ctx)
+                             .registerReceiver (receiver, new IntentFilter (ACTION_BLUETOOTH_STOP));
     }
 
     public static void unregisterReceiver (Context ctx, BroadcastReceiver receiver)

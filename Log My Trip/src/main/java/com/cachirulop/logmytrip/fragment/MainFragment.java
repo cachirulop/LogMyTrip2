@@ -31,7 +31,7 @@ import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -58,7 +58,8 @@ public class MainFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.stopTripLog (LocationBroadcastManager.getTrip (intent));
+            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
+            refreshFabTrip ();
         }
     };
     private ActionMode           _actionMode;
@@ -223,10 +224,10 @@ public class MainFragment
         _adapter.reloadTrips ();
 
         // Receive the broadcast of the LogMyTripService class
-        LocationBroadcastManager.registerTripLogStartReceiver (getContext (),
-                                                               _onTripLogStartReceiver);
-        LocationBroadcastManager.registerTripLogStopReceiver (getContext (),
-                                                              _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.registerTripLogStartReceiver (getContext (),
+                                                                _onTripLogStartReceiver);
+        LogMyTripBroadcastManager.registerTripLogStopReceiver (getContext (),
+                                                               _onTripLogStopReceiver);
 
         refreshFabTrip ();
 
@@ -237,8 +238,8 @@ public class MainFragment
     public void onPause ()
     {
         _adapter.clearTrips ();
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
-        LocationBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
 
         super.onPause ();
     }

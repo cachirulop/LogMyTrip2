@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
 
@@ -30,6 +31,8 @@ public class BluetoothService
     public void onDestroy ()
     {
         super.onDestroy ();
+
+        LogMyTripBroadcastManager.sendStopBluetoothMessage (this);
 
         unregisterBluetoothReceiver ();
         stopForegroundService ();
@@ -57,6 +60,8 @@ public class BluetoothService
 
         registerBluetoothReceiver ();
         startForegroundService ();
+
+        LogMyTripBroadcastManager.sendStartBluetoothMessage (this);
 
         return START_STICKY;
     }

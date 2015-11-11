@@ -8,7 +8,7 @@ import android.location.LocationManager;
 
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.manager.LocationBroadcastManager;
+import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
@@ -48,7 +48,7 @@ public class LocationReceiver
 
                 TripManager.saveTripLocation (context, tl);
 
-                LocationBroadcastManager.sendNewLocationMessage (context, loc);
+                LogMyTripBroadcastManager.sendNewLocationMessage (context, loc);
             }
         }
     }
@@ -59,7 +59,7 @@ public class LocationReceiver
 
         enabled = intent.getBooleanExtra (LocationManager.KEY_PROVIDER_ENABLED, false);
 
-        LocationBroadcastManager.sendProviderEnableChangeMessage (context, enabled);
+        LogMyTripBroadcastManager.sendProviderEnableChangeMessage (context, enabled);
     }
 
     private void onStatusChanged (Context context, Intent intent)
@@ -68,7 +68,7 @@ public class LocationReceiver
 
         status = intent.getIntExtra (LocationManager.KEY_STATUS_CHANGED, -1);
         if (status != -1) {
-            LocationBroadcastManager.sendStatusChangeMessage (context, status);
+            LogMyTripBroadcastManager.sendStatusChangeMessage (context, status);
         }
     }
 

@@ -10,6 +10,9 @@
 * Remove csv export options
 * Update trip title in the notification text
 * Update distance, time, speeds in the statistics pane when follow the current trip
+* Try to load the trips fastest
+* Add button to force start/stop log in the bluetooth notification
+* Update log trip notification every 5 minutes with distance and time
 
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip

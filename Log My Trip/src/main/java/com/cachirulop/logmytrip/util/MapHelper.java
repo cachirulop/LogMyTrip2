@@ -86,6 +86,13 @@ public class MapHelper
 
     private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)
     {
+        drawSegmentList (segments, isActiveTrip, null);
+    }
+
+    private void drawSegmentList (List<TripSegment> segments,
+                                  boolean isActiveTrip,
+                                  MapListener listener)
+    {
         LatLngBounds.Builder builder;
         int                  lastSegmentIndex;
         int                  currentIndex;
@@ -100,7 +107,10 @@ public class MapHelper
             lastSegmentIndex = segments.size () - 1;
 
             // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder, isActiveTrip));
+            _map.setOnCameraChangeListener (new CameraListener (_map,
+                                                                builder,
+                                                                isActiveTrip,
+                                                                listener));
             // }
 
             for (TripSegment s : segments) {
@@ -241,14 +251,19 @@ public class MapHelper
         return MARKER_COLORS[0];
     }
 
-    public void dawSegment (TripSegment segment)
+    public void drawSegment (TripSegment segment)
+    {
+        drawSegment (segment, null);
+    }
+
+    public void drawSegment (TripSegment segment, MapListener listener)
     {
         LatLngBounds.Builder builder;
 
         if (_map != null) {
             builder = new LatLngBounds.Builder ();
 
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false));
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false, listener));
 
             privateDrawSegment (segment, builder, false);
 
@@ -430,6 +445,11 @@ public class MapHelper
 
     ///////////////////////////////////////////////////////////////////////////////////////
 
+    public interface MapListener
+    {
+        void onMapLoaded ();
+    }
+
     private class CameraListener
             implements GoogleMap.OnCameraChangeListener
     {
@@ -437,13 +457,18 @@ public class MapHelper
         private LatLngBounds.Builder _builder;
         private boolean _isActiveTrip;
         private boolean _moved;
+        private MapListener _listener;
 
-        public CameraListener (GoogleMap map, LatLngBounds.Builder builder, boolean isActiveTrip)
+        public CameraListener (GoogleMap map,
+                               LatLngBounds.Builder builder,
+                               boolean isActiveTrip,
+                               MapListener listener)
         {
             _map = map;
             _builder = builder;
             _isActiveTrip = isActiveTrip;
             _moved = false;
+            _listener = listener;
         }
 
         @Override
@@ -461,6 +486,10 @@ public class MapHelper
 
             // Remove listener to prevent position reset on camera move.
             //_map.setOnCameraChangeListener (null);
+
+            if (_listener != null) {
+                _listener.onMapLoaded ();
+            }
 
             _moved = true;
         }

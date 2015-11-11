@@ -5,6 +5,7 @@
 * Detail activity crash when rotate the phone
 * Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
 * When select a segment in the map, center it on the screen
+* When select a segment and click another time in map, unselect the segment
 * Export trips to gpx, kml
 * Remove csv export options
 * Update trip title in the notification text

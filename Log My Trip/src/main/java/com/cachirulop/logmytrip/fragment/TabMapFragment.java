@@ -222,24 +222,10 @@ public class TabMapFragment
         isActiveTrip = (_trip.equals (activeTrip));
 
         _map = googleMap;
-        _mapHelper = new MapHelper (getContext ());
-        _mapHelper.setMap (_map);
         _map.setMyLocationEnabled (true);
 
-        //        if (isActiveTrip && SettingsManager.isLogTrip (getContext ())) {
-        //            _map.setOnMyLocationChangeListener (new GoogleMap.OnMyLocationChangeListener ()
-        //            {
-        //                @Override
-        //                public void onMyLocationChange (Location location)
-        //                {
-        //                    LogHelper.d ("*** onMapReady");
-        //
-        //                    _map.animateCamera (CameraUpdateFactory.newLatLngZoom (
-        //                            new LatLng (location.getLatitude (), location.getLongitude ()), 50));
-        //                }
-        //            });
-        //        }
-
+        _mapHelper = new MapHelper (getContext ());
+        _mapHelper.setMap (_map);
         _mapHelper.drawTrip (_trip, isActiveTrip);
     }
 

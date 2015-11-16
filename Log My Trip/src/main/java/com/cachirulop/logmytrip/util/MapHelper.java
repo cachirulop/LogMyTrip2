@@ -33,33 +33,34 @@ import java.util.WeakHashMap;
 public class MapHelper
 {
     private static final int   COLOR_TRANSPARENCY        = 40;
-    private static final int[]   SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
-                                                             Color.MAGENTA, Color.YELLOW };
+    private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
+                                                           Color.MAGENTA, Color.YELLOW };
     private static final int[] SEGMENT_COLORS_UNSELECTED = new int[]{
             Color.argb (COLOR_TRANSPARENCY, 255, 0, 0), Color.argb (COLOR_TRANSPARENCY, 0, 0, 255),
             Color.argb (COLOR_TRANSPARENCY, 0, 255, 0),
             Color.argb (COLOR_TRANSPARENCY, 255, 0, 255),
             Color.argb (COLOR_TRANSPARENCY, 255, 255, 0) };
 
-    private static final int SEGMENT_BACKGROUND_COLOR            = Color.GRAY;
-    private static final float[] MARKER_COLORS  = new float[]{ BitmapDescriptorFactory.HUE_RED,
-                                                               BitmapDescriptorFactory.HUE_BLUE,
-                                                               BitmapDescriptorFactory.HUE_GREEN,
-                                                               BitmapDescriptorFactory.HUE_MAGENTA,
-                                                               BitmapDescriptorFactory.HUE_YELLOW };
-    private static final int SEGMENT_BACKGROUND_COLOR_UNSELECTED = Color.argb (COLOR_TRANSPARENCY,
-                                                                               88,
-                                                                               88,
-                                                                               88);
+    private static final int     SEGMENT_BACKGROUND_COLOR            = Color.GRAY;
+    private static final float[] MARKER_COLORS                       = new float[]{
+            BitmapDescriptorFactory.HUE_RED, BitmapDescriptorFactory.HUE_BLUE,
+            BitmapDescriptorFactory.HUE_GREEN, BitmapDescriptorFactory.HUE_MAGENTA,
+            BitmapDescriptorFactory.HUE_YELLOW };
+    private static final int     SEGMENT_BACKGROUND_COLOR_UNSELECTED = Color.argb (
+            COLOR_TRANSPARENCY,
+            88,
+            88,
+            88);
 
 
     private ArrayList<Polyline> _arrows        = new ArrayList<> ();
     private List<TripSegment>   _drawnSegments = new ArrayList<> ();
     private TripSegment _selectedSegment;
-    private GoogleMap                        _map            = null;
-    private boolean                          _drawn          = false;
-    private MarkerClickListener              _markerListener = new MarkerClickListener ();
-    private WeakHashMap<Marker, TripSegment> _markerSegment  = new WeakHashMap<> ();
+    private GoogleMap                        _map              = null;
+    private boolean                          _drawn            = false;
+    private MarkerClickListener              _markerListener   = new MarkerClickListener ();
+    private MapClickListener                 _mapClickListener = new MapClickListener ();
+    private WeakHashMap<Marker, TripSegment> _markerSegment    = new WeakHashMap<> ();
     private Context _ctx;
 
     public MapHelper (Context ctx)
@@ -72,6 +73,7 @@ public class MapHelper
         _map = map;
         _map.setInfoWindowAdapter (new TripSegmentMapInfoWindowAdapter (_ctx));
         _map.setOnMarkerClickListener (_markerListener);
+        _map.setOnMapClickListener (_mapClickListener);
         _arrows.clear ();
         _drawnSegments.clear ();
     }
@@ -106,13 +108,6 @@ public class MapHelper
             currentIndex = 0;
             lastSegmentIndex = segments.size () - 1;
 
-            // if (segments.size () > 0 && !isActiveTrip && !SettingsManager.isLogTrip (ctx)) {
-            _map.setOnCameraChangeListener (new CameraListener (_map,
-                                                                builder,
-                                                                isActiveTrip,
-                                                                listener));
-            // }
-
             for (TripSegment s : segments) {
                 boolean isActiveSegment;
 
@@ -120,6 +115,18 @@ public class MapHelper
                 privateDrawSegment (s, builder, isActiveSegment);
 
                 currentIndex++;
+            }
+
+            _map.setOnCameraChangeListener (new CameraListener (_map,
+                                                                builder,
+                                                                isActiveTrip,
+                                                                listener));
+
+            if (_selectedSegment == null) {
+                _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
+            }
+            else {
+                _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 90));
             }
         }
     }
@@ -210,7 +217,10 @@ public class MapHelper
                 current = p.toLatLng ();
 
                 track.add (current);
-                builder.include (current);
+
+                if (_selectedSegment == null || _selectedSegment.equals (segment)) {
+                    builder.include (current);
+                }
 
                 i++;
             }
@@ -263,11 +273,10 @@ public class MapHelper
         if (_map != null) {
             builder = new LatLngBounds.Builder ();
 
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false, listener));
-
             privateDrawSegment (segment, builder, false);
 
-            _map.moveCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 0));
+            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false, listener));
+            _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
         }
     }
 
@@ -474,18 +483,8 @@ public class MapHelper
         @Override
         public void onCameraChange (CameraPosition arg0)
         {
-            // Move camera.
-            if (_drawn && _drawnSegments.size () > 0 && !_isActiveTrip) {
-                _map.moveCamera (CameraUpdateFactory.newLatLngBounds (_builder.build (), 50));
-
-                _drawn = false;
-            }
-
             // TODO: Improve the method
             // drawArrows ();
-
-            // Remove listener to prevent position reset on camera move.
-            //_map.setOnCameraChangeListener (null);
 
             if (_listener != null) {
                 _listener.onMapLoaded ();
@@ -494,6 +493,8 @@ public class MapHelper
             _moved = true;
         }
     }
+
+    //////////////////////////////////////////////////////////////////
 
     private class MarkerClickListener
             implements GoogleMap.OnMarkerClickListener
@@ -527,6 +528,22 @@ public class MapHelper
             return null;
         }
     }
+
+    //////////////////////////////////////////////////////////////////
+    private class MapClickListener
+            implements GoogleMap.OnMapClickListener
+    {
+
+        @Override
+        public void onMapClick (LatLng latLng)
+        {
+            if (_selectedSegment != null) {
+                _selectedSegment = null;
+                drawSegmentList (_drawnSegments, false);
+            }
+        }
+    }
+
 
     //////////////////////////////////////////////////////////////////
 

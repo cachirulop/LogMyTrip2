@@ -53,3 +53,4 @@ X Change the notification messages
 X Follow the current trip better in the map view
 X Don't show static maps until it has been drawn -> I can't
 X Don't allow to click on static maps
+X Detail activity crash when rotate the phone

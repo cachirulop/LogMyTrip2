@@ -55,10 +55,11 @@ public class TripDetailActivity
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_trip_detail);
 
+        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+
         // Set the fragment content
         if (findViewById (R.id.tripDetailActivityContainer) != null) {
             if (savedInstanceState == null) {
-                _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
                 if (_trip != null) {
                     _detailFragment = new TripDetailFragment ();
 

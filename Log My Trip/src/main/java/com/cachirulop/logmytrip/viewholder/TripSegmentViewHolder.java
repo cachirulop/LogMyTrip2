@@ -8,7 +8,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
@@ -20,12 +19,12 @@ import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
 import com.cachirulop.logmytrip.util.FormatHelper;
-import com.cachirulop.logmytrip.util.LogHelper;
 import com.cachirulop.logmytrip.util.MapHelper;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 
 public class TripSegmentViewHolder
         extends RecyclerView.ViewHolder
@@ -46,7 +45,6 @@ public class TripSegmentViewHolder
 
     private FrameLayout _mapFrame;
     private MapView     _mapView;
-    private ProgressBar _mapLoading;
     private MapHelper   _mapHelper;
     private MapReadyCallback _mapCallback;
     private TripSegment _segment;
@@ -70,21 +68,19 @@ public class TripSegmentViewHolder
         GoogleMapOptions options = new GoogleMapOptions ();
 
         options.liteMode (true);
+
+        _mapHelper = new MapHelper (_ctx);
+
         _mapView = new MapView (_ctx, options);
         _mapView.onCreate (null);
+        _mapView.setClickable (false);
+
         _mapCallback = new MapReadyCallback ();
 
         _mapFrame = (FrameLayout) parent.findViewById (R.id.flMapSegment);
-        _mapHelper = new MapHelper (_ctx);
-
-        _mapLoading = new ProgressBar (_ctx);
-        _mapLoading.setIndeterminate (true);
+        _mapFrame.setClickable (false);
 
         _mapFrame.addView (_mapView);
-        _mapFrame.addView (_mapLoading);
-
-        _mapView.setVisibility (View.GONE);
-        _mapLoading.setVisibility (View.VISIBLE);
 
         _locationFrom = (TextView) parent.findViewById (R.id.tvTripSegmentLocationFrom);
         _locationTo = (TextView) parent.findViewById (R.id.tvTripSegmentLocationTo);
@@ -245,19 +241,18 @@ public class TripSegmentViewHolder
         public void onMapReady (GoogleMap googleMap)
         {
             googleMap.setMapType (_mapType);
-
             googleMap.clear ();
-            _mapHelper.setMap (googleMap);
-            _mapHelper.drawSegment (_segment, new MapHelper.MapListener ()
+            googleMap.setOnMapClickListener (new GoogleMap.OnMapClickListener ()
             {
                 @Override
-                public void onMapLoaded ()
+                public void onMapClick (LatLng latLng)
                 {
-                    LogHelper.d ("*** Map loaded");
-                    _mapView.setVisibility (View.VISIBLE);
-                    _mapLoading.setVisibility (View.GONE);
+                    // Disable map click
                 }
             });
+
+            _mapHelper.setMap (googleMap);
+            _mapHelper.drawSegment (_segment);
         }
     }
 }

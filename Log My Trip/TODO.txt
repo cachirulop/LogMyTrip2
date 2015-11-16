@@ -1,6 +1,4 @@
 
-* Don't show static maps until it has been drawn
-* Don't allow to click on static maps
 * Export database on lollipop and Marshmallow
 * Detail activity crash when rotate the phone
 * Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
@@ -53,3 +51,5 @@ X In statistics map allow to select a segment
 X Add actions to notification icon: stop autolog, stop log
 X Change the notification messages
 X Follow the current trip better in the map view
+X Don't show static maps until it has been drawn -> I can't
+X Don't allow to click on static maps

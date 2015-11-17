@@ -15,14 +15,15 @@ public class NotifyManager
     public static final int NOTIFICATION_TRIP_LOGGING = 1133;
     public static final int NOTIFICATION_WAITING_BLUETOOTH = 1134;
 
-    public static void hideTripLogging (Context ctx)
+
+    public static Notification createTripLogging (Context ctx, CharSequence contentText)
     {
-        hideNotification (ctx, NOTIFICATION_TRIP_LOGGING);
+        return createNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
     }
 
-    private static void hideNotification (Context ctx, int id)
+    public static Notification createWaitingBluetooth (Context ctx, CharSequence contentText)
     {
-        getManager (ctx).cancel (id);
+        return createNotification (ctx, contentText, NOTIFICATION_WAITING_BLUETOOTH);
     }
 
     private static NotificationManager getManager (Context ctx)
@@ -30,23 +31,14 @@ public class NotifyManager
         return (NotificationManager) ctx.getSystemService (Context.NOTIFICATION_SERVICE);
     }
 
-    public static void hideWaitingBluetooth (Context ctx)
+    public static void updateTripLogging (Context ctx, CharSequence contentText)
     {
-        hideNotification (ctx, NOTIFICATION_WAITING_BLUETOOTH);
+        updateNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
     }
 
-    public static void showTripLogging (Context ctx, CharSequence contentText)
+    public static void updateWaitingBluetooth (Context ctx, CharSequence contentText)
     {
-        showNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
-    }
-
-    private static void showNotification (Context ctx, CharSequence contentText, int id)
-    {
-        Notification note;
-
-        note = createNotification (ctx, contentText, id);
-
-        getManager (ctx).notify (id, note);
+        updateNotification (ctx, contentText, NOTIFICATION_WAITING_BLUETOOTH);
     }
 
     private static Notification createNotification (Context ctx, CharSequence contextText, int id)
@@ -85,11 +77,28 @@ public class NotifyManager
                            android.R.drawable.stat_sys_data_bluetooth,
                            R.string.action_stop_bluetooth);
 
+                if (!SettingsManager.isLogTrip (ctx)) {
+                    addAction (ctx,
+                               builder,
+                               NotifyReceiver.ACTION_START_LOG,
+                               android.R.drawable.ic_menu_save,
+                               R.string.action_start_log);
+                }
+
                 builder.setSmallIcon (R.mipmap.ic_waiting_bluetooth);
                 break;
         }
 
         return builder.build ();
+    }
+
+    private static void updateNotification (Context ctx, CharSequence contentText, int id)
+    {
+        Notification note;
+
+        note = createNotification (ctx, contentText, id);
+
+        getManager (ctx).notify (id, note);
     }
 
     private static void addAction (Context ctx,
@@ -107,15 +116,4 @@ public class NotifyManager
 
         builder.addAction (icon, ctx.getString (title), pi);
     }
-
-    public static Notification createTripLogging (Context ctx, CharSequence contentText)
-    {
-        return createNotification (ctx, contentText, NOTIFICATION_TRIP_LOGGING);
-    }
-
-    public static Notification createWaitingBluetooth (Context ctx, CharSequence contentText)
-    {
-        return createNotification (ctx, contentText, NOTIFICATION_WAITING_BLUETOOTH);
-    }
-
 }

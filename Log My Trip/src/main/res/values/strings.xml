@@ -146,7 +146,11 @@
     <!-- Notification -->
     <string name="notif_Title">Log my trip</string>
     <string name="notif_Tricker">Starting Log my trip service</string>
-    <string name="notif_ContentWaitingBluetooth">Waiting bluetooth</string>
+    <string name="notif_ContentWaitingBluetooth">Waiting bluetooth %1$s to %2$s log</string>
+    <string name="notif_ContentWaitingBluetooth_mode_connect">connection</string>
+    <string name="notif_ContentWaitingBluetooth_mode_disconnect">disconnection</string>
+    <string name="notif_ContentWaitingBluetooth_action_start">start</string>
+    <string name="notif_ContentWaitingBluetooth_action_stop">stop</string>
     <string name="notif_ContentLoggingTrip">Logging trip</string>
 
     <!-- Messages -->

@@ -1,7 +1,4 @@
 
-* Export trips to gpx, kml
-* Try to load the trips fastest
-* Add button to force start/stop log in the bluetooth notification
 * Update distance, time, speeds in the statistics pane when follow the current trip
 * Update log trip notification every 5 minutes with distance and time
 * Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
@@ -13,6 +10,8 @@ then start logging trip
 
 * New autostart option 'Always'
 
+* Try to load the trips fastest
+* Export trips to gpx, kml
 * Remove csv export options
 
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
@@ -55,3 +54,4 @@ X Detail activity crash when rotate the phone -> on windows 8.1 it worked, test 
 X When select a segment in the map, center it on the screen
 X When select a segment and click another time in map, unselect the segment
 X Update trip title in the notification text
+X Add button to force start/stop log in the bluetooth notification

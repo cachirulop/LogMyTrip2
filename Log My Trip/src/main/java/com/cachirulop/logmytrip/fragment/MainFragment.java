@@ -53,17 +53,9 @@ public class MainFragment
     private boolean         _startLog;
     private RecyclerView    _recyclerView;
     private TripItemAdapter _adapter;
-    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
-    {
-        @Override
-        public void onReceive (Context context, Intent intent)
-        {
-            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
-            refreshFabTrip ();
-        }
-    };
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
+
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -75,6 +67,15 @@ public class MainFragment
             else {
                 _startLog = true;
             }
+        }
+    };
+    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
+            refreshFabTrip ();
         }
     };
 

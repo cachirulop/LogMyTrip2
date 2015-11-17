@@ -14,6 +14,8 @@ public class NotifyReceiver
 {
     public final static String ACTION_STOP_LOG       = NotifyReceiver.class.getPackage ()
                                                                            .getName () + ".STOP_LOG";
+    public final static String ACTION_START_LOG = NotifyReceiver.class.getPackage ()
+                                                                      .getName () + ".START_LOG";
     public final static String ACTION_STOP_BLUETOOTH = NotifyReceiver.class.getPackage ()
                                                                            .getName () + ".STOP_BLUETOOTH";
 
@@ -21,6 +23,9 @@ public class NotifyReceiver
     {
         if (ACTION_STOP_LOG.equals (intent.getAction ())) {
             ServiceManager.stopTripLog (context);
+        }
+        else if (ACTION_START_LOG.equals (intent.getAction ())) {
+            ServiceManager.startTripLog (context);
         }
         else if (ACTION_STOP_BLUETOOTH.equals (intent.getAction ())) {
             ServiceManager.stopBluetooth (context);

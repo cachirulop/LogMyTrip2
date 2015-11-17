@@ -241,7 +241,7 @@ public class TripDetailActivity
 
                 if (SettingsManager.isLogTrip (TripDetailActivity.this) && (SettingsManager.getCurrentTripId (
                         TripDetailActivity.this) == _trip.getId ())) {
-                    NotifyManager.showTripLogging (TripDetailActivity.this, _trip.getTitle ());
+                    NotifyManager.updateTripLogging (TripDetailActivity.this, _trip.getTitle ());
                 }
             }
         };

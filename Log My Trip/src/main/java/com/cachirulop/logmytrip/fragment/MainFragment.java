@@ -49,13 +49,21 @@ public class MainFragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback
 {
-    private boolean         _tripsLoaded;
-    private boolean         _startLog;
-    private RecyclerView    _recyclerView;
-    private TripItemAdapter _adapter;
+    private boolean              _tripsLoaded;
+    private boolean              _startLog;
+    private RecyclerView         _recyclerView;
+    private TripItemAdapter      _adapter;
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-
+    public  BroadcastReceiver _onTripLogStopReceiver  = new BroadcastReceiver ()
+    {
+        @Override
+        public void onReceive (Context context, Intent intent)
+        {
+            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
+            refreshFabTrip ();
+        }
+    };
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -69,13 +77,15 @@ public class MainFragment
             }
         }
     };
-    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onNewLocationReceiver  = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
-            refreshFabTrip ();
+            if (_tripsLoaded) {
+                _adapter.setItem (0, TripManager.getActiveTrip (getContext ()));
+                _adapter.notifyItemChanged (0);
+            }
         }
     };
 
@@ -230,6 +240,9 @@ public class MainFragment
         LogMyTripBroadcastManager.registerTripLogStopReceiver (getContext (),
                                                                _onTripLogStopReceiver);
 
+        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                               _onNewLocationReceiver);
+
         refreshFabTrip ();
 
         super.onResume ();
@@ -239,8 +252,11 @@ public class MainFragment
     public void onPause ()
     {
         _adapter.clearTrips ();
+
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
+
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
 
         super.onPause ();
     }

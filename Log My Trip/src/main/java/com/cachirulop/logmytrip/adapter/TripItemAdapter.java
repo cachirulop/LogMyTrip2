@@ -245,6 +245,11 @@ public class TripItemAdapter
         }
     }
 
+    public void setItem (int position, Trip value)
+    {
+        _items.set (position, value);
+    }
+
     public Trip getItem (int position)
     {
         return _items.get (position);

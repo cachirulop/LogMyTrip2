@@ -16,6 +16,7 @@ import com.cachirulop.logmytrip.dialog.ListDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.TripDetailFragment;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
+import com.cachirulop.logmytrip.manager.NotifyManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -132,14 +133,7 @@ public class TripDetailActivity
     {
         switch (item.getItemId ()) {
             case R.id.action_start_stop_log:
-                if (SettingsManager.isLogTrip (this)) {
-                    ServiceManager.stopTripLog (this);
-                }
-                else {
-                    ServiceManager.startTripLog (this);
-                }
-
-                updateMenuItemState ();
+                startStopLogTrip ();
 
                 return true;
 
@@ -156,6 +150,18 @@ public class TripDetailActivity
             default:
                 return super.onOptionsItemSelected (item);
         }
+    }
+
+    private void startStopLogTrip ()
+    {
+        if (SettingsManager.isLogTrip (this)) {
+            ServiceManager.stopTripLog (this);
+        }
+        else {
+            ServiceManager.startTripLog (this);
+        }
+
+        updateMenuItemState ();
     }
 
     private void selectMapType ()
@@ -231,6 +237,12 @@ public class TripDetailActivity
                 TripManager.updateTrip (TripDetailActivity.this, _trip);
 
                 // TODO: Refresh the trip data
+                _detailFragment.setToolbarTitle (_trip.getTitle ());
+
+                if (SettingsManager.isLogTrip (TripDetailActivity.this) && (SettingsManager.getCurrentTripId (
+                        TripDetailActivity.this) == _trip.getId ())) {
+                    NotifyManager.showTripLogging (TripDetailActivity.this, _trip.getTitle ());
+                }
             }
         };
 

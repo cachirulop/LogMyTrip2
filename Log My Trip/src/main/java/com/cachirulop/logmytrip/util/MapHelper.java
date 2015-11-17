@@ -98,11 +98,13 @@ public class MapHelper
         LatLngBounds.Builder builder;
         int                  lastSegmentIndex;
         int                  currentIndex;
+        boolean hasPoints;
 
         if (_map != null) {
             _map.clear ();
             _drawn = true;
 
+            hasPoints = false;
             builder = new LatLngBounds.Builder ();
 
             currentIndex = 0;
@@ -115,18 +117,21 @@ public class MapHelper
                 privateDrawSegment (s, builder, isActiveSegment);
 
                 currentIndex++;
+
+                hasPoints = (hasPoints || s.getStartLocation () != null);
             }
 
             _map.setOnCameraChangeListener (new CameraListener (_map,
                                                                 builder,
                                                                 isActiveTrip,
                                                                 listener));
-
-            if (_selectedSegment == null) {
-                _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
-            }
-            else {
-                _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 90));
+            if (hasPoints) {
+                if (_selectedSegment == null) {
+                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
+                }
+                else {
+                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 90));
+                }
             }
         }
     }

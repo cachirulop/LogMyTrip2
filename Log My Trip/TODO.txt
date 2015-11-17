@@ -1,6 +1,5 @@
 
 * Export trips to gpx, kml
-* Update trip title in the notification text
 * Try to load the trips fastest
 * Add button to force start/stop log in the bluetooth notification
 * Update distance, time, speeds in the statistics pane when follow the current trip
@@ -55,3 +54,4 @@ X Export database on lollipop and Marshmallow
 X Detail activity crash when rotate the phone -> on windows 8.1 it worked, test in Linux?
 X When select a segment in the map, center it on the screen
 X When select a segment and click another time in map, unselect the segment
+X Update trip title in the notification text

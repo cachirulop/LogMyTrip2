@@ -27,6 +27,7 @@ public class TripDetailFragment
     private ViewPager                  _vpDetailPager;
     private TripDetailViewPagerAdapter _adapter;
     private int                        _mapType;
+    private Toolbar _toolbar;
 
     public TripDetailFragment ()
     {
@@ -46,7 +47,6 @@ public class TripDetailFragment
     {
         super.onViewCreated (view, savedInstanceState);
 
-        Toolbar           toolbar;
         ActionBar         ab;
         AppCompatActivity app;
         Trip trip;
@@ -55,10 +55,10 @@ public class TripDetailFragment
         app = (AppCompatActivity) getActivity ();
 
         // Toolbar and back button
-        toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
-        toolbar.setTitle (trip.getTitle ());
+        _toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
+        setToolbarTitle (trip.getTitle ());
 
-        app.setSupportActionBar (toolbar);
+        app.setSupportActionBar (_toolbar);
         ab = app.getSupportActionBar ();
         ab.setDisplayHomeAsUpEnabled (true);
 
@@ -87,6 +87,11 @@ public class TripDetailFragment
                 }
             }
         });
+    }
+
+    public void setToolbarTitle (String title)
+    {
+        _toolbar.setTitle (title);
     }
 
     public int getMapType ()

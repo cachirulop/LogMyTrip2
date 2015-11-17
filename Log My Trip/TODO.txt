@@ -1,7 +1,6 @@
 
 
 * Update log trip notification every 5 minutes with distance and time
-* Save the trip on timer not when receive a location to save battery
 * Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
 * Add select/unselect all option in action mode in the main fragment
 

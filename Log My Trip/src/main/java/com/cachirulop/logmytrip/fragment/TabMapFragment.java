@@ -50,11 +50,11 @@ public class TabMapFragment
             l = LogMyTripBroadcastManager.getLocation (intent);
             tl = new TripLocation (_trip, l);
 
-            _trip.getSegments ().get (_trip.getSegments ().size () - 1).getLocations ().add (tl);
+            _trip.addLocation (tl);
 
             _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
                                                                                l.getLongitude ()),
-                                                                   17));
+                                                                   18));
 
             drawTrackMainThread ();
         }
@@ -106,18 +106,6 @@ public class TabMapFragment
     public TabMapFragment ()
     {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param trip Trip to show the map.
-     * @return A new instance of fragment TabMapFragment.
-     */
-    public static TabMapFragment newInstance (Trip trip)
-    {
-        return new TabMapFragment ();
     }
 
     @Override

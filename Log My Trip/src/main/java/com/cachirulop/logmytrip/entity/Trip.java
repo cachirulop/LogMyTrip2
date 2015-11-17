@@ -3,6 +3,7 @@ package com.cachirulop.logmytrip.entity;
 import com.cachirulop.logmytrip.util.FormatHelper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -141,56 +142,6 @@ public class Trip
         return _totalDistance;
     }
 
-    public TripLocation getStartLocation ()
-    {
-        if (_segments != null && _segments.size () > 0) {
-            return _segments.get (0).getStartLocation ();
-        }
-        else {
-            return null;
-        }
-    }
-
-    public TripLocation getEndLocation ()
-    {
-        if (_segments != null && _segments.size () > 0) {
-            return _segments.get (_segments.size () - 1).getEndLocation ();
-        }
-        else {
-            return null;
-        }
-    }
-
-
-    @Override
-    public boolean equals (Object o)
-    {
-        if (o == null) {
-            return false;
-        }
-
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Trip)) {
-            return false;
-        }
-
-        Trip trip = (Trip) o;
-
-        return this.hashCode () == trip.hashCode ();
-    }
-
-    @Override
-    public int hashCode ()
-    {
-        int result = (int) (_id ^ (_id >>> 32));
-        result = 31 * result + _tripDate.hashCode ();
-        result = 31 * result + _title.hashCode ();
-
-        return result;
-    }
-
     public float computeMaxSpeed ()
     {
         if (_segments == null) {
@@ -235,17 +186,76 @@ public class Trip
         return _mediumSpeed;
     }
 
-    public void addLocation (TripLocation location)
+    public TripLocation getStartLocation ()
     {
         if (_segments != null && _segments.size () > 0) {
-            _segments.get (_segments.size () - 1).addLocation (location);
+            return _segments.get (0).getStartLocation ();
+        }
+        else {
+            return null;
         }
     }
 
-    public void removeSegment (TripSegment segment)
+    public TripLocation getEndLocation ()
     {
-        if (_segments != null) {
-            _segments.remove (segment);
+        if (_segments != null && _segments.size () > 0) {
+            return _segments.get (_segments.size () - 1).getEndLocation ();
         }
+        else {
+            return null;
+        }
+    }
+
+    public void refresh ()
+    {
+        _mediumSpeed = -1;
+        _maxSpeed = -1;
+        _totalDistance = -1;
+        _totalTime = -1;
+
+        if (_segments != null) {
+            for (TripSegment s : _segments) {
+                s.refresh ();
+            }
+        }
+    }
+
+    public void addLocation (TripLocation location)
+    {
+        if (_segments == null || _segments.size () == 0) {
+            _segments = new ArrayList<> ();
+            _segments.add (new TripSegment (this));
+        }
+
+        _segments.get (_segments.size () - 1).addLocation (location);
+    }
+
+    @Override
+    public boolean equals (Object o)
+    {
+        if (o == null) {
+            return false;
+        }
+
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Trip)) {
+            return false;
+        }
+
+        Trip trip = (Trip) o;
+
+        return this.hashCode () == trip.hashCode ();
+    }
+
+    @Override
+    public int hashCode ()
+    {
+        int result = (int) (_id ^ (_id >>> 32));
+        result = 31 * result + _tripDate.hashCode ();
+        result = 31 * result + _title.hashCode ();
+
+        return result;
     }
 }

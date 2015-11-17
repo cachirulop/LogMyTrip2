@@ -18,10 +18,10 @@ public class TripSegment
 {
     private List<TripLocation> _locations = new ArrayList<> ();
 
+    private Trip _trip;
     private double _totalDistance = -1;
     private float  _maxSpeed      = -1;
     private float  _mediumSpeed   = -1;
-    private Trip _trip;
 
     public TripSegment (Trip trip)
     {
@@ -154,6 +154,18 @@ public class TripSegment
         return new Date (getEndTime ());
     }
 
+    public void refresh ()
+    {
+        _mediumSpeed = -1;
+        _maxSpeed = -1;
+        _totalDistance = -1;
+    }
+
+    public void addLocation (TripLocation location)
+    {
+        _locations.add (location);
+    }
+
     @Override
     public boolean equals (Object o)
     {
@@ -210,10 +222,5 @@ public class TripSegment
         }
 
         return _mediumSpeed;
-    }
-
-    public void addLocation (TripLocation location)
-    {
-        _locations.add (location);
     }
 }

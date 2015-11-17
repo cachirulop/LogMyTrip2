@@ -28,8 +28,8 @@ public class TripDetailViewPagerAdapter
         _titles[1] = activity.getString (R.string.title_statistics);
 
         _fragments = new Fragment[2];
-        _fragments[0] = TabMapFragment.newInstance (trip);
-        _fragments[1] = TabStatisticsFragment.newInstance (trip);
+        _fragments[0] = new TabMapFragment ();
+        _fragments[1] = new TabStatisticsFragment ();
     }
 
     //This method return the fragment for the every position in the View Pager

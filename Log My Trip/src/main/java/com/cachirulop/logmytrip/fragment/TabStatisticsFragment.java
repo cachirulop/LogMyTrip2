@@ -32,6 +32,7 @@ public class TabStatisticsFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
+            _trip.refresh ();
             _adapter.notifyDataSetChanged ();
         }
     };
@@ -39,17 +40,6 @@ public class TabStatisticsFragment
     public TabStatisticsFragment ()
     {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment TabStatisticsFragment.
-     */
-    public static TabStatisticsFragment newInstance (Trip trip)
-    {
-        return new TabStatisticsFragment ();
     }
 
     @Override
@@ -73,8 +63,7 @@ public class TabStatisticsFragment
     {
         super.onResume ();
 
-        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
-                                                               _onNewLocationReceiver);
+        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (), _onNewLocationReceiver);
     }
 
     @Override

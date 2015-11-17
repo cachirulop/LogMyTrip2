@@ -81,7 +81,6 @@ public class MapHelper
     public void drawTrip (Trip trip, boolean isActiveTrip)
     {
         if (_map != null) {
-            // TODO: Refresh segments
             drawSegmentList (trip.getSegments (), isActiveTrip);
         }
     }
@@ -125,7 +124,7 @@ public class MapHelper
                                                                 builder,
                                                                 isActiveTrip,
                                                                 listener));
-            if (hasPoints) {
+            if (hasPoints && !isActiveTrip) {
                 if (_selectedSegment == null) {
                     _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
                 }

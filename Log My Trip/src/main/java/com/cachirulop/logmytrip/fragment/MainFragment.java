@@ -1,12 +1,10 @@
 package com.cachirulop.logmytrip.fragment;
 
 
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -15,7 +13,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,19 +26,13 @@ import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
-import com.cachirulop.logmytrip.util.LogHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 public class MainFragment
@@ -325,13 +316,16 @@ public class MainFragment
         switch (item.getItemId ()) {
             case R.id.action_delete_selected_trip:
                 deleteSelectedTrips ();
-
                 return true;
 
-            case R.id.action_export_selected_trip:
-                exportSelectedTrips ();
-
+            case R.id.action_select_all_trips:
+                selectAllTrips ();
                 return true;
+
+            case R.id.action_deselect_all_trips:
+                deselectAllTrips ();
+                return true;
+
             default:
                 return false;
         }
@@ -360,115 +354,23 @@ public class MainFragment
         dlg.show (getActivity ().getSupportFragmentManager (), "deleteTrips");
     }
 
-    private void exportSelectedTrips ()
+    private void selectAllTrips ()
     {
-        List<Trip> selectedItems = _adapter.getSelectedItems ();
-
-        for (Trip t : selectedItems) {
-            exportTrip (t);
-        }
-
-        _actionMode.finish ();
+        _adapter.selectAllItems ();
     }
 
-    private void exportTrip (final Trip t)
+    private void deselectAllTrips ()
     {
-        File folder;
-        final String filename;
-
-        folder = new File (Environment.getExternalStorageDirectory () + "/" + getContext ().getText (
-                R.string.app_name));
-
-        if (!folder.exists ()) {
-            folder.mkdir ();
-        }
-
-        filename = folder.toString () + "/" + DateFormat.format ("yyyy-MM-dd",
-                                                                 t.getTripDate ()) + ".csv";
-
-        // show waiting screen
-        final ProgressDialog progDialog;
-
-        progDialog = ProgressDialog.show (getContext (), getString (R.string.app_name),
-                                          getContext ().getString (R.string.msg_exporting_trips),
-                                          true);
-
-        new Thread ()
-        {
-            public void run ()
-            {
-                try {
-                    FileWriter fw = new FileWriter (filename);
-
-                    writeFileLine (fw,
-                                   new String[]{ "Trip ID", "Date", "Time", "Title",
-                                                 "Description" });
-                    writeFileLine (fw,
-                                   new String[]{ String.format ("%d", t.getId ()),
-                                                 DateFormat.getMediumDateFormat (getContext ())
-                                                           .format (t.getTripDate ()),
-                                                 DateFormat.format ("HH:mm:ss", t.getTripDate ())
-                                                           .toString (), t.getTitle (),
-                                                 t.getDescription () });
-
-                    writeFileLine (fw, new String[]{ " " });
-
-                    writeFileLine (fw,
-                                   new String[]{ "Loc. ID", "Trip ID", "Date", "Time", "Latitude",
-                                                 "Longitude", "Altitude", "Speed", "Accuracy",
-                                                 "Bearing", "Time as number" });
-                    for (TripSegment s : t.getSegments ()) {
-                        for (TripLocation l : s.getLocations ()) {
-                            writeFileLine (fw,
-                                           new String[]{ String.format ("%d", l.getId ()),
-                                                         String.format ("%d", l.getIdTrip ()),
-                                                         DateFormat.getMediumDateFormat (getContext ())
-                                                                   .format (l.getLocationTimeAsDate ()),
-                                                         DateFormat.format ("HH:mm:ss",
-                                                                            l.getLocationTimeAsDate ())
-                                                                   .toString (),
-                                                         String.format ("%f", l.getLatitude ()),
-                                                         String.format ("%f", l.getLongitude ()),
-                                                         String.format ("%f", l.getAltitude ()),
-                                                         String.format ("%f", l.getSpeed ()),
-                                                         String.format ("%f", l.getAccuracy ()),
-                                                         String.format ("%f", l.getBearing ()),
-                                                         String.format ("%d",
-                                                                        l.getLocationTime ()) });
-                        }
-
-                        writeFileLine (fw, new String[]{ " " });
-                    }
-
-                    fw.flush ();
-                    fw.close ();
-                }
-                catch (Exception e) {
-                    LogHelper.e ("Error writing file: " + e.getLocalizedMessage ());
-                }
-
-                progDialog.dismiss ();
-            }
-        }.start ();
+        _adapter.deselectAllItems ();
     }
 
-    private void writeFileLine (FileWriter fw, String[] values)
-            throws IOException
-    {
-        for (String s : values) {
-            fw.append (s);
-            fw.append (";");
-        }
-
-        fw.append ("\n");
-    }
 
     @Override
     public void onDestroyActionMode (ActionMode mode)
     {
         _actionMode = null;
         _adapter.setActionMode (false);
-        _adapter.clearSelections ();
+        _adapter.deselectAllItems ();
         _fabTripLog.show ();
 
         updateActionBarSubtitle ();

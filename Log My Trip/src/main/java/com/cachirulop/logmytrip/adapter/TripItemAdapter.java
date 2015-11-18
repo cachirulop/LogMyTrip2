@@ -198,7 +198,18 @@ public class TripItemAdapter
         notifyItemChanged (pos);
     }
 
-    public void clearSelections ()
+    public void selectAllItems ()
+    {
+        _selectedItems.clear ();
+
+        for (int i = 0 ; i < _items.size () ; i++) {
+            _selectedItems.put (i, true);
+
+            notifyItemChanged (i);
+        }
+    }
+
+    public void deselectAllItems ()
     {
         _selectedItems.clear ();
 

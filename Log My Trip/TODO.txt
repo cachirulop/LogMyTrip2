@@ -1,7 +1,6 @@
 
 
 * Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
-* Add select/unselect all option in action mode in the main fragment
 
 * If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
 then start logging trip
@@ -58,3 +57,4 @@ X Add button to force start/stop log in the bluetooth notification
 X Update distance, time, speeds in the statistics pane when follow the current trip
 X Update distance, time, speeds in the statistics pane when follow the current trip in the trip list
 X Update log trip notification every minute with distance and time
+X Add select/deselect all option in action mode in the main fragment

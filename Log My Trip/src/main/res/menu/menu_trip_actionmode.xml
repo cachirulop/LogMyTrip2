@@ -11,10 +11,17 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_export_selected_trip"
-        android:icon="@android:drawable/ic_menu_save"
+        android:id="@+id/action_select_all_trips"
+        android:icon="@mipmap/ic_select_all"
         android:orderInCategory="202"
-        android:title="@string/action_export"
+        android:title="@string/action_select_all"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_deselect_all_trips"
+        android:icon="@mipmap/ic_deselect_all"
+        android:orderInCategory="203"
+        android:title="@string/action_deselect_all"
         app:showAsAction="ifRoom" />
 
 </menu>

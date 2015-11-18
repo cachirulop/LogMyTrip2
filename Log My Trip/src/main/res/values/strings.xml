@@ -152,6 +152,7 @@
     <string name="notif_ContentWaitingBluetooth_action_start">start</string>
     <string name="notif_ContentWaitingBluetooth_action_stop">stop</string>
     <string name="notif_ContentLoggingTrip">Logging trip</string>
+    <string name="notif_configured_devices">Bluetooth devices</string>
 
     <!-- Messages -->
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>

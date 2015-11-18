@@ -9,10 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
-import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.NotifyManager;
-import com.cachirulop.logmytrip.manager.SettingsManager;
+import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
 
 /**
@@ -28,7 +26,7 @@ public class BluetoothService
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            NotifyManager.updateWaitingBluetooth (BluetoothService.this, getNotificationText ());
+            LogMyTripNotificationManager.updateWaitingBluetooth (BluetoothService.this);
         }
     };
 
@@ -54,32 +52,6 @@ public class BluetoothService
         return START_STICKY;
     }
 
-    @Override
-    public void onDestroy ()
-    {
-        super.onDestroy ();
-
-        LogMyTripBroadcastManager.sendStopBluetoothMessage (this);
-
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogReceiver);
-        //LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogStopReceiver);
-
-        unregisterBluetoothReceiver ();
-        stopForegroundService ();
-    }
-
-    @Override
-    public IBinder onBind (Intent intent)
-    {
-        return null;
-    }
-
-    private void stopForegroundService ()
-    {
-        stopForeground (true);
-        stopSelf ();
-    }
-
     private void registerBluetoothReceiver ()
     {
         if (_btReceiver == null) {
@@ -92,6 +64,28 @@ public class BluetoothService
         }
     }
 
+    private void startForegroundService ()
+    {
+        Notification note;
+
+        note = LogMyTripNotificationManager.createWaitingBluetooth (this);
+
+        startForeground (LogMyTripNotificationManager.NOTIFICATION_WAITING_BLUETOOTH, note);
+    }
+
+    @Override
+    public void onDestroy ()
+    {
+        super.onDestroy ();
+
+        LogMyTripBroadcastManager.sendStopBluetoothMessage (this);
+
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogReceiver);
+
+        unregisterBluetoothReceiver ();
+        stopForegroundService ();
+    }
+
     private void unregisterBluetoothReceiver ()
     {
         if (_btReceiver != null) {
@@ -101,41 +95,15 @@ public class BluetoothService
         }
     }
 
-    private void startForegroundService ()
+    private void stopForegroundService ()
     {
-        Notification note;
-        CharSequence contentText;
-
-        contentText = getNotificationText ();
-
-        note = NotifyManager.createWaitingBluetooth (this, contentText);
-
-        startForeground (NotifyManager.NOTIFICATION_WAITING_BLUETOOTH, note);
+        stopForeground (true);
+        stopSelf ();
     }
 
-    private String getNotificationText ()
+    @Override
+    public IBinder onBind (Intent intent)
     {
-        String result;
-        String mode;
-        String action;
-
-        if (SettingsManager.isAutostartOnConnect (this)) {
-            mode = this.getText (R.string.notif_ContentWaitingBluetooth_mode_connect).toString ();
-        }
-        else {
-            mode = this.getText (R.string.notif_ContentWaitingBluetooth_mode_disconnect)
-                       .toString ();
-        }
-
-        if (SettingsManager.isLogTrip (this)) {
-            action = this.getText (R.string.notif_ContentWaitingBluetooth_action_stop).toString ();
-        }
-        else {
-            action = this.getText (R.string.notif_ContentWaitingBluetooth_action_start).toString ();
-        }
-
-        return String.format (this.getText (R.string.notif_ContentWaitingBluetooth).toString (),
-                              mode,
-                              action);
+        return null;
     }
 }

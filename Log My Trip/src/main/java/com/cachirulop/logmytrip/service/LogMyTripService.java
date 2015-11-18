@@ -8,14 +8,15 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.NotifyManager;
+import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.LocationReceiver;
 import com.cachirulop.logmytrip.util.ToastHelper;
+
+import java.util.Timer;
 
 
 public class LogMyTripService
@@ -23,6 +24,8 @@ public class LogMyTripService
 {
     private static boolean _started;
     private LogMyTripServiceBinder _binder = null;
+    private Timer                   _notificationTimer;
+    private NotificationUpdaterTask _updaterTask;
 
     public static boolean isRunning ()
     {
@@ -40,24 +43,34 @@ public class LogMyTripService
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
     {
+        Trip current;
+
         super.onStartCommand (intent, flags, startId);
 
-        startLog ();
-        startForegroundService ();
+        current = startLog ();
+        if (current != null) {
+            startForegroundService (current);
 
-        _started = true;
+            _notificationTimer = new Timer ();
+            _updaterTask = new NotificationUpdaterTask (this);
+
+            _notificationTimer.schedule (_updaterTask, 0, 60000);
+
+            _started = true;
+        }
 
         return START_STICKY;
     }
 
-    private void startLog ()
+    private Trip startLog ()
     {
         LocationManager locationMgr;
+        Trip result = null;
 
         locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
 
         if (locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            TripManager.startTrip (this);
+            result = TripManager.startTrip (this);
 
             LogMyTripBroadcastManager.sendStartTripLogMessage (this);
 
@@ -69,26 +82,17 @@ public class LogMyTripService
         else {
             ToastHelper.showLong (this, "No GPS activated");
         }
+
+        return result;
     }
 
-    private void startForegroundService ()
+    private void startForegroundService (Trip t)
     {
         Notification note;
-        CharSequence msg;
-        Trip         current;
 
-        current = TripManager.getActiveTrip (this);
-        if (current != null) {
-            msg = current.getTitle ();
-        }
-        else {
-            msg = this.getText (R.string.notif_ContentLoggingTrip);
-        }
+        note = LogMyTripNotificationManager.createTripLogging (this, t);
 
-
-        note = NotifyManager.createTripLogging (this, msg);
-
-        startForeground (NotifyManager.NOTIFICATION_TRIP_LOGGING, note);
+        startForeground (LogMyTripNotificationManager.NOTIFICATION_TRIP_LOGGING, note);
     }
 
     private PendingIntent getLocationIntent ()

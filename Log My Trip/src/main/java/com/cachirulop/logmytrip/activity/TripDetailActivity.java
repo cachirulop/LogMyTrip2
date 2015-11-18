@@ -16,7 +16,7 @@ import com.cachirulop.logmytrip.dialog.ListDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.TripDetailFragment;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.NotifyManager;
+import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -241,7 +241,7 @@ public class TripDetailActivity
 
                 if (SettingsManager.isLogTrip (TripDetailActivity.this) && (SettingsManager.getCurrentTripId (
                         TripDetailActivity.this) == _trip.getId ())) {
-                    NotifyManager.updateTripLogging (TripDetailActivity.this, _trip.getTitle ());
+                    LogMyTripNotificationManager.updateTripLogging (TripDetailActivity.this, _trip);
                 }
             }
         };

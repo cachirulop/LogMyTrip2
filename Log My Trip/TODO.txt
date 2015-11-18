@@ -11,7 +11,6 @@ then start logging trip
 
 * Try to load the trips fastest
 * Export trips to gpx, kml
-* Remove csv export options
 
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size. -> testing
@@ -58,3 +57,4 @@ X Update distance, time, speeds in the statistics pane when follow the current t
 X Update distance, time, speeds in the statistics pane when follow the current trip in the trip list
 X Update log trip notification every minute with distance and time
 X Add select/deselect all option in action mode in the main fragment
+X Remove csv export options

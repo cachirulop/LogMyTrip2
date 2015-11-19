@@ -1,12 +1,10 @@
 
-
-* When launch from notification starts a new instance and need to press back twice to exit the
-    application
-
 * New autostart option 'Always'
 
 * Try to load the trips fastest
 * Export trips to gpx, kml
+* When launch from notification starts a new instance and need to press back twice to exit the
+    application
 
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size. -> testing
@@ -56,4 +54,4 @@ X Add select/deselect all option in action mode in the main fragment
 X Remove csv export options
 X Detail button don't change when moves with flip between map and statistics (back to the tabs interface)
 X If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
-    then start logging trip
+    then start logging trip -> I can't do it. There is no mode to know the connected bluetooth devices.

@@ -2,7 +2,6 @@ package com.cachirulop.logmytrip.service;
 
 import android.app.Notification;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,11 +11,7 @@ import android.os.IBinder;
 
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
-import com.cachirulop.logmytrip.manager.ServiceManager;
-import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
-
-import java.util.Set;
 
 /**
  * Created by dmagro on 18/09/2015.
@@ -52,35 +47,9 @@ public class BluetoothService
         registerBluetoothReceiver ();
         startForegroundService ();
 
-        if (SettingsManager.isAutostartOnConnect (this)) {
-            autostartLog ();
-        }
-
         LogMyTripBroadcastManager.sendStartBluetoothMessage (this);
 
         return START_STICKY;
-    }
-
-    private void autostartLog ()
-    {
-        Set<String>          cfgDevices;
-        Set<BluetoothDevice> pairedDevices;
-        BluetoothAdapter     bta;
-
-        bta = BluetoothAdapter.getDefaultAdapter ();
-        if (bta != null) {
-            pairedDevices = bta.getBondedDevices ();
-            cfgDevices = SettingsManager.getBluetoothDeviceList (this);
-
-            if (cfgDevices != null && pairedDevices != null) {
-                for (BluetoothDevice d : pairedDevices) {
-                    if ((d.getBondState () == BluetoothDevice.BOND_BONDED || d.getBondState () == BluetoothDevice.BOND_BONDING) && (cfgDevices
-                            .contains (d.getAddress ()))) {
-                        ServiceManager.startTripLog (this);
-                    }
-                }
-            }
-        }
     }
 
     private void registerBluetoothReceiver ()

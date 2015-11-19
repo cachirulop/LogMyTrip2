@@ -16,6 +16,7 @@ public class SettingsManager
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY          = "pref_gpsAccuracy";
     public static final String KEY_PREF_CURRENT_TRIP_ID = "pref_currentTripId";
+    public static final String KEY_PREF_IS_WAITING_BLUETOOTH = "pref_isWaitingBluetooth";
 
     public static boolean isAutoStartLog (Context ctx)
     {
@@ -97,4 +98,19 @@ public class SettingsManager
     {
         return getSharedPrefs (ctx).getStringSet (KEY_PREF_BLUETOOTH_DEVICE_LIST, null);
     }
+
+    public static void setIsWaitingBluetooth (Context ctx, boolean value)
+    {
+        SharedPreferences.Editor editor;
+
+        editor = getSharedPrefs (ctx).edit ();
+        editor.putBoolean (KEY_PREF_IS_WAITING_BLUETOOTH, value);
+        editor.commit ();
+    }
+
+    public static boolean isWaitingBluetooth (Context ctx)
+    {
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_IS_WAITING_BLUETOOTH, false);
+    }
+
 }

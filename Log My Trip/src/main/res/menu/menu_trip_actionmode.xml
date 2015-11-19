@@ -11,16 +11,23 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_export_gpx"
+        android:icon="@android:drawable/ic_menu_save"
+        android:orderInCategory="202"
+        android:title="@string/action_export_gpx"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_select_all_trips"
         android:icon="@mipmap/ic_select_all"
-        android:orderInCategory="202"
+        android:orderInCategory="203"
         android:title="@string/action_select_all"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_deselect_all_trips"
         android:icon="@mipmap/ic_deselect_all"
-        android:orderInCategory="203"
+        android:orderInCategory="204"
         android:title="@string/action_deselect_all"
         app:showAsAction="ifRoom" />
 

@@ -201,5 +201,6 @@
     <string name="title_edit_trip">Edit trip</string>
     <string name="msg_gps_disabled">GPS is disabled</string>
     <string name="msg_configure_gps">Configure</string>
+    <string name="action_export_gpx">Export to GPX file</string>
 
 </resources>

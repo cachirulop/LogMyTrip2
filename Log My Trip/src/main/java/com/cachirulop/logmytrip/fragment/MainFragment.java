@@ -326,6 +326,10 @@ public class MainFragment
                 deselectAllTrips ();
                 return true;
 
+            case R.id.action_export_gpx:
+                exportGPX ();
+                return true;
+
             default:
                 return false;
         }
@@ -364,6 +368,16 @@ public class MainFragment
         _adapter.deselectAllItems ();
     }
 
+    private void exportGPX ()
+    {
+        List<Trip> selectedItems = _adapter.getSelectedItems ();
+
+        for (Trip t : selectedItems) {
+            TripManager.saveGPX (getContext (), t);
+        }
+
+        _actionMode.finish ();
+    }
 
     @Override
     public void onDestroyActionMode (ActionMode mode)

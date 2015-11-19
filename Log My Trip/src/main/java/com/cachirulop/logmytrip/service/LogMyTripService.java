@@ -62,6 +62,28 @@ public class LogMyTripService
         return START_STICKY;
     }
 
+    @Override
+    public IBinder onBind (Intent intent)
+    {
+        if (_binder == null) {
+            _binder = new LogMyTripServiceBinder ();
+        }
+        return _binder;
+    }
+
+    @Override
+    public void onDestroy ()
+    {
+        if (_started) {
+            stopLog ();
+            stopForegroundService ();
+
+            _notificationTimer.cancel ();
+        }
+
+        super.onDestroy ();
+    }
+
     private Trip startLog ()
     {
         LocationManager locationMgr;
@@ -103,26 +125,6 @@ public class LogMyTripService
 
         return PendingIntent.getBroadcast (getApplicationContext (), 0, intent,
                                            PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    @Override
-    public IBinder onBind (Intent intent)
-    {
-        if (_binder == null) {
-            _binder = new LogMyTripServiceBinder ();
-        }
-        return _binder;
-    }
-
-    @Override
-    public void onDestroy ()
-    {
-        if (_started) {
-            stopLog ();
-            stopForegroundService ();
-        }
-
-        super.onDestroy ();
     }
 
     private void stopLog ()

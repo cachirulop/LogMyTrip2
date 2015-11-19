@@ -1,9 +1,5 @@
 
 
-* Detail button don't change when moves with flip between map and statistics (back to the tabs interface?)
-
-* If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
-then start logging trip
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 
@@ -58,3 +54,6 @@ X Update distance, time, speeds in the statistics pane when follow the current t
 X Update log trip notification every minute with distance and time
 X Add select/deselect all option in action mode in the main fragment
 X Remove csv export options
+X Detail button don't change when moves with flip between map and statistics (back to the tabs interface)
+X If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
+    then start logging trip

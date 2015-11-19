@@ -8,19 +8,20 @@ import java.util.Set;
 
 public class SettingsManager
 {
-    public static final String KEY_PREF_AUTO_START_LOG        = "pref_autoStartLog";
-    public static final String KEY_PREF_LOG_TRIP              = "pref_autoLogTrip";
-    public static final String KEY_PREF_AUTO_START_MODE = "pref_autoStartLogMode";
-    public static final String KEY_PREF_BLUETOOTH_DEVICE_LIST = "pref_bluetoothDeviceList";
-    public static final String KEY_PREF_GPS_TIME_INTERVAL     = "pref_gpsTimeInterval";
-    public static final String KEY_PREF_GPS_DISTANCE_INTERVAL = "pref_gpsDistanceInterval";
-    public static final String KEY_PREF_GPS_ACCURACY          = "pref_gpsAccuracy";
-    public static final String KEY_PREF_CURRENT_TRIP_ID = "pref_currentTripId";
-    public static final String KEY_PREF_IS_WAITING_BLUETOOTH = "pref_isWaitingBluetooth";
+    public static final String KEY_PREF_AUTO_START_LOG_ALWAYS    = "pref_autoStartLogAlways";
+    public static final String KEY_PREF_AUTO_START_LOG_BLUETOOTH = "pref_autoStartLogBluetooth";
+    public static final String KEY_PREF_LOG_TRIP                 = "pref_autoLogTrip";
+    public static final String KEY_PREF_AUTO_START_MODE          = "pref_autoStartLogMode";
+    public static final String KEY_PREF_BLUETOOTH_DEVICE_LIST    = "pref_bluetoothDeviceList";
+    public static final String KEY_PREF_GPS_TIME_INTERVAL        = "pref_gpsTimeInterval";
+    public static final String KEY_PREF_GPS_DISTANCE_INTERVAL    = "pref_gpsDistanceInterval";
+    public static final String KEY_PREF_GPS_ACCURACY             = "pref_gpsAccuracy";
+    public static final String KEY_PREF_CURRENT_TRIP_ID          = "pref_currentTripId";
+    public static final String KEY_PREF_IS_WAITING_BLUETOOTH     = "pref_isWaitingBluetooth";
 
-    public static boolean isAutoStartLog (Context ctx)
+    public static boolean isAutoStartLogBluetooth (Context ctx)
     {
-        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG, false);
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG_BLUETOOTH, false);
     }
 
     private static SharedPreferences getSharedPrefs (Context ctx)
@@ -33,7 +34,7 @@ public class SettingsManager
         SharedPreferences.Editor editor;
 
         editor = getSharedPrefs (ctx).edit ();
-        editor.putBoolean (KEY_PREF_AUTO_START_LOG, value);
+        editor.putBoolean (KEY_PREF_AUTO_START_LOG_BLUETOOTH, value);
         editor.commit ();
     }
 
@@ -113,4 +114,8 @@ public class SettingsManager
         return getSharedPrefs (ctx).getBoolean (KEY_PREF_IS_WAITING_BLUETOOTH, false);
     }
 
+    public static boolean isAutoStartLogAlways (Context ctx)
+    {
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG_ALWAYS, false);
+    }
 }

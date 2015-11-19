@@ -49,7 +49,7 @@ public class MainActivity
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_main);
 
-        if (SettingsManager.isAutoStartLog (this)) {
+        if (SettingsManager.isAutoStartLogBluetooth (this)) {
             ServiceManager.startBluetooth (this);
         }
 
@@ -77,6 +77,13 @@ public class MainActivity
         LogMyTripBroadcastManager.registerBluetoothStopReceiver (this, _onBluetoothStopReceiver);
 
         updateMenuItemState ();
+    }
+
+    private void updateMenuItemState ()
+    {
+        if (_menuAutoStartLog != null) {
+            _menuAutoStartLog.setChecked (SettingsManager.isAutoStartLogBluetooth (this));
+        }
     }
 
     @Override
@@ -109,7 +116,7 @@ public class MainActivity
                 return true;
 
             case R.id.action_auto_start_log:
-                if (SettingsManager.isAutoStartLog (this)) {
+                if (SettingsManager.isAutoStartLogBluetooth (this)) {
                     ServiceManager.stopBluetooth (this);
                 }
                 else {
@@ -138,12 +145,5 @@ public class MainActivity
     {
         startActivityForResult (new Intent (this, SettingsActivity.class),
                                 ACTIVITY_RESULT_SETTINGS);
-    }
-
-    private void updateMenuItemState ()
-    {
-        if (_menuAutoStartLog != null) {
-            _menuAutoStartLog.setChecked (SettingsManager.isAutoStartLog (this));
-        }
     }
 }

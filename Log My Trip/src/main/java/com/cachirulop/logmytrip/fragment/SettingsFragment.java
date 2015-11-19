@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 
 import com.cachirulop.logmytrip.R;
@@ -49,17 +50,35 @@ public class SettingsFragment
         else {
             p.setValue ("1");
         }
+
+        setPrefsDependencies ();
+    }
+
+    public void setPrefsDependencies ()
+    {
+        Preference pref;
+
+        pref = findPreference (SettingsManager.KEY_PREF_AUTO_START_LOG_ALWAYS);
+        pref.setEnabled (!SettingsManager.isAutoStartLogBluetooth (this.getActivity ()));
+
+        pref = findPreference (SettingsManager.KEY_PREF_AUTO_START_LOG_BLUETOOTH);
+        pref.setEnabled (!SettingsManager.isAutoStartLogAlways (this.getActivity ()));
     }
 
     public void onSharedPreferenceChanged (SharedPreferences sharedPreferences, String key)
     {
-        if (SettingsManager.KEY_PREF_AUTO_START_LOG.equals (key)) {
-            if (SettingsManager.isAutoStartLog (this.getActivity ())) {
+        if (SettingsManager.KEY_PREF_AUTO_START_LOG_BLUETOOTH.equals (key)) {
+            if (SettingsManager.isAutoStartLogBluetooth (this.getActivity ())) {
                 ServiceManager.startBluetooth (this.getActivity ());
             }
             else {
                 ServiceManager.stopBluetooth (this.getActivity ());
             }
+
+            setPrefsDependencies ();
+        }
+        else if (SettingsManager.KEY_PREF_AUTO_START_LOG_ALWAYS.equals (key)) {
+            setPrefsDependencies ();
         }
     }
 

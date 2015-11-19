@@ -1,6 +1,4 @@
 
-* New autostart option 'Always'
-
 * Try to load the trips fastest
 * Export trips to gpx, kml
 * When launch from notification starts a new instance and need to press back twice to exit the
@@ -55,3 +53,4 @@ X Remove csv export options
 X Detail button don't change when moves with flip between map and statistics (back to the tabs interface)
 X If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
     then start logging trip -> I can't do it. There is no mode to know the connected bluetooth devices.
+X New autostart option 'Always'

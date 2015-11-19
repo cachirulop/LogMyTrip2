@@ -14,8 +14,12 @@ public class BootCompletedBroadcastReceiver
     public void onReceive (Context context, Intent intent)
     {
         if (Intent.ACTION_BOOT_COMPLETED.equals (intent.getAction ())) {
-            if (SettingsManager.isAutoStartLog (context)) {
+            if (SettingsManager.isAutoStartLogBluetooth (context)) {
                 ServiceManager.startBluetooth (context);
+            }
+
+            if (SettingsManager.isAutoStartLogAlways (context)) {
+                ServiceManager.startTripLog (context);
             }
         }
     }

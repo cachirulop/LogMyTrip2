@@ -37,7 +37,9 @@
 
     <!-- Preferences -->
     <string name="pref_autoStartLogCategoryTitle">Auto log</string>
-    <string name="pref_autoStartLogTitle">Auto log trip</string>
+    <string name="pref_autoStartLogAlwaysTitle">Auto log trip always</string>
+    <string name="pref_autoStartLogAlwaysSummary">Start trip logging when power on phone</string>
+    <string name="pref_autoStartLogTitle">Auto log trip with bluetooth</string>
     <string name="pref_autoStartLogSummary">Start trip logging when connect or disconnect to a bluetooth device</string>
     <string name="pref_autoStartLogModeTitle">Auto log mode</string>
     <string name="pref_autoStartLogModeSummary">Auto start on connect or disconnect</string>

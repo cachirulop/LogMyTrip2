@@ -4,12 +4,18 @@
     <PreferenceCategory android:title="@string/pref_autoStartLogCategoryTitle">
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="pref_autoStartLog"
+            android:key="pref_autoStartLogAlways"
+            android:summary="@string/pref_autoStartLogAlwaysSummary"
+            android:title="@string/pref_autoStartLogAlwaysTitle"/>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_autoStartLogBluetooth"
             android:summary="@string/pref_autoStartLogSummary"
             android:title="@string/pref_autoStartLogTitle" />
 
         <ListPreference
-            android:dependency="pref_autoStartLog"
+            android:dependency="pref_autoStartLogBluetooth"
             android:entries="@array/pref_autoStartLogModeEntries"
             android:entryValues="@array/pref_autoStartLogModeValues"
             android:key="pref_autoStartLogMode"
@@ -18,7 +24,7 @@
 
         <com.cachirulop.logmytrip.preferences.BluetoothDevicePreference
             android:defaultValue="@array/empty_array"
-            android:dependency="pref_autoStartLog"
+            android:dependency="pref_autoStartLogBluetooth"
             android:dialogTitle="@string/pref_bluetoothDeviceListTitle"
             android:key="pref_bluetoothDeviceList"
             android:summary="@string/pref_bluetoothDeviceSummary"

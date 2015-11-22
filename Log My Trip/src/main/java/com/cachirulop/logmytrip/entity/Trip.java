@@ -1,6 +1,6 @@
 package com.cachirulop.logmytrip.entity;
 
-import com.cachirulop.logmytrip.util.FormatHelper;
+import com.cachirulop.logmytrip.helper.FormatHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;

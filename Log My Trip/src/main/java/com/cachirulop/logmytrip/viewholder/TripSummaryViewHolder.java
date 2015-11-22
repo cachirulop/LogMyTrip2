@@ -11,9 +11,9 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
-import com.cachirulop.logmytrip.util.FormatHelper;
 
 /**
  * Created by dmagro on 06/10/2015.

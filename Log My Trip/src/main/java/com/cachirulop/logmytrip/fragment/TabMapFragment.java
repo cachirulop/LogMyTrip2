@@ -20,11 +20,11 @@ import android.view.ViewStub;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.helper.LogHelper;
+import com.cachirulop.logmytrip.helper.MapHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.util.LogHelper;
-import com.cachirulop.logmytrip.util.MapHelper;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -185,7 +185,7 @@ public class TabMapFragment
 
         parent = getActivity ();
         if (parent != null) {
-            main = new Handler (getActivity ().getMainLooper ());
+            main = new Handler (parent.getMainLooper ());
 
             runInMain = new Runnable ()
             {

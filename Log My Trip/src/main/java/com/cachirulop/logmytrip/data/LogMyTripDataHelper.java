@@ -82,9 +82,9 @@ public class LogMyTripDataHelper
      */
     private static String getBackupPath (Context ctx)
     {
-        StringBuffer backupPath;
+        StringBuilder backupPath;
 
-        backupPath = new StringBuffer ();
+        backupPath = new StringBuilder ();
         backupPath.append (Environment.getExternalStorageDirectory ());
         backupPath.append (File.separator);
         backupPath.append (ctx.getString (R.string.app_name));

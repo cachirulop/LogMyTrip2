@@ -1,4 +1,4 @@
-package com.cachirulop.logmytrip.util;
+package com.cachirulop.logmytrip.helper;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -580,11 +580,11 @@ public class MapHelper
         private void bindData (View view, TripSegment segment)
         {
             TripLocation l;
-            StringBuffer timeInfo;
+            StringBuilder timeInfo;
 
             setText (view, R.id.tvTripSegmentMapInfoTitle, segment.getTitle (_ctx));
 
-            timeInfo = new StringBuffer ();
+            timeInfo = new StringBuilder ();
 
             l = segment.getStartLocation ();
             if (l != null) {

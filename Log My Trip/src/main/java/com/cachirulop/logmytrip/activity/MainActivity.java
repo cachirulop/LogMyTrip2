@@ -19,8 +19,6 @@ import com.cachirulop.logmytrip.manager.SettingsManager;
 public class MainActivity
         extends AppCompatActivity
 {
-    private final static int ACTIVITY_RESULT_SETTINGS = 0;
-
     private MainFragment _mainFragment;
     private MenuItem     _menuAutoStartLog;
 
@@ -41,6 +39,16 @@ public class MainActivity
             updateMenuItemState ();
         }
     };
+
+    @Override
+    protected void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult (requestCode, resultCode, data);
+
+        if (requestCode == MainFragment.RESOLVE_CONNECTION_REQUEST_CODE) {
+            _mainFragment.onActivityResult (requestCode, resultCode, data);
+        }
+    }
 
     @Override
     protected void onCreate (Bundle savedInstanceState)
@@ -143,7 +151,6 @@ public class MainActivity
 
     private void showPreferences ()
     {
-        startActivityForResult (new Intent (this, SettingsActivity.class),
-                                ACTIVITY_RESULT_SETTINGS);
+        startActivity (new Intent (this, SettingsActivity.class));
     }
 }

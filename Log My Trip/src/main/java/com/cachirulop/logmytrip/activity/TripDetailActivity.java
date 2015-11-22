@@ -52,8 +52,9 @@ public class TripDetailActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-        // Inflate the view
         super.onCreate (savedInstanceState);
+
+        // Inflate the view
         setContentView (R.layout.activity_trip_detail);
 
         _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();

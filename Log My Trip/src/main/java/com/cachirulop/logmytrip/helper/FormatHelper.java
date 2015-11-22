@@ -1,4 +1,4 @@
-package com.cachirulop.logmytrip.util;
+package com.cachirulop.logmytrip.helper;
 
 import android.content.Context;
 

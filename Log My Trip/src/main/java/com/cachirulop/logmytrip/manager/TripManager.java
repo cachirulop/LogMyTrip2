@@ -4,19 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Environment;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.util.FormatHelper;
-import com.cachirulop.logmytrip.util.ToastHelper;
+import com.cachirulop.logmytrip.helper.FormatHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -407,119 +402,59 @@ public class TripManager
         SettingsManager.setCurrentTripId (ctx, 0);
     }
 
-    public static void saveGPX (Context ctx, Trip t)
+    public static String generateGPX (Context ctx, Trip t)
     {
         DateFormat    df;
-        StringBuilder header;
-        StringBuilder metadata;
-        StringBuilder wpt;
-        StringBuilder trk;
-        StringBuilder footer;
+        StringBuilder result;
 
-        header = new StringBuilder ();
-        metadata = new StringBuilder ();
-        wpt = new StringBuilder ();
-        trk = new StringBuilder ();
-        footer = new StringBuilder ();
+        result = new StringBuilder ();
 
-        header.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
-        header.append ("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\"");
-        header.append (" creator=\"LogMyTrip 1.0.0\" version=\"1.1\"");
-        header.append (" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
-        header.append (" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1");
-        header.append (" http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
+        result.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
+        result.append ("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\"");
+        result.append (" creator=\"LogMyTrip 1.0.0\" version=\"1.1\"");
+        result.append (" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+        result.append (" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1");
+        result.append (" http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
 
-        footer.append ("</gpx>\n");
 
-        metadata.append ("<metadata>\n");
+        result.append ("<metadata>\n");
 
-        metadata.append ("<name>").append (t.getTitle ()).append ("</name>\n");
+        result.append ("<name>").append (t.getTitle ()).append ("</name>\n");
         if (t.getDescription () != null) {
-            metadata.append ("<description>")
-                    .append (t.getDescription ())
-                    .append ("</description>\n");
+            result.append ("<description>");
+            result.append (t.getDescription ());
+            result.append ("</description>\n");
         }
 
-        metadata.append ("</metadata>\n");
+        result.append ("</metadata>\n");
 
         df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
 
         for (TripSegment s : t.getSegments ()) {
-            trk.append ("<trk>\n");
-            trk.append ("<name>").append (s.getTitle (ctx)).append ("</name>\n");
+            result.append ("<trk>\n");
+            result.append ("<name>").append (s.getTitle (ctx)).append ("</name>\n");
 
-            trk.append ("<trkseg>\n");
-
-            wpt.append ("<wpt");
-            wpt.append (" lat=\"").append (s.getStartLocation ().getLatitude ()).append ("\"");
-            wpt.append (" lon=\"").append (s.getStartLocation ().getLongitude ()).append ("\"");
-            wpt.append (">\n");
-
-            wpt.append ("<name>").append (s.getTitle (ctx)).append ("</name>\n");
-            wpt.append ("<ele>").append (s.getStartLocation ().getAltitude ()).append ("</ele>\n");
-            wpt.append ("<time>")
-               .append (df.format (s.getStartLocation ().getLocationTimeAsDate ()));
-            wpt.append ("</time>\n");
-            wpt.append ("<magvar>")
-               .append (s.getStartLocation ().getBearing ())
-               .append ("</magvar>\n");
-
-            wpt.append ("</wpt>\n");
+            result.append ("<trkseg>\n");
 
             for (TripLocation l : s.getLocations ()) {
-                trk.append ("<trkpt");
-                trk.append (" lat=\"").append (l.getLatitude ()).append ("\"");
-                trk.append (" lon=\"").append (l.getLongitude ()).append ("\"");
-                trk.append (">\n");
+                result.append ("<trkpt");
+                result.append (" lat=\"").append (l.getLatitude ()).append ("\"");
+                result.append (" lon=\"").append (l.getLongitude ()).append ("\"");
+                result.append (">\n");
 
-                trk.append ("<ele>").append (l.getAltitude ()).append ("</ele>\n");
-                trk.append ("<time>").append (df.format (l.getLocationTimeAsDate ()));
-                trk.append ("</time>\n");
-                trk.append ("<magvar>").append (l.getBearing ()).append ("</magvar>\n");
+                result.append ("<ele>").append (l.getAltitude ()).append ("</ele>\n");
+                result.append ("<time>").append (df.format (l.getLocationTimeAsDate ()));
+                result.append ("</time>\n");
+                result.append ("<magvar>").append (l.getBearing ()).append ("</magvar>\n");
 
-                trk.append ("</trkpt>\n");
+                result.append ("</trkpt>\n");
             }
 
-            trk.append ("</trkseg>\n");
-            trk.append ("</trk>\n");
+            result.append ("</trkseg>\n");
+            result.append ("</trk>\n");
         }
 
-        try {
-            File file;
-            FileWriter writer;
-            DateFormat dfFileName;
-
-            dfFileName = new SimpleDateFormat ("yyyy-MM-dd HHmmss");
-
-            file = new File (getTrackPath (ctx, dfFileName.format (t.getTripDate ())) + ".gpx");
-            writer = new FileWriter (file, false);
-
-            writer.append (header);
-            writer.append (metadata);
-            // writer.append (wpt);
-            writer.append (trk);
-            writer.append (footer);
-            writer.flush ();
-            writer.close ();
-        }
-        catch (IOException e) {
-            // TODO: Show error dialog
-            ToastHelper.showLong (ctx,
-                                  ctx.getText (R.string.error_cant_write_file)
-                                     .toString () + ": " + e.getMessage ());
-        }
-    }
-
-    private static String getTrackPath (Context ctx, String fileName)
-    {
-        StringBuffer result;
-
-        result = new StringBuffer ();
-        result.append (Environment.getExternalStorageDirectory ());
-        result.append (File.separator);
-        result.append (ctx.getString (R.string.app_name));
-        result.append (File.separator);
-        result.append (fileName);
+        result.append ("</gpx>\n");
 
         return result.toString ();
     }

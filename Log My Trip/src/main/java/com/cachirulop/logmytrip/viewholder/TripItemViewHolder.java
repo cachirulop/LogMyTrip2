@@ -12,9 +12,9 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
+import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.util.FormatHelper;
 
 /**
  * Created by dmagro on 19/10/2015.

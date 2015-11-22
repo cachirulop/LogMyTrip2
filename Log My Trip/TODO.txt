@@ -1,6 +1,6 @@
 
 * Try to load the trips fastest
-- Export trips to gpx, kml -> show progress dialog, show dialog message, export to folder, kml
+- Export trips to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 

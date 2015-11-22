@@ -12,8 +12,8 @@ import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.MainActivity;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.receiver.NotifyReceiver;
-import com.cachirulop.logmytrip.util.FormatHelper;
 
 import java.util.Set;
 

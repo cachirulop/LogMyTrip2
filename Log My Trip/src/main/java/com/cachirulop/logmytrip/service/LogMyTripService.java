@@ -9,12 +9,12 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.LocationReceiver;
-import com.cachirulop.logmytrip.util.ToastHelper;
 
 import java.util.Timer;
 

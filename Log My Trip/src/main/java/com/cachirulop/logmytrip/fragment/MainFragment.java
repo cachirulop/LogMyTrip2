@@ -1,9 +1,11 @@
 package com.cachirulop.logmytrip.fragment;
 
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -20,32 +22,49 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.dialog.ConfirmDialog;
+import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.helper.ExportHelper;
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class MainFragment
         extends Fragment
         implements RecyclerViewItemClickListener,
-                   ActionMode.Callback
+                   ActionMode.Callback,
+                   GoogleApiClient.ConnectionCallbacks,
+                   GoogleApiClient.OnConnectionFailedListener
 {
+    public static final int RESOLVE_CONNECTION_REQUEST_CODE = 10201;
+
+    private GoogleApiClient _client;
     private boolean              _tripsLoaded;
     private boolean              _startLog;
     private RecyclerView         _recyclerView;
     private TripItemAdapter      _adapter;
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
+    private boolean         _exportFormatIsGPX;
     public  BroadcastReceiver _onTripLogStopReceiver  = new BroadcastReceiver ()
     {
         @Override
@@ -242,7 +261,9 @@ public class MainFragment
     @Override
     public void onPause ()
     {
-        _adapter.clearTrips ();
+        if (_actionMode == null) {
+            _adapter.clearTrips ();
+        }
 
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
@@ -254,7 +275,9 @@ public class MainFragment
 
     public void reloadTrips ()
     {
-        _adapter.reloadTrips ();
+        if (_actionMode == null) {
+            _adapter.reloadTrips ();
+        }
     }
 
     public RecyclerView getRecyclerView ()
@@ -326,8 +349,8 @@ public class MainFragment
                 deselectAllTrips ();
                 return true;
 
-            case R.id.action_export_gpx:
-                exportGPX ();
+            case R.id.action_export:
+                exportTripsDialog ();
                 return true;
 
             default:
@@ -368,15 +391,114 @@ public class MainFragment
         _adapter.deselectAllItems ();
     }
 
-    private void exportGPX ()
+    private void exportTripsDialog ()
+    {
+        CustomViewDialog dlg;
+
+        dlg = new CustomViewDialog (R.string.title_export, R.layout.dialog_export)
+        {
+            @Override
+            public void bindData (View view)
+            {
+                RadioButton rb;
+
+                rb = (RadioButton) view.findViewById (R.id.rbExportGPX);
+                rb.setChecked (true);
+
+                rb = (RadioButton) view.findViewById (R.id.rbExportLocalFile);
+                rb.setChecked (true);
+            }
+
+            @Override
+            public void onOkClicked (View view)
+            {
+                RadioButton rb;
+                boolean     locationLocal;
+
+                rb = (RadioButton) view.findViewById (R.id.rbExportGPX);
+                _exportFormatIsGPX = rb.isChecked ();
+
+                rb = (RadioButton) view.findViewById (R.id.rbExportLocalFile);
+                locationLocal = rb.isChecked ();
+
+                if (locationLocal) {
+                    exportTrips (locationLocal);
+                }
+                else {
+                    startGoogleDriveActivity ();
+                }
+            }
+        };
+
+        dlg.show (getActivity ().getSupportFragmentManager (), "exportTrips");
+    }
+
+    private void exportTrips (boolean locationLocal)
     {
         List<Trip> selectedItems = _adapter.getSelectedItems ();
 
         for (Trip t : selectedItems) {
-            TripManager.saveGPX (getContext (), t);
+            String track;
+            String fileName;
+
+            if (_exportFormatIsGPX) {
+                track = TripManager.generateGPX (getContext (), t);
+                fileName = getTrackFileName (t.getTripDate (), "gpx");
+            }
+            else {
+                track = "Work in progress...";
+                fileName = getTrackFileName (t.getTripDate (), "kml");
+            }
+
+            if (locationLocal) {
+                ExportHelper.exportToFile (getContext (), track, fileName);
+            }
+            else {
+                ExportHelper.exportToGoogleDrive (getContext (), track, fileName, _client);
+            }
         }
 
         _actionMode.finish ();
+    }
+
+    private void startGoogleDriveActivity ()
+    {
+        _client = new GoogleApiClient.Builder (getContext ()).addApi (Drive.API)
+                                                             .addScope (Drive.SCOPE_FILE)
+                                                             .addConnectionCallbacks (this)
+                                                             .addOnConnectionFailedListener (this)
+                                                             .useDefaultAccount ()
+                                                             .build ();
+        _client.connect ();
+
+    }
+
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        // super.onActivityResult (requestCode, resultCode, data);
+        LogHelper.d ("*** onActivityResult: " + requestCode + "-.-" + resultCode);
+        if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                exportTrips (false);
+            }
+            else {
+                LogHelper.d ("*** Cancel export");
+            }
+        }
+    }
+
+    private String getTrackFileName (Date trackDate, String extension)
+    {
+        StringBuilder result;
+        DateFormat    dfFileName;
+
+        dfFileName = new SimpleDateFormat ("yyyy-MM-dd HHmmss");
+
+        result = new StringBuilder ();
+        result.append (dfFileName.format (trackDate) + "." + extension);
+
+        return result.toString ();
     }
 
     @Override
@@ -390,4 +512,34 @@ public class MainFragment
         updateActionBarSubtitle ();
     }
 
+    @Override
+    public void onConnected (Bundle bundle)
+    {
+        LogHelper.d ("*** onConnected");
+        exportTrips (false);
+    }
+
+    @Override
+    public void onConnectionSuspended (int i)
+    {
+        LogHelper.d ("*** onConnectionSuspended");
+    }
+
+    @Override
+    public void onConnectionFailed (ConnectionResult connectionResult)
+    {
+        if (connectionResult.hasResolution ()) {
+            try {
+                connectionResult.startResolutionForResult (getActivity (),
+                                                           RESOLVE_CONNECTION_REQUEST_CODE);
+            }
+            catch (IntentSender.SendIntentException e) {
+            }
+        }
+        else {
+            GooglePlayServicesUtil.getErrorDialog (connectionResult.getErrorCode (),
+                                                   getActivity (),
+                                                   0).show ();
+        }
+    }
 }

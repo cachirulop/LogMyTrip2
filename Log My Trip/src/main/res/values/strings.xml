@@ -9,7 +9,6 @@
     <string name="action_delete">Delete selected trips</string>
     <string name="action_delete_segment">Delete segment</string>
     <string name="action_trip_detail">Trip details</string>
-    <string name="action_export">Export selected trips</string>
     <string name="action_import_db">Import database</string>
     <string name="action_export_db">Export database</string>
     <string name="action_stop_log">Stop trip logging</string>
@@ -17,6 +16,11 @@
     <string name="action_start_log">Start trip logging</string>
     <string name="action_select_all">Select all</string>
     <string name="action_deselect_all">Deselect all</string>
+    <string name="action_map_type">Map type</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_export">Export selected trips</string>
+    <string name="action_google_drive_connection">Connecting to google drive</string>
+
 
     <!-- Activity subtitles -->
     <string name="main_activity_subtitle">Logged trips (%1$s)</string>
@@ -166,8 +170,10 @@
     <string name="msg_database_imported">Database imported</string>
     <string name="msg_exporting_trips">Exporting trips</string>
     <string name="msg_loading_trips">Loading trips</string>
-    <string name="msg_delete_confirm">Delete selected items. Are you sure?</string>
+    <string name="msg_delete_confirm">Delete selected items?</string>
     <string name="msg_edit_trip">Trip properties</string>
+    <string name="msg_gps_disabled">GPS is disabled</string>
+    <string name="msg_configure_gps">Configure</string>
 
     <!-- Errors -->
     <string name="error_cant_read_file">Can\'t read file</string>
@@ -194,13 +200,19 @@
     <string name="title_segment_num">Segment %d</string>
     <string name="title_map">Map</string>
     <string name="title_statistics">Statistics</string>
-    <string name="action_map_type">Map type</string>
-    <string name="action_edit">Edit</string>
     <string name="title_map_type">Select map type</string>
     <string name="title_title">Title</string>
     <string name="title_edit_trip">Edit trip</string>
-    <string name="msg_gps_disabled">GPS is disabled</string>
-    <string name="msg_configure_gps">Configure</string>
-    <string name="action_export_gpx">Export to GPX file</string>
+    <string name="title_export">Export trips</string>
+    <string name="title_export_format">Export format</string>
+    <string name="title_export_location">Export location</string>
+
+    <!-- Generic text -->
+    <string name="text_gpx">GPX</string>
+    <string name="text_kml">KML</string>
+    <string name="text_local_file">Local file</string>
+    <string name="text_google_drive">Google Drive</string>
+    <string name="title_export_to_google_drive">Exporting to google drive</string>
+    <string name="msg_error_exporting">Error exporting to google drive (%1$s)</string>
 
 </resources>

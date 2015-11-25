@@ -29,54 +29,18 @@ import java.util.Queue;
  */
 public class GoogleDriveHelper
 {
-    private ResultCallback<DriveApi.DriveIdResult> _findFolderResultCallback;
     private Queue<String>                          _processingPath;
+    private String _fileName;
     private GoogleApiClient                        _client;
     private DriveId                                _result;
     private DriveFolder _rootFolder = null;
-    ResultCallback<DriveApi.MetadataBufferResult> _queryCallback = new ResultCallback<DriveApi.MetadataBufferResult> ()
-    {
-        @Override
-        public void onResult (DriveApi.MetadataBufferResult metadataBufferResult)
-        {
-            if (metadataBufferResult.getStatus ().isSuccess ()) {
-                MetadataBuffer buffer;
 
-                buffer = metadataBufferResult.getMetadataBuffer ();
-
-                boolean exists = false;
-                for (Metadata m : metadataBufferResult.getMetadataBuffer ()) {
-                    if (!m.isTrashed ()) {
-                        _result = m.getDriveId ();
-                        exists = true;
-
-                        continue;
-                    }
-                }
-
-                buffer.release ();
-
-                if (exists) {
-                    LogHelper.d ("*** _queryCallback: OK");
-
-                    onGetFolderAsyncSuccess ();
-                }
-                else {
-                    LogHelper.d ("*** _queryCallback: not exists");
-
-                    createFolder ();
-                }
-            }
-            else {
-                LogHelper.d ("*** folder not found");
-
-                createFolder ();
-            }
-        }
-    };
+    private ResultCallback<DriveApi.DriveIdResult>        _findFolderResultCallback;
+    private ResultCallback<DriveApi.MetadataBufferResult> _queryCallback;
 
     public GoogleDriveHelper (GoogleApiClient client)
     {
+        _queryCallback = new QueryCallback (this);
         _client = client;
     }
 
@@ -86,91 +50,14 @@ public class GoogleDriveHelper
     {
         init (path);
 
-        findFolderAsync (new ResultCallback<DriveApi.DriveIdResult> ()
+        new Thread ()
         {
             @Override
-            public void onResult (DriveApi.DriveIdResult driveIdResult)
+            public void run ()
             {
-                if (driveIdResult.getStatus ().isSuccess ()) {
-                    LogHelper.d ("*** Folder obtained");
 
-                    final DriveFolder folder;
-
-                    folder = Drive.DriveApi.getFolder (_client, driveIdResult.getDriveId ());
-
-                    Drive.DriveApi.newDriveContents (_client)
-                                  .setResultCallback (new ResultCallback<DriveApi.DriveContentsResult> ()
-                                  {
-                                      @Override
-                                      public void onResult (DriveApi.DriveContentsResult result)
-                                      {
-                                          if (!result.getStatus ().isSuccess ()) {
-                                              listener.onSaveFileFails ();
-
-                                              return;
-                                          }
-
-                                          final DriveContents contents;
-
-                                          contents = result.getDriveContents ();
-
-                                          // Perform I/O off the UI thread.
-                                          new Thread ()
-                                          {
-                                              @Override
-                                              public void run ()
-                                              {
-                                                  OutputStream outputStream;
-                                                  Writer       writer;
-
-                                                  outputStream = contents.getOutputStream ();
-                                                  writer = new OutputStreamWriter (outputStream);
-                                                  try {
-                                                      writer.write (content);
-                                                      writer.close ();
-                                                  }
-                                                  catch (IOException e) {
-                                                      listener.onSaveFileFails ();
-
-                                                      return;
-                                                  }
-
-                                                  MetadataChangeSet.Builder changeSetBuilder;
-                                                  MetadataChangeSet         changeSet;
-
-                                                  changeSetBuilder = new MetadataChangeSet.Builder ();
-                                                  changeSetBuilder.setTitle (fileName);
-                                                  changeSetBuilder.setMimeType ("application/gpx");
-                                                  changeSet = changeSetBuilder.build ();
-
-                                                  folder.createFile (client, changeSet, contents)
-                                                        .setResultCallback (new ResultCallback<DriveFolder.DriveFileResult> ()
-                                                        {
-                                                            @Override
-                                                            public void onResult (DriveFolder.DriveFileResult driveFileResult)
-                                                            {
-                                                                if (!driveFileResult.getStatus ()
-                                                                                    .isSuccess ()) {
-                                                                    LogHelper.d (
-                                                                            "*** createFile Error");
-                                                                }
-                                                                else {
-                                                                    LogHelper.d ("*** createFile OK");
-                                                                }
-                                                            }
-                                                        });
-                                              }
-                                          }.start ();
-
-                                      }
-                                  });
-
-                }
-                else {
-                    listener.onSaveFileFails ();
-                }
             }
-        });
+        }.start ();
     }
 
     private void init (String path)
@@ -187,6 +74,42 @@ public class GoogleDriveHelper
         for (int i = 0 ; i < (pathItems.length - 1) ; i++) {
             _processingPath.add (pathItems[i]);
         }
+
+        _fileName = pathItems[pathItems.length - 1];
+    }
+
+    public void saveFileAsync2 (String path,
+                                final String content,
+                                final IGoogleDriveHelperListener listener)
+    {
+        init (path);
+
+        findFolderAsync (new ResultCallback<DriveApi.DriveIdResult> ()
+        {
+            @Override
+            public void onResult (DriveApi.DriveIdResult driveIdResult)
+            {
+                if (driveIdResult.getStatus ().isSuccess ()) {
+                    LogHelper.d ("*** Folder obtained");
+
+                    DriveFolder folder;
+                    NewDriveContentsCallback newDrive;
+
+                    folder = Drive.DriveApi.getFolder (_client, driveIdResult.getDriveId ());
+
+                    newDrive = new NewDriveContentsCallback (_client,
+                                                             _fileName,
+                                                             content,
+                                                             folder,
+                                                             listener);
+
+                    Drive.DriveApi.newDriveContents (_client).setResultCallback (newDrive);
+                }
+                else {
+                    listener.onSaveFileFails ();
+                }
+            }
+        });
     }
 
     private void findFolderAsync (ResultCallback<DriveApi.DriveIdResult> callback)
@@ -209,6 +132,23 @@ public class GoogleDriveHelper
         q = qBuilder.build ();
 
         _rootFolder.queryChildren (_client, q).setResultCallback (_queryCallback);
+    }
+
+    private DriveFolder findFolderRecurse (DriveFolder root, String folder)
+    {
+        Query.Builder qBuilder;
+        Query         q;
+        DriveApi.MetadataBufferResult result;
+
+        qBuilder = new Query.Builder ();
+        qBuilder.addFilter (Filters.eq (SearchableField.TITLE, folder));
+
+        q = qBuilder.build ();
+
+        result = root.queryChildren (_client, q).await ();
+        if (result.getStatus ().isSuccess ()) {
+            return
+        }
     }
 
     private void createFolder ()
@@ -292,10 +232,147 @@ public class GoogleDriveHelper
         }
     }
 
+    public void setResult (DriveId result)
+    {
+        _result = result;
+    }
+
     public interface IGoogleDriveHelperListener
     {
         void onSaveFileSuccess ();
 
         void onSaveFileFails ();
+    }
+
+
+    private class QueryCallback
+            implements ResultCallback<DriveApi.MetadataBufferResult>
+    {
+        GoogleDriveHelper _parent;
+
+        public QueryCallback (GoogleDriveHelper parent)
+        {
+            _parent = parent;
+        }
+
+        @Override
+        public void onResult (DriveApi.MetadataBufferResult metadataBufferResult)
+        {
+            if (metadataBufferResult.getStatus ().isSuccess ()) {
+                MetadataBuffer buffer;
+
+                buffer = metadataBufferResult.getMetadataBuffer ();
+
+                boolean exists = false;
+                for (Metadata m : metadataBufferResult.getMetadataBuffer ()) {
+                    if (!m.isTrashed ()) {
+                        _parent.setResult (m.getDriveId ());
+                        exists = true;
+
+                        continue;
+                    }
+                }
+
+                buffer.release ();
+
+                if (exists) {
+                    LogHelper.d ("*** _queryCallback: OK");
+
+                    _parent.onGetFolderAsyncSuccess ();
+                }
+                else {
+                    LogHelper.d ("*** _queryCallback: not exists");
+
+                    _parent.createFolder ();
+                }
+            }
+            else {
+                LogHelper.d ("*** folder not found");
+
+                _parent.createFolder ();
+            }
+        }
+    }
+
+    private class NewDriveContentsCallback
+            implements ResultCallback<DriveApi.DriveContentsResult>
+    {
+        private GoogleApiClient            _client;
+        private String                     _fileContents;
+        private IGoogleDriveHelperListener _listener;
+        private DriveFolder                _folder;
+        private String                     _fileName;
+
+        public NewDriveContentsCallback (GoogleApiClient client,
+                                         String fileName,
+                                         String fileContents,
+                                         DriveFolder folder,
+                                         IGoogleDriveHelperListener listener)
+        {
+            _client = client;
+            _fileContents = fileContents;
+            _listener = listener;
+            _folder = folder;
+            _fileName = fileName;
+        }
+
+        @Override
+        public void onResult (final DriveApi.DriveContentsResult driveContentsResult)
+        {
+            if (!driveContentsResult.getStatus ().isSuccess ()) {
+                _listener.onSaveFileFails ();
+
+            }
+            else {
+                // Perform I/O off the UI thread.
+                new Thread ()
+                {
+                    @Override
+                    public void run ()
+                    {
+                        DriveContents contents;
+                        OutputStream  outputStream;
+                        Writer        writer;
+
+                        contents = driveContentsResult.getDriveContents ();
+
+                        outputStream = contents.getOutputStream ();
+                        writer = new OutputStreamWriter (outputStream);
+                        try {
+                            writer.write (_fileContents);
+                            writer.close ();
+                        }
+                        catch (IOException e) {
+                            _listener.onSaveFileFails ();
+
+                            return;
+                        }
+
+                        MetadataChangeSet.Builder changeSetBuilder;
+                        MetadataChangeSet         changeSet;
+
+                        changeSetBuilder = new MetadataChangeSet.Builder ();
+                        changeSetBuilder.setTitle (_fileName);
+                        changeSetBuilder.setMimeType ("application/gpx");
+                        changeSet = changeSetBuilder.build ();
+
+                        _folder.createFile (_client, changeSet, contents)
+                               .setResultCallback (new ResultCallback<DriveFolder.DriveFileResult> ()
+                               {
+                                   @Override
+                                   public void onResult (DriveFolder.DriveFileResult driveFileResult)
+                                   {
+                                       if (!driveFileResult.getStatus ().isSuccess ()) {
+                                           LogHelper.d ("*** createFile Error");
+                                       }
+                                       else {
+                                           LogHelper.d ("*** createFile OK");
+                                       }
+                                   }
+                               });
+                    }
+                }.start ();
+            }
+        }
     }
 }

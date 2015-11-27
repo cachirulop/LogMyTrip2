@@ -10,6 +10,11 @@ import android.os.Handler;
 public class DialogHelper
 {
 
+    public static void showErrorDialog (Context ctx, int titleId, int messageId)
+    {
+        showErrorDialog (ctx, titleId, messageId, null);
+    }
+
     public static void showErrorDialog (Context ctx,
                                         int titleId,
                                         int messageId,
@@ -19,7 +24,7 @@ public class DialogHelper
         AlertDialog         dlg;
         String              msg;
 
-        if (formatArguments.length > 0) {
+        if (formatArguments != null && formatArguments.length > 0) {
             msg = String.format (ctx.getString (messageId, formatArguments));
         }
         else {
@@ -35,6 +40,13 @@ public class DialogHelper
 
         dlg = builder.create ();
         dlg.show ();
+    }
+
+    public static void showErrorDialogMainThread (final Context ctx,
+                                                  final int titleId,
+                                                  final int messageId)
+    {
+        showErrorDialogMainThread (ctx, titleId, messageId);
     }
 
     public static void showErrorDialogMainThread (final Context ctx,

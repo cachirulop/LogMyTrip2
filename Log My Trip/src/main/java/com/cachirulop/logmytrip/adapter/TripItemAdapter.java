@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.viewholder.TripItemViewHolder;
 
@@ -121,7 +122,10 @@ public class TripItemAdapter
         // Drawable background;
         int background;
 
-        if (_actionMode && isSelected (vh.getLayoutPosition ())) {
+        if (_actionMode && SettingsManager.isLogTrip (_ctx) && position == 0) {
+            background = R.color.disabled;
+        }
+        else if (_actionMode && isSelected (vh.getLayoutPosition ())) {
             background = R.color.default_background;
         }
         else {
@@ -188,14 +192,16 @@ public class TripItemAdapter
 
     public void toggleSelection (int pos)
     {
-        if (_selectedItems.get (pos, false)) {
-            _selectedItems.delete (pos);
-        }
-        else {
-            _selectedItems.put (pos, true);
-        }
+        if (!SettingsManager.isLogTrip (_ctx) || pos != 0) {
+            if (_selectedItems.get (pos, false)) {
+                _selectedItems.delete (pos);
+            }
+            else {
+                _selectedItems.put (pos, true);
+            }
 
-        notifyItemChanged (pos);
+            notifyItemChanged (pos);
+        }
     }
 
     public void selectAllItems ()

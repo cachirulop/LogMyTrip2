@@ -37,42 +37,13 @@ public class ExportHelper
                     writer.flush ();
                     writer.close ();
 
-                    listener.onExportSuccess ();
+                    listener.onExportSuccess (fileName);
                 }
                 catch (IOException e) {
                     listener.onExportFails (R.string.msg_error_exporting);
                 }
             }
         }.start ();
-    }
-
-    public static void exportToGoogleDrive (final Context ctx,
-                                            final String content,
-                                            final String fileName,
-                                            final GoogleApiClient client,
-                                            final IExportHelperListener listener)
-    {
-        String path;
-
-        path = getFilePath (ctx, fileName, false);
-
-        GoogleDriveHelper.saveFile (client,
-                                    path,
-                                    content,
-                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
-                                    {
-                                        @Override
-                                        public void onSaveFileSuccess ()
-                                        {
-                                            listener.onExportSuccess ();
-                                        }
-
-                                        @Override
-                                        public void onSaveFileFails (int messageId)
-                                        {
-                                            listener.onExportFails (messageId);
-                                        }
-                                    });
     }
 
     private static String getFilePath (Context ctx, String fileName, boolean local)
@@ -103,9 +74,38 @@ public class ExportHelper
         return result.toString ();
     }
 
+    public static void exportToGoogleDrive (final Context ctx,
+                                            final String content,
+                                            final String fileName,
+                                            final GoogleApiClient client,
+                                            final IExportHelperListener listener)
+    {
+        String path;
+
+        path = getFilePath (ctx, fileName, false);
+
+        GoogleDriveHelper.saveFile (client,
+                                    path,
+                                    content,
+                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                    {
+                                        @Override
+                                        public void onSaveFileSuccess ()
+                                        {
+                                            listener.onExportSuccess (fileName);
+                                        }
+
+                                        @Override
+                                        public void onSaveFileFails (int messageId)
+                                        {
+                                            listener.onExportFails (messageId);
+                                        }
+                                    });
+    }
+
     public interface IExportHelperListener
     {
-        void onExportSuccess ();
+        void onExportSuccess (String fileName);
 
         void onExportFails (int messageId);
     }

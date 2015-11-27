@@ -419,14 +419,70 @@ public class TripManager
 
         result.append ("<metadata>\n");
 
-        result.append ("<name>").append (t.getTitle ()).append ("</name>\n");
+        result.append ("<name><![CDATA[").append (t.getTitle ()).append ("]]></name>\n");
         if (t.getDescription () != null) {
-            result.append ("<description>");
+            result.append ("<description><![CDATA[");
             result.append (t.getDescription ());
-            result.append ("</description>\n");
+            result.append ("]]></description>\n");
         }
 
         result.append ("</metadata>\n");
+
+        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
+
+        for (TripSegment s : t.getSegments ()) {
+            result.append ("<trk>\n");
+            result.append ("<name><![CDATA[").append (s.getTitle (ctx)).append ("]]></name>\n");
+
+            result.append ("<trkseg>\n");
+
+            for (TripLocation l : s.getLocations ()) {
+                result.append ("<trkpt");
+                result.append (" lat=\"").append (l.getLatitude ()).append ("\"");
+                result.append (" lon=\"").append (l.getLongitude ()).append ("\"");
+                result.append (">\n");
+
+                result.append ("<ele>").append (l.getAltitude ()).append ("</ele>\n");
+                result.append ("<time>").append (df.format (l.getLocationTimeAsDate ()));
+                result.append ("</time>\n");
+                result.append ("<magvar>").append (l.getBearing ()).append ("</magvar>\n");
+
+                result.append ("</trkpt>\n");
+            }
+
+            result.append ("</trkseg>\n");
+            result.append ("</trk>\n");
+        }
+
+        result.append ("</gpx>\n");
+
+        return result.toString ();
+    }
+
+    public static String generateKML (Context ctx, Trip t)
+    {
+        DateFormat    df;
+        StringBuilder result;
+
+        result = new StringBuilder ();
+
+        result.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
+        result.append ("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
+
+        result.append ("<Document>\n");
+        result.append ("<open>1</open>\n");
+        result.append ("<visibility>1</visibility>\n");
+        result.append (
+                "<atom:author><atom:name><![CDATA[Creada con Log My Trip en Android]]></atom:name></atom:author>\n");
+        result.append ("<name><![CDATA[").append (t.getTitle ()).append ("]]></name>\n");
+        if (t.getDescription () != null) {
+            result.append ("<description><![CDATA[");
+            result.append (t.getDescription ());
+            result.append ("]]></description>\n");
+        }
+
+        result.append ("<Placemark>\n");
+        result.append ("<name>") result.append ("</Placemark>\n");
 
         df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -454,9 +510,11 @@ public class TripManager
             result.append ("</trk>\n");
         }
 
-        result.append ("</gpx>\n");
+        result.append ("</Document>\n");
+        result.append ("</kml>\n");
 
         return result.toString ();
     }
+
 }
 

@@ -25,12 +25,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.TripDetailActivity;
 import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
 import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
@@ -65,7 +67,6 @@ public class MainFragment
     private TripItemAdapter      _adapter;
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-    private boolean         _exportFormatIsGPX;
     public  BroadcastReceiver _onTripLogStopReceiver  = new BroadcastReceiver ()
     {
         @Override
@@ -75,6 +76,7 @@ public class MainFragment
             refreshFabTrip ();
         }
     };
+    private boolean _exportFormatIsGPX;
     private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -454,21 +456,31 @@ public class MainFragment
 
                 for (Trip t : selectedItems) {
                     String track;
-                    String fileName;
+                    String fileName = null;
                     ExportHelper.IExportHelperListener listener;
 
                     listener = new ExportHelper.IExportHelperListener ()
                     {
                         @Override
-                        public void onExportSuccess ()
+                        public void onExportSuccess (final String fileName)
                         {
-                            // TODO: Do something in main thread
+                            LogMyTripApplication.runInMainThread (ctx, new Runnable ()
+                            {
+                                @Override
+                                public void run ()
+                                {
+                                    progDialog.setMessage (String.format (ctx.getString (R.string.text_file_exported),
+                                                                          fileName));
+                                }
+                            });
                         }
 
                         @Override
                         public void onExportFails (int messageId)
                         {
-                            // TODO: Do something in main thread
+                            DialogHelper.showErrorDialogMainThread (ctx,
+                                                                    R.string.title_export,
+                                                                    messageId);
                         }
                     };
 
@@ -489,8 +501,14 @@ public class MainFragment
                     }
                 }
 
-                // TODO: This causes an exception, it should be done in the main thread
-                _actionMode.finish ();
+                LogMyTripApplication.runInMainThread (ctx, new Runnable ()
+                {
+                    @Override
+                    public void run ()
+                    {
+                        _actionMode.finish ();
+                    }
+                });
 
                 progDialog.dismiss ();
             }
@@ -512,16 +530,6 @@ public class MainFragment
         _client.connect ();
     }
 
-    @Override
-    public void onActivityResult (int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                exportTrips (false);
-            }
-        }
-    }
-
     private String getTrackFileName (Date trackDate, String extension)
     {
         StringBuilder result;
@@ -533,6 +541,16 @@ public class MainFragment
         result.append (dfFileName.format (trackDate) + "." + extension);
 
         return result.toString ();
+    }
+
+    @Override
+    public void onActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                exportTrips (false);
+            }
+        }
     }
 
     @Override

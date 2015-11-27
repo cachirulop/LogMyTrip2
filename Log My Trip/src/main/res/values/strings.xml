@@ -213,6 +213,9 @@
     <string name="text_local_file">Local file</string>
     <string name="text_google_drive">Google Drive</string>
     <string name="title_export_to_google_drive">Exporting to google drive</string>
-    <string name="msg_error_exporting">Error exporting to google drive (%1$s)</string>
+    <string name="msg_error_exporting">Error exporting file</string>
+    <string name="msg_error_gd_creating_new_file">Error creating new file</string>
+    <string name="msg_error_gd_creating_new_folder">Error creating google drive folder</string>
+    <string name="msg_error_gd_deleting_file">Error deleting google drive file</string>
 
 </resources>

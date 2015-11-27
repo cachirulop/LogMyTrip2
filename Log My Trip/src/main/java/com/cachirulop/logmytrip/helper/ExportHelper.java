@@ -15,28 +15,64 @@ import java.io.IOException;
  */
 public class ExportHelper
 {
-    public static void exportToFile (Context ctx, String content, String fileName)
+    public static void exportToFile (final Context ctx,
+                                     final String content,
+                                     final String fileName,
+                                     final IExportHelperListener listener)
     {
-        try {
-            // TODO: Write in another thread
-            File file;
-            FileWriter writer;
+        new Thread ()
+        {
+            @Override
+            public void run ()
+            {
+                try {
+                    File file;
+                    FileWriter writer;
 
-            file = new File (getFilePath (ctx, fileName, true));
-            writer = new FileWriter (file, false);
+                    file = new File (getFilePath (ctx, fileName, true));
+                    writer = new FileWriter (file, false);
 
-            writer.append (content);
+                    writer.append (content);
 
-            writer.flush ();
-            writer.close ();
-        }
-        catch (IOException e) {
-            // TODO: Show error dialog
-            ToastHelper.showLong (ctx,
-                                  ctx.getText (R.string.error_cant_write_file)
-                                     .toString () + ": " + e.getMessage ());
-        }
+                    writer.flush ();
+                    writer.close ();
 
+                    listener.onExportSuccess ();
+                }
+                catch (IOException e) {
+                    listener.onExportFails (R.string.msg_error_exporting);
+                }
+            }
+        }.start ();
+    }
+
+    public static void exportToGoogleDrive (final Context ctx,
+                                            final String content,
+                                            final String fileName,
+                                            final GoogleApiClient client,
+                                            final IExportHelperListener listener)
+    {
+        String path;
+
+        path = getFilePath (ctx, fileName, false);
+
+        GoogleDriveHelper.saveFile (client,
+                                    path,
+                                    content,
+                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                    {
+                                        @Override
+                                        public void onSaveFileSuccess ()
+                                        {
+                                            listener.onExportSuccess ();
+                                        }
+
+                                        @Override
+                                        public void onSaveFileFails (int messageId)
+                                        {
+                                            listener.onExportFails (messageId);
+                                        }
+                                    });
     }
 
     private static String getFilePath (Context ctx, String fileName, boolean local)
@@ -67,31 +103,10 @@ public class ExportHelper
         return result.toString ();
     }
 
-    public static void exportToGoogleDrive (final Context ctx,
-                                            final String content,
-                                            final String fileName,
-                                            final GoogleApiClient client)
+    public interface IExportHelperListener
     {
-        GoogleDriveHelper helper;
-        String            path;
+        void onExportSuccess ();
 
-        path = getFilePath (ctx, fileName, false);
-
-        helper = new GoogleDriveHelper (client);
-
-        helper.saveFileAsync (fileName, content, new GoogleDriveHelper.IGoogleDriveHelperListener ()
-        {
-            @Override
-            public void onSaveFileSuccess ()
-            {
-                LogHelper.d ("*** exportToGoogleDrive OK");
-            }
-
-            @Override
-            public void onSaveFileFails ()
-            {
-                LogHelper.d ("*** exportToGoogleDrive FAILS");
-            }
-        });
+        void onExportFails (int messageId);
     }
 }

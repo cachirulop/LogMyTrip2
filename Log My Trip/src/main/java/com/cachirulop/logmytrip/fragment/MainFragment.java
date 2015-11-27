@@ -2,6 +2,7 @@ package com.cachirulop.logmytrip.fragment;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -433,57 +434,90 @@ public class MainFragment
         dlg.show (getActivity ().getSupportFragmentManager (), "exportTrips");
     }
 
-    private void exportTrips (boolean locationLocal)
+    private void exportTrips (final boolean locationLocal)
     {
-        List<Trip> selectedItems = _adapter.getSelectedItems ();
+        final ProgressDialog progDialog;
+        final Context        ctx;
 
-        for (Trip t : selectedItems) {
-            String track;
-            String fileName;
+        ctx = getContext ();
 
-            if (_exportFormatIsGPX) {
-                track = TripManager.generateGPX (getContext (), t);
-                fileName = getTrackFileName (t.getTripDate (), "gpx");
-            }
-            else {
-                track = "Work in progress...";
-                fileName = getTrackFileName (t.getTripDate (), "kml");
-            }
+        progDialog = ProgressDialog.show (getContext (),
+                                          getContext ().getString (R.string.msg_exporting_trips),
+                                          null,
+                                          true);
 
-            if (locationLocal) {
-                ExportHelper.exportToFile (getContext (), track, fileName);
-            }
-            else {
-                ExportHelper.exportToGoogleDrive (getContext (), track, fileName, _client);
-            }
-        }
+        new Thread ()
+        {
+            public void run ()
+            {
+                List<Trip> selectedItems = _adapter.getSelectedItems ();
 
-        _actionMode.finish ();
+                for (Trip t : selectedItems) {
+                    String track;
+                    String fileName;
+                    ExportHelper.IExportHelperListener listener;
+
+                    listener = new ExportHelper.IExportHelperListener ()
+                    {
+                        @Override
+                        public void onExportSuccess ()
+                        {
+                            // TODO: Do something in main thread
+                        }
+
+                        @Override
+                        public void onExportFails (int messageId)
+                        {
+                            // TODO: Do something in main thread
+                        }
+                    };
+
+                    if (_exportFormatIsGPX) {
+                        track = TripManager.generateGPX (getContext (), t);
+                        fileName = getTrackFileName (t.getTripDate (), "gpx");
+                    }
+                    else {
+                        track = "Work in progress...";
+                        fileName = getTrackFileName (t.getTripDate (), "kml");
+                    }
+
+                    if (locationLocal) {
+                        ExportHelper.exportToFile (ctx, track, fileName, listener);
+                    }
+                    else {
+                        ExportHelper.exportToGoogleDrive (ctx, track, fileName, _client, listener);
+                    }
+                }
+
+                // TODO: This causes an exception, it should be done in the main thread
+                _actionMode.finish ();
+
+                progDialog.dismiss ();
+            }
+        }.start ();
     }
 
     private void startGoogleDriveActivity ()
     {
-        _client = new GoogleApiClient.Builder (getContext ()).addApi (Drive.API)
-                                                             .addScope (Drive.SCOPE_FILE)
-                                                             .addConnectionCallbacks (this)
-                                                             .addOnConnectionFailedListener (this)
-                                                             .useDefaultAccount ()
-                                                             .build ();
-        _client.connect ();
+        GoogleApiClient.Builder builder;
 
+        builder = new GoogleApiClient.Builder (getContext ());
+        builder.addApi (Drive.API);
+        builder.addScope (Drive.SCOPE_FILE);
+        builder.addConnectionCallbacks (this);
+        builder.addOnConnectionFailedListener (this);
+        builder.useDefaultAccount ();
+
+        _client = builder.build ();
+        _client.connect ();
     }
 
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data)
     {
-        // super.onActivityResult (requestCode, resultCode, data);
-        LogHelper.d ("*** onActivityResult: " + requestCode + "-.-" + resultCode);
         if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 exportTrips (false);
-            }
-            else {
-                LogHelper.d ("*** Cancel export");
             }
         }
     }

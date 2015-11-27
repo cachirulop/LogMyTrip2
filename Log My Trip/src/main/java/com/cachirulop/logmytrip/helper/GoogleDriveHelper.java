@@ -1,14 +1,14 @@
 package com.cachirulop.logmytrip.helper;
 
-import com.google.android.gms.common.api.CommonStatusCodes;
+import com.cachirulop.logmytrip.R;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveContents;
+import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
-import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataBuffer;
 import com.google.android.gms.drive.MetadataChangeSet;
@@ -21,358 +21,214 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.ArrayDeque;
-import java.util.Queue;
 
 /**
  * Created by david on 22/11/15.
  */
 public class GoogleDriveHelper
 {
-    private Queue<String>                          _processingPath;
-    private String _fileName;
-    private GoogleApiClient                        _client;
-    private DriveId                                _result;
-    private DriveFolder _rootFolder = null;
-
-    private ResultCallback<DriveApi.DriveIdResult>        _findFolderResultCallback;
-    private ResultCallback<DriveApi.MetadataBufferResult> _queryCallback;
-
-    public GoogleDriveHelper (GoogleApiClient client)
+    public static void saveFile (final GoogleApiClient client,
+                                 final String filePath,
+                                 final String fileContents,
+                                 final IGoogleDriveHelperListener listener)
     {
-        _queryCallback = new QueryCallback (this);
-        _client = client;
-    }
-
-    public void saveFileAsync (String path,
-                               final String content,
-                               final IGoogleDriveHelperListener listener)
-    {
-        init (path);
-
         new Thread ()
         {
             @Override
             public void run ()
             {
+                try {
+                    realSaveFile (client, filePath, fileContents);
+
+                    listener.onSaveFileSuccess ();
+                }
+                catch (GoogleDriveHelperException e) {
+                    listener.onSaveFileFails (e.getMessageId ());
+                }
 
             }
         }.start ();
     }
 
-    private void init (String path)
+    private static void realSaveFile (final GoogleApiClient client,
+                                      final String filePath,
+                                      final String fileContents)
+            throws GoogleDriveHelperException
     {
-        String[] pathItems;
+        DriveFolder folder;
+        File        file;
 
-        _rootFolder = Drive.DriveApi.getRootFolder (_client);
+        file = new File (filePath);
+        folder = getFolder (client, file.getParent ());
 
-        _processingPath = new ArrayDeque<> ();
-
-        pathItems = path.split (File.separator);
-
-        // Don't add the file name, only folders
-        for (int i = 0 ; i < (pathItems.length - 1) ; i++) {
-            _processingPath.add (pathItems[i]);
-        }
-
-        _fileName = pathItems[pathItems.length - 1];
+        createFile (client, folder, file.getName (), fileContents);
     }
 
-    public void saveFileAsync2 (String path,
-                                final String content,
-                                final IGoogleDriveHelperListener listener)
+    private static DriveFolder getFolder (GoogleApiClient client, String filePath)
+            throws GoogleDriveHelperException
     {
-        init (path);
+        String[]    path;
+        DriveFolder last;
 
-        findFolderAsync (new ResultCallback<DriveApi.DriveIdResult> ()
-        {
-            @Override
-            public void onResult (DriveApi.DriveIdResult driveIdResult)
-            {
-                if (driveIdResult.getStatus ().isSuccess ()) {
-                    LogHelper.d ("*** Folder obtained");
+        last = Drive.DriveApi.getRootFolder (client);
+        path = filePath.split (File.separator);
+        for (String s : path) {
+            DriveFolder current;
 
-                    DriveFolder folder;
-                    NewDriveContentsCallback newDrive;
+            current = (DriveFolder) findDriveResource (client, last, s, true);
+            if (current == null) {
+                current = createFolder (client, last, s);
+            }
 
-                    folder = Drive.DriveApi.getFolder (_client, driveIdResult.getDriveId ());
+            last = current;
+        }
 
-                    newDrive = new NewDriveContentsCallback (_client,
-                                                             _fileName,
-                                                             content,
-                                                             folder,
-                                                             listener);
+        return last;
+    }
 
-                    Drive.DriveApi.newDriveContents (_client).setResultCallback (newDrive);
-                }
-                else {
-                    listener.onSaveFileFails ();
+    private static DriveResource findDriveResource (GoogleApiClient client,
+                                                    DriveFolder parent,
+                                                    String title,
+                                                    boolean isFolder)
+            throws GoogleDriveHelperException
+    {
+        Query.Builder qBuilder;
+        Query         q;
+        DriveApi.MetadataBufferResult queryResult;
+
+        qBuilder = new Query.Builder ();
+        qBuilder.addFilter (Filters.eq (SearchableField.TITLE, title));
+        qBuilder.addFilter (Filters.and (Filters.eq (SearchableField.TRASHED, false)));
+
+        q = qBuilder.build ();
+
+        queryResult = parent.queryChildren (client, q).await ();
+        if (queryResult != null && queryResult.getStatus ().isSuccess ()) {
+            MetadataBuffer metadataBuffer;
+            Metadata metadata;
+            DriveResource result;
+
+            result = null;
+            metadata = null;
+            metadataBuffer = queryResult.getMetadataBuffer ();
+
+            for (Metadata m : metadataBuffer) {
+                if (m.isDataValid () && ((isFolder && m.isFolder ()) || (!isFolder && !m.isFolder ()))) {
+                    metadata = m;
+
+                    break;
                 }
             }
-        });
-    }
 
-    private void findFolderAsync (ResultCallback<DriveApi.DriveIdResult> callback)
-    {
-        LogHelper.d ("*** Processing: " + _processingPath.peek ());
+            if (metadata != null) {
+                if (isFolder) {
+                    result = metadata.getDriveId ().asDriveFolder ();
+                }
+                else {
+                    result = metadata.getDriveId ().asDriveFile ();
+                }
+            }
 
-        _findFolderResultCallback = callback;
+            metadataBuffer.release ();
 
-        launchFindFolderQuery ();
-    }
-
-    private void launchFindFolderQuery ()
-    {
-        Query.Builder qBuilder;
-        Query         q;
-
-        qBuilder = new Query.Builder ();
-        qBuilder.addFilter (Filters.eq (SearchableField.TITLE, _processingPath.peek ()));
-
-        q = qBuilder.build ();
-
-        _rootFolder.queryChildren (_client, q).setResultCallback (_queryCallback);
-    }
-
-    private DriveFolder findFolderRecurse (DriveFolder root, String folder)
-    {
-        Query.Builder qBuilder;
-        Query         q;
-        DriveApi.MetadataBufferResult result;
-
-        qBuilder = new Query.Builder ();
-        qBuilder.addFilter (Filters.eq (SearchableField.TITLE, folder));
-
-        q = qBuilder.build ();
-
-        result = root.queryChildren (_client, q).await ();
-        if (result.getStatus ().isSuccess ()) {
-            return
+            return result;
+        }
+        else {
+            return null;
         }
     }
 
-    private void createFolder ()
+    private static DriveFolder createFolder (GoogleApiClient client,
+                                             DriveFolder parent,
+                                             String title)
+            throws GoogleDriveHelperException
     {
         MetadataChangeSet.Builder newFolderBuilder;
         MetadataChangeSet         newFolder;
-
-        LogHelper.d ("*** createFolder " + _processingPath.peek ());
+        DriveFolder.DriveFolderResult result;
 
         newFolderBuilder = new MetadataChangeSet.Builder ();
-        newFolderBuilder.setTitle (_processingPath.peek ());
+        newFolderBuilder.setTitle (title);
         newFolder = newFolderBuilder.build ();
 
-        _rootFolder.createFolder (_client, newFolder)
-                   .setResultCallback (new ResultCallback<DriveFolder.DriveFolderResult> ()
-                   {
-                       @Override
-                       public void onResult (DriveFolder.DriveFolderResult driveFolderResult)
-                       {
-                           LogHelper.d ("*** createFolder callback: " + _processingPath.peek ());
+        result = parent.createFolder (client, newFolder).await ();
 
-                           if (!driveFolderResult.getStatus ().isSuccess ()) {
-                               LogHelper.d ("*** error: " + driveFolderResult.getStatus ()
-                                                                             .getStatusMessage ());
-
-                               onGetFolderAsyncNotFound ();
-                           }
-                           else {
-                               LogHelper.d ("*** fetchIdCallback: created " + _processingPath.peek ());
-
-                               _result = driveFolderResult.getDriveFolder ().getDriveId ();
-
-                               onGetFolderAsyncSuccess ();
-                           }
-                       }
-                   });
-    }
-
-    private void onGetFolderAsyncNotFound ()
-    {
-        _findFolderResultCallback.onResult (new DriveApi.DriveIdResult ()
-        {
-            @Override
-            public DriveId getDriveId ()
-            {
-                return null;
-            }
-
-            @Override
-            public Status getStatus ()
-            {
-                return new Status (CommonStatusCodes.ERROR);
-            }
-        });
-    }
-
-    private void onGetFolderAsyncSuccess ()
-    {
-        _processingPath.poll ();
-
-        if (_processingPath.isEmpty ()) {
-            _findFolderResultCallback.onResult (new DriveApi.DriveIdResult ()
-            {
-                @Override
-                public DriveId getDriveId ()
-                {
-                    return _result;
-                }
-
-                @Override
-                public Status getStatus ()
-                {
-                    return new Status (CommonStatusCodes.SUCCESS);
-                }
-            });
+        if (result.getStatus ().isSuccess ()) {
+            return result.getDriveFolder ();
         }
         else {
-            _rootFolder = Drive.DriveApi.getFolder (_client, _result);
-
-            launchFindFolderQuery ();
+            throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_folder);
         }
     }
 
-    public void setResult (DriveId result)
+    private static void createFile (GoogleApiClient client,
+                                    DriveFolder folder,
+                                    String name,
+                                    String fileContents)
+            throws GoogleDriveHelperException
     {
-        _result = result;
+        // If file exists, remove it
+        DriveFile                    file;
+        DriveApi.DriveContentsResult driveResult;
+
+        file = (DriveFile) findDriveResource (client, folder, name, false);
+        if (file != null) {
+            Status result;
+
+            result = file.delete (client).await ();
+            if (!result.isSuccess ()) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_deleting_file);
+            }
+        }
+
+        driveResult = Drive.DriveApi.newDriveContents (client).await ();
+        if (driveResult.getStatus ().isSuccess ()) {
+            DriveContents contents;
+            OutputStream outputStream;
+            Writer writer;
+            DriveFolder.DriveFileResult fileResult;
+
+            contents = driveResult.getDriveContents ();
+
+            outputStream = contents.getOutputStream ();
+            writer = new OutputStreamWriter (outputStream);
+            try {
+                writer.write (fileContents);
+                writer.close ();
+            }
+            catch (IOException e) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+
+            MetadataChangeSet.Builder changeSetBuilder;
+            MetadataChangeSet changeSet;
+
+            changeSetBuilder = new MetadataChangeSet.Builder ();
+            changeSetBuilder.setTitle (name);
+
+            if (name.endsWith (".gpx")) {
+                changeSetBuilder.setMimeType ("application/gpx");
+            }
+            else {
+                changeSetBuilder.setMimeType ("application/vnd.google-earth.kml+xml");
+            }
+
+            changeSet = changeSetBuilder.build ();
+
+            fileResult = folder.createFile (client, changeSet, contents).await ();
+            if (!fileResult.getStatus ().isSuccess ()) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+        }
+        else {
+            throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+        }
     }
 
     public interface IGoogleDriveHelperListener
     {
         void onSaveFileSuccess ();
 
-        void onSaveFileFails ();
-    }
-
-
-    private class QueryCallback
-            implements ResultCallback<DriveApi.MetadataBufferResult>
-    {
-        GoogleDriveHelper _parent;
-
-        public QueryCallback (GoogleDriveHelper parent)
-        {
-            _parent = parent;
-        }
-
-        @Override
-        public void onResult (DriveApi.MetadataBufferResult metadataBufferResult)
-        {
-            if (metadataBufferResult.getStatus ().isSuccess ()) {
-                MetadataBuffer buffer;
-
-                buffer = metadataBufferResult.getMetadataBuffer ();
-
-                boolean exists = false;
-                for (Metadata m : metadataBufferResult.getMetadataBuffer ()) {
-                    if (!m.isTrashed ()) {
-                        _parent.setResult (m.getDriveId ());
-                        exists = true;
-
-                        continue;
-                    }
-                }
-
-                buffer.release ();
-
-                if (exists) {
-                    LogHelper.d ("*** _queryCallback: OK");
-
-                    _parent.onGetFolderAsyncSuccess ();
-                }
-                else {
-                    LogHelper.d ("*** _queryCallback: not exists");
-
-                    _parent.createFolder ();
-                }
-            }
-            else {
-                LogHelper.d ("*** folder not found");
-
-                _parent.createFolder ();
-            }
-        }
-    }
-
-    private class NewDriveContentsCallback
-            implements ResultCallback<DriveApi.DriveContentsResult>
-    {
-        private GoogleApiClient            _client;
-        private String                     _fileContents;
-        private IGoogleDriveHelperListener _listener;
-        private DriveFolder                _folder;
-        private String                     _fileName;
-
-        public NewDriveContentsCallback (GoogleApiClient client,
-                                         String fileName,
-                                         String fileContents,
-                                         DriveFolder folder,
-                                         IGoogleDriveHelperListener listener)
-        {
-            _client = client;
-            _fileContents = fileContents;
-            _listener = listener;
-            _folder = folder;
-            _fileName = fileName;
-        }
-
-        @Override
-        public void onResult (final DriveApi.DriveContentsResult driveContentsResult)
-        {
-            if (!driveContentsResult.getStatus ().isSuccess ()) {
-                _listener.onSaveFileFails ();
-
-            }
-            else {
-                // Perform I/O off the UI thread.
-                new Thread ()
-                {
-                    @Override
-                    public void run ()
-                    {
-                        DriveContents contents;
-                        OutputStream  outputStream;
-                        Writer        writer;
-
-                        contents = driveContentsResult.getDriveContents ();
-
-                        outputStream = contents.getOutputStream ();
-                        writer = new OutputStreamWriter (outputStream);
-                        try {
-                            writer.write (_fileContents);
-                            writer.close ();
-                        }
-                        catch (IOException e) {
-                            _listener.onSaveFileFails ();
-
-                            return;
-                        }
-
-                        MetadataChangeSet.Builder changeSetBuilder;
-                        MetadataChangeSet         changeSet;
-
-                        changeSetBuilder = new MetadataChangeSet.Builder ();
-                        changeSetBuilder.setTitle (_fileName);
-                        changeSetBuilder.setMimeType ("application/gpx");
-                        changeSet = changeSetBuilder.build ();
-
-                        _folder.createFile (_client, changeSet, contents)
-                               .setResultCallback (new ResultCallback<DriveFolder.DriveFileResult> ()
-                               {
-                                   @Override
-                                   public void onResult (DriveFolder.DriveFileResult driveFileResult)
-                                   {
-                                       if (!driveFileResult.getStatus ().isSuccess ()) {
-                                           LogHelper.d ("*** createFile Error");
-                                       }
-                                       else {
-                                           LogHelper.d ("*** createFile OK");
-                                       }
-                                   }
-                               });
-                    }
-                }.start ();
-            }
-        }
+        void onSaveFileFails (int messageId);
     }
 }

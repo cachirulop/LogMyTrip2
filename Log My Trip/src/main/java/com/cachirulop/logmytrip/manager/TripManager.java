@@ -484,7 +484,10 @@ public class TripManager
 
         // Start Placemark
         result.append ("<Placemark>\n");
-        result.append ("<name><![CDATA[").append (t.getTitle ()).append (" - ");
+        result.append ("<name><![CDATA[")
+              .append (t.getTitle ())
+              .append (" - ")
+              .append ("</name>\n");
         result.append (ctx.getString (R.string.text_start)).append ("]]>\n");
 
         if (t.getDescription () != null) {
@@ -561,7 +564,10 @@ public class TripManager
 
         // End Placemark
         result.append ("<Placemark>\n");
-        result.append ("<name><![CDATA[").append (t.getTitle ()).append (" - ");
+        result.append ("<name><![CDATA[")
+              .append (t.getTitle ())
+              .append (" - ")
+              .append ("</name>\n");
         result.append (ctx.getString (R.string.text_end)).append ("]]>\n");
 
         if (t.getDescription () != null) {

@@ -485,10 +485,9 @@ public class TripManager
         // Start Placemark
         result.append ("<Placemark>\n");
         result.append ("<name><![CDATA[")
-              .append (t.getTitle ())
-              .append (" - ")
+              .append (t.getTitle ()).append (" - ");
+        result.append (ctx.getString (R.string.text_start)).append ("]]>\n")
               .append ("</name>\n");
-        result.append (ctx.getString (R.string.text_start)).append ("]]>\n");
 
         if (t.getDescription () != null) {
             result.append ("<description><![CDATA[");
@@ -501,8 +500,8 @@ public class TripManager
         result.append ("</when></TimeStamp>\n");
         result.append ("<Point>");
         result.append ("<coordinates>");
-        result.append (t.getStartLocation ().getLatitude ()).append (",");
         result.append (t.getStartLocation ().getLongitude ()).append (",");
+        result.append (t.getStartLocation ().getLatitude ()).append (",");
         result.append (t.getStartLocation ().getAltitude ());
         result.append ("</coordinates>\n");
         result.append ("</Point>\n");
@@ -535,8 +534,8 @@ public class TripManager
                 result.append ("</when>\n");
 
                 result.append ("<gx:coord>");
-                result.append (l.getLatitude ()).append (" ");
                 result.append (l.getLongitude ()).append (" ");
+                result.append (l.getLatitude ()).append (" ");
                 result.append (l.getAltitude ());
                 result.append ("</gx:coord>\n");
 
@@ -565,10 +564,8 @@ public class TripManager
         // End Placemark
         result.append ("<Placemark>\n");
         result.append ("<name><![CDATA[")
-              .append (t.getTitle ())
-              .append (" - ")
-              .append ("</name>\n");
-        result.append (ctx.getString (R.string.text_end)).append ("]]>\n");
+              .append (t.getTitle ()).append (" - ");
+        result.append (ctx.getString (R.string.text_end)).append ("]]>\n").append ("</name>\n");
 
         if (t.getDescription () != null) {
             result.append ("<description><![CDATA[");
@@ -581,8 +578,8 @@ public class TripManager
         result.append ("</when></TimeStamp>\n");
         result.append ("<Point>");
         result.append ("<coordinates>");
-        result.append (t.getEndLocation ().getLatitude ()).append (",");
         result.append (t.getEndLocation ().getLongitude ()).append (",");
+        result.append (t.getEndLocation ().getLatitude ()).append (",");
         result.append (t.getEndLocation ().getAltitude ());
         result.append ("</coordinates>\n");
         result.append ("</Point>\n");

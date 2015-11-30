@@ -12,7 +12,7 @@ public class DialogHelper
 
     public static void showErrorDialog (Context ctx, int titleId, int messageId)
     {
-        showErrorDialog (ctx, titleId, messageId, null);
+        showErrorDialog (ctx, titleId, messageId, (Object) null);
     }
 
     public static void showErrorDialog (Context ctx,
@@ -46,7 +46,7 @@ public class DialogHelper
                                                   final int titleId,
                                                   final int messageId)
     {
-        showErrorDialogMainThread (ctx, titleId, messageId, null);
+        showErrorDialogMainThread (ctx, titleId, messageId, (Object) null);
     }
 
     public static void showErrorDialogMainThread (final Context ctx,

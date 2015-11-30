@@ -465,6 +465,7 @@ public class TripManager
         StringBuilder result;
 
         result = new StringBuilder ();
+        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
 
         result.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
         result.append ("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
@@ -473,7 +474,7 @@ public class TripManager
         result.append ("<open>1</open>\n");
         result.append ("<visibility>1</visibility>\n");
         result.append (
-                "<atom:author><atom:name><![CDATA[Creada con Log My Trip en Android]]></atom:name></atom:author>\n");
+                "<atom:author><atom:name><![CDATA[Android Log My Trip]]></atom:name></atom:author>\n");
         result.append ("<name><![CDATA[").append (t.getTitle ()).append ("]]></name>\n");
         if (t.getDescription () != null) {
             result.append ("<description><![CDATA[");
@@ -481,40 +482,110 @@ public class TripManager
             result.append ("]]></description>\n");
         }
 
+        // Start Placemark
         result.append ("<Placemark>\n");
-        result.append ("<name>") result.append ("</Placemark>\n");
+        result.append ("<name><![CDATA[").append (t.getTitle ()).append (" - ");
+        result.append (ctx.getString (R.string.text_start)).append ("]]>\n");
 
-        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
+        if (t.getDescription () != null) {
+            result.append ("<description><![CDATA[");
+            result.append (t.getDescription ());
+            result.append ("]]></description>\n");
+        }
+
+        result.append ("<TimeStamp><when>");
+        result.append (df.format (t.getStartLocation ().getLocationTimeAsDate ()));
+        result.append ("</when></TimeStamp>\n");
+        result.append ("<Point>");
+        result.append ("<coordinates>");
+        result.append (t.getStartLocation ().getLatitude ()).append (",");
+        result.append (t.getStartLocation ().getLongitude ()).append (",");
+        result.append (t.getStartLocation ().getAltitude ());
+        result.append ("</coordinates>\n");
+        result.append ("</Point>\n");
+        result.append ("</Placemark>\n");
+
+        // Tracks
+        result.append ("<Placemark>\n");
+        result.append ("<gx:MultiTrack>\n");
+        result.append ("<altitudeMode>absolute</altitudeMode>\n");
+        result.append ("<gx:interpolate>1</gx:interpolate>\n");
 
         for (TripSegment s : t.getSegments ()) {
-            result.append ("<trk>\n");
-            result.append ("<name>").append (s.getTitle (ctx)).append ("</name>\n");
+            StringBuffer speed;
+            StringBuffer bearing;
+            StringBuffer accuracy;
 
-            result.append ("<trkseg>\n");
+            speed = new StringBuffer ();
+            bearing = new StringBuffer ();
+            accuracy = new StringBuffer ();
+
+            result.append ("<gx:Track>\n");
+
+            speed.append ("<gx:SimpleArrayData name=\"speed\">\n");
+            bearing.append ("<gx:SimpleArrayData name=\"bearing\">\n");
+            accuracy.append ("<gx:SimpleArrayData name=\"accuracy\">\n");
 
             for (TripLocation l : s.getLocations ()) {
-                result.append ("<trkpt");
-                result.append (" lat=\"").append (l.getLatitude ()).append ("\"");
-                result.append (" lon=\"").append (l.getLongitude ()).append ("\"");
-                result.append (">\n");
+                result.append ("<when>");
+                result.append (df.format (l.getLocationTimeAsDate ()));
+                result.append ("</when>\n");
 
-                result.append ("<ele>").append (l.getAltitude ()).append ("</ele>\n");
-                result.append ("<time>").append (df.format (l.getLocationTimeAsDate ()));
-                result.append ("</time>\n");
-                result.append ("<magvar>").append (l.getBearing ()).append ("</magvar>\n");
+                result.append ("<gx:coord>");
+                result.append (l.getLatitude ()).append (" ");
+                result.append (l.getLongitude ()).append (" ");
+                result.append (l.getAltitude ());
+                result.append ("</gx:coord>\n");
 
-                result.append ("</trkpt>\n");
+                speed.append ("<gx:value>").append (l.getSpeed ()).append ("</gx:value>\n");
+                bearing.append ("<gx:value>").append (l.getBearing ()).append ("</gx:value>\n");
+                accuracy.append ("<gx:value>").append (l.getAccuracy ()).append ("</gx:value>\n");
             }
 
-            result.append ("</trkseg>\n");
-            result.append ("</trk>\n");
+            speed.append ("</gx:SimpleArrayData>\n");
+            bearing.append ("</gx:SimpleArrayData>\n");
+            accuracy.append ("</gx:SimpleArrayData>\n");
+
+            result.append ("<ExtendedData>\n");
+            result.append ("<SchemaData schemaUrl=\"#schema\">\n");
+            result.append (speed.toString ());
+            result.append (bearing.toString ());
+            result.append (accuracy.toString ());
+            result.append ("</SchemaData>\n");
+            result.append ("</ExtendedData>\n");
+            result.append ("</gx:Track>\n");
         }
+
+        result.append ("</gx:MultiTrack>\n");
+        result.append ("</Placemark>\n");
+
+        // End Placemark
+        result.append ("<Placemark>\n");
+        result.append ("<name><![CDATA[").append (t.getTitle ()).append (" - ");
+        result.append (ctx.getString (R.string.text_end)).append ("]]>\n");
+
+        if (t.getDescription () != null) {
+            result.append ("<description><![CDATA[");
+            result.append (t.getDescription ());
+            result.append ("]]></description>\n");
+        }
+
+        result.append ("<TimeStamp><when>");
+        result.append (df.format (t.getEndLocation ().getLocationTimeAsDate ()));
+        result.append ("</when></TimeStamp>\n");
+        result.append ("<Point>");
+        result.append ("<coordinates>");
+        result.append (t.getEndLocation ().getLatitude ()).append (",");
+        result.append (t.getEndLocation ().getLongitude ()).append (",");
+        result.append (t.getEndLocation ().getAltitude ());
+        result.append ("</coordinates>\n");
+        result.append ("</Point>\n");
+        result.append ("</Placemark>\n");
 
         result.append ("</Document>\n");
         result.append ("</kml>\n");
 
         return result.toString ();
     }
-
 }
 

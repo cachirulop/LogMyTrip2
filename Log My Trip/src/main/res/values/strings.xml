@@ -218,5 +218,7 @@
     <string name="msg_error_gd_creating_new_folder">Error creating google drive folder</string>
     <string name="msg_error_gd_deleting_file">Error deleting google drive file</string>
     <string name="text_file_exported">%s exported successfully</string>
+    <string name="text_start">Start</string>
+    <string name="text_end">End</string>
 
 </resources>

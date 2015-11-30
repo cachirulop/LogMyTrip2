@@ -489,7 +489,7 @@ public class MainFragment
                         fileName = getTrackFileName (t.getTripDate (), "gpx");
                     }
                     else {
-                        track = "Work in progress...";
+                        track = TripManager.generateKML (getContext (), t);
                         fileName = getTrackFileName (t.getTripDate (), "kml");
                     }
 

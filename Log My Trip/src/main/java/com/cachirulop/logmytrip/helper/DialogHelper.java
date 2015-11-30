@@ -46,7 +46,7 @@ public class DialogHelper
                                                   final int titleId,
                                                   final int messageId)
     {
-        showErrorDialogMainThread (ctx, titleId, messageId);
+        showErrorDialogMainThread (ctx, titleId, messageId, null);
     }
 
     public static void showErrorDialogMainThread (final Context ctx,

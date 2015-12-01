@@ -1,7 +1,10 @@
 
+* Save trip locations on timer to save battery
 * Try to load the trips fastest
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
+* Save configuration and data to google drive
+* Sync with drive
 
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size. -> testing

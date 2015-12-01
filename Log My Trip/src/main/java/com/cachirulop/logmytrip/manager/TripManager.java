@@ -12,6 +12,8 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.entity.TripSegment;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -402,116 +404,191 @@ public class TripManager
         SettingsManager.setCurrentTripId (ctx, 0);
     }
 
-    public static String generateGPX (Context ctx, Trip t)
+    public static void exportTrip (Context ctx, Trip t, String format, Writer writer)
+            throws IOException
     {
-        DateFormat    df;
-        StringBuilder result;
-
-        result = new StringBuilder ();
-
-        result.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
-        result.append ("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\"");
-        result.append (" creator=\"LogMyTrip 1.0.0\" version=\"1.1\"");
-        result.append (" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
-        result.append (" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1");
-        result.append (" http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
-
-
-        result.append ("<metadata>\n");
-
-        result.append ("<name><![CDATA[").append (t.getTitle ()).append ("]]></name>\n");
-        if (t.getDescription () != null) {
-            result.append ("<description><![CDATA[");
-            result.append (t.getDescription ());
-            result.append ("]]></description>\n");
+        if (format.toUpperCase ().equals ("GPX")) {
+            exportTripToGPX (ctx, t, writer);
         }
-
-        result.append ("</metadata>\n");
-
-        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
-
-        for (TripSegment s : t.getSegments ()) {
-            result.append ("<trk>\n");
-            result.append ("<name><![CDATA[").append (s.getTitle (ctx)).append ("]]></name>\n");
-
-            result.append ("<trkseg>\n");
-
-            for (TripLocation l : s.getLocations ()) {
-                result.append ("<trkpt");
-                result.append (" lat=\"").append (l.getLatitude ()).append ("\"");
-                result.append (" lon=\"").append (l.getLongitude ()).append ("\"");
-                result.append (">\n");
-
-                result.append ("<ele>").append (l.getAltitude ()).append ("</ele>\n");
-                result.append ("<time>").append (df.format (l.getLocationTimeAsDate ()));
-                result.append ("</time>\n");
-                result.append ("<magvar>").append (l.getBearing ()).append ("</magvar>\n");
-
-                result.append ("</trkpt>\n");
-            }
-
-            result.append ("</trkseg>\n");
-            result.append ("</trk>\n");
+        else {
+            exportTripToKML (ctx, t, writer);
         }
-
-        result.append ("</gpx>\n");
-
-        return result.toString ();
     }
 
-    public static String generateKML (Context ctx, Trip t)
+    private static void exportTripToGPX (Context ctx, Trip t, Writer writer)
+            throws IOException
+    {
+        DateFormat    df;
+
+        writer.write ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
+        writer.write ("<gpx xmlns=\"http://www.topografix.com/GPX/1/1\"");
+        writer.write (" creator=\"LogMyTrip 1.0.0\" version=\"1.1\"");
+        writer.write (" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+        writer.write (" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1");
+        writer.write (" http://www.topografix.com/GPX/1/1/gpx.xsd\">\n");
+
+        writer.write ("<metadata>\n");
+
+        writer.write ("<name><![CDATA[");
+        writer.write (t.getTitle ());
+        writer.write ("]]></name>\n");
+        if (t.getDescription () != null) {
+            writer.write ("<description><![CDATA[");
+            writer.write (t.getDescription ());
+            writer.write ("]]></description>\n");
+        }
+
+        writer.write ("</metadata>\n");
+
+        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        for (TripSegment s : t.getSegments ()) {
+            writer.write ("<trk>\n");
+            writer.write ("<name><![CDATA[");
+            writer.write (s.getTitle (ctx));
+            writer.write ("]]></name>\n");
+
+            writer.write ("<trkseg>\n");
+
+            for (TripLocation l : s.getLocations ()) {
+                writer.write ("<trkpt");
+                writer.write (" lat=\"");
+                writer.write (Double.toString (l.getLatitude ()));
+                writer.write ("\"");
+                writer.write (" lon=\"");
+                writer.write (Double.toString (l.getLongitude ()));
+                writer.write ("\"");
+                writer.write (">\n");
+
+                writer.write ("<ele>");
+                writer.write (Double.toString (l.getAltitude ()));
+                writer.write ("</ele>\n");
+                writer.write ("<time>");
+                writer.write (df.format (l.getLocationTimeAsDate ()));
+                writer.write ("</time>\n");
+                writer.write ("<magvar>");
+                writer.write (Double.toString (l.getBearing ()));
+                writer.write ("</magvar>\n");
+
+                writer.write ("</trkpt>\n");
+            }
+
+            writer.write ("</trkseg>\n");
+            writer.write ("</trk>\n");
+        }
+
+        writer.write ("</gpx>\n");
+    }
+
+    private static void exportTripToKML (Context ctx, Trip t, Writer writer)
+            throws IOException
     {
         DateFormat    df;
         StringBuilder result;
 
         result = new StringBuilder ();
-        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssZ");
+        df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        result.append ("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>\n\n");
-        result.append ("<kml xmlns=\"http://www.opengis.net/kml/2.2\">");
+        writer.write ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n");
+        writer.write (
+                "<kml xmlns=\"http://www.opengis.net/kml/2.2\" xmlns:atom=\"http://www.w3.org/2005/Atom\" xmlns:gx=\"http://www.google.com/kml/ext/2.2\">\n");
 
-        result.append ("<Document>\n");
-        result.append ("<open>1</open>\n");
-        result.append ("<visibility>1</visibility>\n");
-        result.append (
-                "<atom:author><atom:name><![CDATA[Android Log My Trip]]></atom:name></atom:author>\n");
-        result.append ("<name><![CDATA[").append (t.getTitle ()).append ("]]></name>\n");
+        writer.write ("<Document>\n");
+        writer.write ("<open>1</open>\n");
+        writer.write ("<visibility>1</visibility>\n");
+
+        writer.write ("<atom:author><atom:name><![CDATA[Android ");
+        writer.write (ctx.getString (R.string.app_name));
+        writer.write ("]]></atom:name></atom:author>\n");
+
+        writer.write ("<Style id=\"track\">\n");
+        writer.write ("<LineStyle>\n");
+        writer.write ("<color>7f0000ff</color>\n");
+        writer.write ("<width>4</width>\n");
+        writer.write ("</LineStyle>\n");
+        writer.write ("<IconStyle>\n");
+        writer.write ("<scale>1.3</scale>\n");
+        writer.write ("<Icon>\n");
+        writer.write (
+                "<href>http://earth.google.com/images/kml-icons/track-directional/track-0.png</href>\n");
+        writer.write ("</Icon>\n");
+        writer.write ("</IconStyle>\n");
+        writer.write ("</Style>\n");
+        writer.write ("<Style id=\"start\">\n");
+        writer.write ("<IconStyle>\n");
+        writer.write ("<scale>1.3</scale>\n");
+        writer.write ("<Icon>\n");
+        writer.write ("<href>http://maps.google.com/mapfiles/kml/paddle/grn-circle.png</href>\n");
+        writer.write ("</Icon>\n");
+        writer.write ("<hotSpot x=\"32\" y=\"1\" xunits=\"pixels\" yunits=\"pixels\" />\n");
+        writer.write ("</IconStyle>\n");
+        writer.write ("</Style>\n");
+        writer.write ("<Style id=\"end\">\n");
+        writer.write ("<IconStyle>\n");
+        writer.write ("<scale>1.3</scale>\n");
+        writer.write ("<Icon>\n");
+        writer.write ("<href>http://maps.google.com/mapfiles/kml/paddle/red-circle.png</href>\n");
+        writer.write ("</Icon>\n");
+        writer.write ("<hotSpot x=\"32\" y=\"1\" xunits=\"pixels\" yunits=\"pixels\" />\n");
+        writer.write ("</IconStyle>\n");
+        writer.write ("</Style>\n");
+
+        writer.write ("<name><![CDATA[");
+        writer.write (t.getTitle ());
+        writer.write ("]]></name>\n");
         if (t.getDescription () != null) {
-            result.append ("<description><![CDATA[");
-            result.append (t.getDescription ());
-            result.append ("]]></description>\n");
+            writer.write ("<description><![CDATA[");
+            writer.write (t.getDescription ());
+            writer.write ("]]></description>\n");
         }
 
         // Start Placemark
-        result.append ("<Placemark>\n");
-        result.append ("<name><![CDATA[")
-              .append (t.getTitle ()).append (" - ");
-        result.append (ctx.getString (R.string.text_start)).append ("]]>\n")
-              .append ("</name>\n");
+        writer.write ("<Placemark>\n");
+        writer.write ("<name><![CDATA[");
+        writer.write (t.getTitle ());
+        writer.write (" - ");
+        writer.write (ctx.getString (R.string.text_start));
+        writer.write ("]]>");
+        writer.write ("</name>\n");
 
         if (t.getDescription () != null) {
-            result.append ("<description><![CDATA[");
-            result.append (t.getDescription ());
-            result.append ("]]></description>\n");
+            writer.write ("<description><![CDATA[");
+            writer.write (t.getDescription ());
+            writer.write ("]]></description>\n");
         }
 
-        result.append ("<TimeStamp><when>");
-        result.append (df.format (t.getStartLocation ().getLocationTimeAsDate ()));
-        result.append ("</when></TimeStamp>\n");
-        result.append ("<Point>");
-        result.append ("<coordinates>");
-        result.append (t.getStartLocation ().getLongitude ()).append (",");
-        result.append (t.getStartLocation ().getLatitude ()).append (",");
-        result.append (t.getStartLocation ().getAltitude ());
-        result.append ("</coordinates>\n");
-        result.append ("</Point>\n");
-        result.append ("</Placemark>\n");
+        writer.write ("<TimeStamp><when>");
+        writer.write (df.format (t.getStartLocation ().getLocationTimeAsDate ()));
+        writer.write ("</when></TimeStamp>\n");
+        writer.write ("<styleUrl>#start</styleUrl>\n");
+        writer.write ("<Point>\n");
+        writer.write ("<coordinates>");
+        writer.write (Double.toString (t.getStartLocation ().getLongitude ()));
+        writer.write (",");
+        writer.write (Double.toString (t.getStartLocation ().getLatitude ()));
+        writer.write (",");
+        writer.write (Double.toString (t.getStartLocation ().getAltitude ()));
+        writer.write ("</coordinates>\n");
+        writer.write ("</Point>\n");
+        writer.write ("</Placemark>\n");
 
         // Tracks
-        result.append ("<Placemark>\n");
-        result.append ("<gx:MultiTrack>\n");
-        result.append ("<altitudeMode>absolute</altitudeMode>\n");
-        result.append ("<gx:interpolate>1</gx:interpolate>\n");
+        writer.write ("<Placemark id=\"tour\">\n");
+        writer.write ("<styleUrl>#track</styleUrl>\n");
+        writer.write ("<name><![CDATA[");
+        writer.write (t.getTitle ());
+        writer.write ("]]>");
+        writer.write ("</name>\n");
+
+        if (t.getDescription () != null) {
+            writer.write ("<description><![CDATA[");
+            writer.write (t.getDescription ());
+            writer.write ("]]></description>\n");
+        }
+
+        writer.write ("<gx:MultiTrack>\n");
+        writer.write ("<altitudeMode>absolute</altitudeMode>\n");
+        writer.write ("<gx:interpolate>1</gx:interpolate>\n");
 
         for (TripSegment s : t.getSegments ()) {
             StringBuffer speed;
@@ -522,22 +599,24 @@ public class TripManager
             bearing = new StringBuffer ();
             accuracy = new StringBuffer ();
 
-            result.append ("<gx:Track>\n");
+            writer.write ("<gx:Track>\n");
 
             speed.append ("<gx:SimpleArrayData name=\"speed\">\n");
             bearing.append ("<gx:SimpleArrayData name=\"bearing\">\n");
             accuracy.append ("<gx:SimpleArrayData name=\"accuracy\">\n");
 
             for (TripLocation l : s.getLocations ()) {
-                result.append ("<when>");
-                result.append (df.format (l.getLocationTimeAsDate ()));
-                result.append ("</when>\n");
+                writer.write ("<when>");
+                writer.write (df.format (l.getLocationTimeAsDate ()));
+                writer.write ("</when>\n");
 
-                result.append ("<gx:coord>");
-                result.append (l.getLongitude ()).append (" ");
-                result.append (l.getLatitude ()).append (" ");
-                result.append (l.getAltitude ());
-                result.append ("</gx:coord>\n");
+                writer.write ("<gx:coord>");
+                writer.write (Double.toString (l.getLongitude ()));
+                writer.write (" ");
+                writer.write (Double.toString (l.getLatitude ()));
+                writer.write (" ");
+                writer.write (Double.toString (l.getAltitude ()));
+                writer.write ("</gx:coord>\n");
 
                 speed.append ("<gx:value>").append (l.getSpeed ()).append ("</gx:value>\n");
                 bearing.append ("<gx:value>").append (l.getBearing ()).append ("</gx:value>\n");
@@ -548,47 +627,51 @@ public class TripManager
             bearing.append ("</gx:SimpleArrayData>\n");
             accuracy.append ("</gx:SimpleArrayData>\n");
 
-            result.append ("<ExtendedData>\n");
-            result.append ("<SchemaData schemaUrl=\"#schema\">\n");
-            result.append (speed.toString ());
-            result.append (bearing.toString ());
-            result.append (accuracy.toString ());
-            result.append ("</SchemaData>\n");
-            result.append ("</ExtendedData>\n");
-            result.append ("</gx:Track>\n");
+            writer.write ("<ExtendedData>\n");
+            writer.write ("<SchemaData schemaUrl=\"#schema\">\n");
+            writer.write (speed.toString ());
+            writer.write (bearing.toString ());
+            writer.write (accuracy.toString ());
+            writer.write ("</SchemaData>\n");
+            writer.write ("</ExtendedData>\n");
+            writer.write ("</gx:Track>\n");
         }
 
-        result.append ("</gx:MultiTrack>\n");
-        result.append ("</Placemark>\n");
+        writer.write ("</gx:MultiTrack>\n");
+        writer.write ("</Placemark>\n");
 
         // End Placemark
-        result.append ("<Placemark>\n");
-        result.append ("<name><![CDATA[")
-              .append (t.getTitle ()).append (" - ");
-        result.append (ctx.getString (R.string.text_end)).append ("]]>\n").append ("</name>\n");
+        writer.write ("<Placemark>\n");
+        writer.write ("<name><![CDATA[");
+        writer.write (t.getTitle ());
+        writer.write (" - ");
+        writer.write (ctx.getString (R.string.text_end));
+        writer.write ("]]>");
+        writer.write ("</name>\n");
 
         if (t.getDescription () != null) {
-            result.append ("<description><![CDATA[");
-            result.append (t.getDescription ());
-            result.append ("]]></description>\n");
+            writer.write ("<description><![CDATA[");
+            writer.write (t.getDescription ());
+            writer.write ("]]></description>\n");
         }
 
-        result.append ("<TimeStamp><when>");
-        result.append (df.format (t.getEndLocation ().getLocationTimeAsDate ()));
-        result.append ("</when></TimeStamp>\n");
-        result.append ("<Point>");
-        result.append ("<coordinates>");
-        result.append (t.getEndLocation ().getLongitude ()).append (",");
-        result.append (t.getEndLocation ().getLatitude ()).append (",");
-        result.append (t.getEndLocation ().getAltitude ());
-        result.append ("</coordinates>\n");
-        result.append ("</Point>\n");
-        result.append ("</Placemark>\n");
+        writer.write ("<TimeStamp><when>");
+        writer.write (df.format (t.getEndLocation ().getLocationTimeAsDate ()));
+        writer.write ("</when></TimeStamp>\n");
+        writer.write ("<styleUrl>#end</styleUrl>\n");
+        writer.write ("<Point>\n");
+        writer.write ("<coordinates>");
+        writer.write (Double.toString (t.getEndLocation ().getLongitude ()));
+        writer.write (",");
+        writer.write (Double.toString (t.getEndLocation ().getLatitude ()));
+        writer.write (",");
+        writer.write (Double.toString (t.getEndLocation ().getAltitude ()));
+        writer.write ("</coordinates>\n");
+        writer.write ("</Point>\n");
+        writer.write ("</Placemark>\n");
 
-        result.append ("</Document>\n");
-        result.append ("</kml>\n");
-
-        return result.toString ();
+        writer.write ("</Document>\n");
+        writer.write ("</kml>\n");
     }
 }
 

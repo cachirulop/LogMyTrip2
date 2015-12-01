@@ -1,6 +1,10 @@
 package com.cachirulop.logmytrip.helper;
 
+import android.content.Context;
+
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
@@ -27,9 +31,8 @@ import java.io.Writer;
  */
 public class GoogleDriveHelper
 {
-    public static void saveFile (final GoogleApiClient client,
-                                 final String filePath,
-                                 final String fileContents,
+    public static void saveFile (final GoogleApiClient client, final Context ctx,
+                                 final String filePath, final Trip trip,
                                  final IGoogleDriveHelperListener listener)
     {
         new Thread ()
@@ -38,7 +41,7 @@ public class GoogleDriveHelper
             public void run ()
             {
                 try {
-                    realSaveFile (client, filePath, fileContents);
+                    realSaveFile (client, ctx, filePath, trip);
 
                     listener.onSaveFileSuccess ();
                 }
@@ -50,9 +53,8 @@ public class GoogleDriveHelper
         }.start ();
     }
 
-    private static void realSaveFile (final GoogleApiClient client,
-                                      final String filePath,
-                                      final String fileContents)
+    private static void realSaveFile (final GoogleApiClient client, final Context ctx,
+                                      final String filePath, final Trip trip)
             throws GoogleDriveHelperException
     {
         DriveFolder folder;
@@ -61,7 +63,7 @@ public class GoogleDriveHelper
         file = new File (filePath);
         folder = getFolder (client, file.getParent ());
 
-        createFile (client, folder, file.getName (), fileContents);
+        createFile (client, ctx, folder, file.getName (), trip);
     }
 
     private static DriveFolder getFolder (GoogleApiClient client, String filePath)
@@ -84,6 +86,71 @@ public class GoogleDriveHelper
         }
 
         return last;
+    }
+
+    private static void createFile (GoogleApiClient client,
+                                    Context ctx,
+                                    DriveFolder folder,
+                                    String name,
+                                    Trip trip)
+            throws GoogleDriveHelperException
+    {
+        // If file exists, remove it
+        DriveFile                    file;
+        DriveApi.DriveContentsResult driveResult;
+
+        file = (DriveFile) findDriveResource (client, folder, name, false);
+        if (file != null) {
+            Status result;
+
+            result = file.delete (client).await ();
+            if (!result.isSuccess ()) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_deleting_file);
+            }
+        }
+
+        driveResult = Drive.DriveApi.newDriveContents (client).await ();
+        if (driveResult.getStatus ().isSuccess ()) {
+            DriveContents contents;
+            OutputStream outputStream;
+            Writer writer;
+            DriveFolder.DriveFileResult fileResult;
+
+            contents = driveResult.getDriveContents ();
+
+            outputStream = contents.getOutputStream ();
+            writer = new OutputStreamWriter (outputStream);
+            try {
+                TripManager.exportTrip (ctx, trip, getFileExtension (name), writer);
+                writer.close ();
+            }
+            catch (IOException e) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+
+            MetadataChangeSet.Builder changeSetBuilder;
+            MetadataChangeSet changeSet;
+
+            changeSetBuilder = new MetadataChangeSet.Builder ();
+            changeSetBuilder.setTitle (name);
+
+            if (getFileExtension (name).equals ("GPX")) {
+                changeSetBuilder.setMimeType ("application/gpx");
+            }
+            else {
+                changeSetBuilder.setMimeType ("application/vnd.google-earth.kml+xml");
+            }
+
+            changeSet = changeSetBuilder.build ();
+
+            fileResult = folder.createFile (client, changeSet, contents).await ();
+            if (!fileResult.getStatus ().isSuccess ()) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+        }
+        else {
+            throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+        }
     }
 
     private static DriveResource findDriveResource (GoogleApiClient client,
@@ -161,68 +228,9 @@ public class GoogleDriveHelper
         }
     }
 
-    private static void createFile (GoogleApiClient client,
-                                    DriveFolder folder,
-                                    String name,
-                                    String fileContents)
-            throws GoogleDriveHelperException
+    private static String getFileExtension (String fileName)
     {
-        // If file exists, remove it
-        DriveFile                    file;
-        DriveApi.DriveContentsResult driveResult;
-
-        file = (DriveFile) findDriveResource (client, folder, name, false);
-        if (file != null) {
-            Status result;
-
-            result = file.delete (client).await ();
-            if (!result.isSuccess ()) {
-                throw new GoogleDriveHelperException (R.string.msg_error_gd_deleting_file);
-            }
-        }
-
-        driveResult = Drive.DriveApi.newDriveContents (client).await ();
-        if (driveResult.getStatus ().isSuccess ()) {
-            DriveContents contents;
-            OutputStream outputStream;
-            Writer writer;
-            DriveFolder.DriveFileResult fileResult;
-
-            contents = driveResult.getDriveContents ();
-
-            outputStream = contents.getOutputStream ();
-            writer = new OutputStreamWriter (outputStream);
-            try {
-                writer.write (fileContents);
-                writer.close ();
-            }
-            catch (IOException e) {
-                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
-            }
-
-            MetadataChangeSet.Builder changeSetBuilder;
-            MetadataChangeSet changeSet;
-
-            changeSetBuilder = new MetadataChangeSet.Builder ();
-            changeSetBuilder.setTitle (name);
-
-            if (name.endsWith (".gpx")) {
-                changeSetBuilder.setMimeType ("application/gpx");
-            }
-            else {
-                changeSetBuilder.setMimeType ("application/vnd.google-earth.kml+xml");
-            }
-
-            changeSet = changeSetBuilder.build ();
-
-            fileResult = folder.createFile (client, changeSet, contents).await ();
-            if (!fileResult.getStatus ().isSuccess ()) {
-                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
-            }
-        }
-        else {
-            throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
-        }
+        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
     }
 
     public interface IGoogleDriveHelperListener

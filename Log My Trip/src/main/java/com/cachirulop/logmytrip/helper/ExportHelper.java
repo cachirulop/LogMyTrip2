@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.cachirulop.logmytrip.R;
+import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
@@ -15,8 +17,7 @@ import java.io.IOException;
  */
 public class ExportHelper
 {
-    public static void exportToFile (final Context ctx,
-                                     final String content,
+    public static void exportToFile (final Context ctx, final Trip trip,
                                      final String fileName,
                                      final IExportHelperListener listener)
     {
@@ -30,9 +31,11 @@ public class ExportHelper
                     FileWriter writer;
 
                     file = new File (getFilePath (ctx, fileName, true));
+                    file.getParentFile ().mkdirs ();
+
                     writer = new FileWriter (file, false);
 
-                    writer.append (content);
+                    TripManager.exportTrip (ctx, trip, getFileExtension (fileName), writer);
 
                     writer.flush ();
                     writer.close ();
@@ -59,14 +62,8 @@ public class ExportHelper
 
         result.append (ctx.getString (R.string.app_name));
 
-        if (fileName.endsWith (".gpx")) {
-            result.append (File.separator);
-            result.append ("GPX");
-        }
-        else {
-            result.append (File.separator);
-            result.append ("KML");
-        }
+        result.append (File.separator);
+        result.append (getFileExtension (fileName));
 
         result.append (File.separator);
         result.append (fileName);
@@ -74,8 +71,12 @@ public class ExportHelper
         return result.toString ();
     }
 
-    public static void exportToGoogleDrive (final Context ctx,
-                                            final String content,
+    private static String getFileExtension (String fileName)
+    {
+        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
+    }
+
+    public static void exportToGoogleDrive (final Context ctx, final Trip trip,
                                             final String fileName,
                                             final GoogleApiClient client,
                                             final IExportHelperListener listener)
@@ -84,9 +85,8 @@ public class ExportHelper
 
         path = getFilePath (ctx, fileName, false);
 
-        GoogleDriveHelper.saveFile (client,
-                                    path,
-                                    content,
+        GoogleDriveHelper.saveFile (client, ctx,
+                                    path, trip,
                                     new GoogleDriveHelper.IGoogleDriveHelperListener ()
                                     {
                                         @Override

@@ -1,7 +1,5 @@
 
 * Try to load the trips fastest
-- Export trips to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml,
-    export to Google drive
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 
@@ -55,3 +53,5 @@ X Detail button don't change when moves with flip between map and statistics (ba
 X If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
     then start logging trip -> I can't do it. There is no mode to know the connected bluetooth devices.
 X New autostart option 'Always'
+X Export trips to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml,
+    export to Google drive

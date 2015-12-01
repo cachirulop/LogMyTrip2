@@ -485,19 +485,21 @@ public class MainFragment
                     };
 
                     if (_exportFormatIsGPX) {
-                        track = TripManager.generateGPX (getContext (), t);
+                        // track = TripManager.generateGPX (getContext (), t);
                         fileName = getTrackFileName (t.getTripDate (), "gpx");
                     }
                     else {
-                        track = TripManager.generateKML (getContext (), t);
+                        // track = TripManager.generateKML (getContext (), t);
                         fileName = getTrackFileName (t.getTripDate (), "kml");
                     }
 
                     if (locationLocal) {
-                        ExportHelper.exportToFile (ctx, track, fileName, listener);
+                        // ExportHelper.exportToFile (ctx, track, fileName, listener);
+                        ExportHelper.exportToFile (ctx, t, fileName, listener);
                     }
                     else {
-                        ExportHelper.exportToGoogleDrive (ctx, track, fileName, _client, listener);
+                        // ExportHelper.exportToGoogleDrive (ctx, track, fileName, _client, listener);
+                        ExportHelper.exportToGoogleDrive (ctx, t, fileName, _client, listener);
                     }
                 }
 

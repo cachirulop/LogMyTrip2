@@ -1,8 +1,8 @@
 package com.cachirulop.logmytrip.service;
 
 import android.content.Context;
-import android.os.Handler;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.TripManager;
@@ -12,22 +12,20 @@ import java.util.TimerTask;
 /**
  * Created by dmagro on 18/11/2015.
  */
-public class NotificationUpdaterTask
+public class LogMyTripServiceUpdaterTask
         extends TimerTask
 {
     private Context _ctx;
-    private Handler _handler;
 
-    public NotificationUpdaterTask (Context ctx)
+    public LogMyTripServiceUpdaterTask (Context ctx)
     {
         _ctx = ctx;
-        _handler = new Handler ();
     }
 
     @Override
     public void run ()
     {
-        _handler.post (new Runnable ()
+        LogMyTripApplication.runInMainThread (_ctx, new Runnable ()
         {
             public void run ()
             {
@@ -35,7 +33,11 @@ public class NotificationUpdaterTask
 
                 t = TripManager.getActiveTrip (_ctx);
 
+                // Update the notification information
                 LogMyTripNotificationManager.updateTripLogging (_ctx, t);
+
+                // Flush the pending locations
+                TripManager.flushLocations (_ctx);
             }
         });
     }

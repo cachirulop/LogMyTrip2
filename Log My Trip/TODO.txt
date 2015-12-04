@@ -1,5 +1,6 @@
 
 * Save trip locations on timer to save battery
+* When saving trip only draw new points on map fragment
 * Try to load the trips fastest
 * When launch from notification starts a new instance and need to press back twice to exit the
     application

@@ -24,8 +24,8 @@ public class LogMyTripService
 {
     private static boolean _started;
     private LogMyTripServiceBinder _binder = null;
-    private Timer                   _notificationTimer;
-    private NotificationUpdaterTask _updaterTask;
+    private Timer                       _notificationTimer;
+    private LogMyTripServiceUpdaterTask _updaterTask;
 
     public static boolean isRunning ()
     {
@@ -52,7 +52,7 @@ public class LogMyTripService
             startForegroundService (current);
 
             _notificationTimer = new Timer ();
-            _updaterTask = new NotificationUpdaterTask (this);
+            _updaterTask = new LogMyTripServiceUpdaterTask (this);
 
             _notificationTimer.schedule (_updaterTask, 0, 60000);
 
@@ -62,32 +62,10 @@ public class LogMyTripService
         return START_STICKY;
     }
 
-    @Override
-    public IBinder onBind (Intent intent)
-    {
-        if (_binder == null) {
-            _binder = new LogMyTripServiceBinder ();
-        }
-        return _binder;
-    }
-
-    @Override
-    public void onDestroy ()
-    {
-        if (_started) {
-            stopLog ();
-            stopForegroundService ();
-
-            _notificationTimer.cancel ();
-        }
-
-        super.onDestroy ();
-    }
-
     private Trip startLog ()
     {
         LocationManager locationMgr;
-        Trip result = null;
+        Trip            result = null;
 
         locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
 
@@ -123,8 +101,32 @@ public class LogMyTripService
 
         intent = new Intent (this, LocationReceiver.class);
 
-        return PendingIntent.getBroadcast (getApplicationContext (), 0, intent,
+        return PendingIntent.getBroadcast (getApplicationContext (),
+                                           0,
+                                           intent,
                                            PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public IBinder onBind (Intent intent)
+    {
+        if (_binder == null) {
+            _binder = new LogMyTripServiceBinder ();
+        }
+        return _binder;
+    }
+
+    @Override
+    public void onDestroy ()
+    {
+        if (_started) {
+            stopLog ();
+            stopForegroundService ();
+
+            _notificationTimer.cancel ();
+        }
+
+        super.onDestroy ();
     }
 
     private void stopLog ()

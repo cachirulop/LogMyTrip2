@@ -26,7 +26,27 @@ public class TripManager
     private static final String CONST_TRIP_TABLE_NAME = "trip";
     private static final String CONST_LOCATION_TABLE_NAME = "trip_location";
 
+    private static ArrayList<TripLocation> _tripLocationsPool = new ArrayList<> ();
+
     public static TripLocation saveTripLocation (Context ctx, TripLocation tl)
+    {
+        synchronized (_tripLocationsPool) {
+            _tripLocationsPool.add (tl);
+        }
+
+        return tl;
+    }
+
+    public static void flushLocations (Context ctx)
+    {
+        synchronized (_tripLocationsPool) {
+            for (TripLocation tl : _tripLocationsPool) {
+                insertTripLocation (ctx, tl);
+            }
+        }
+    }
+
+    public static TripLocation insertTripLocation (Context ctx, TripLocation tl)
     {
         SQLiteDatabase db = null;
 
@@ -254,7 +274,11 @@ public class TripManager
             return null;
         }
         else {
-            return getTrip (ctx, current);
+            Trip result;
+
+            result = getTrip (ctx, current);
+
+            return result;
         }
     }
 

@@ -13,7 +13,6 @@ import com.cachirulop.logmytrip.adapter.TripItemAdapter;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.helper.FormatHelper;
-import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
@@ -112,8 +111,6 @@ public class TripItemViewHolder
                           RecyclerViewItemClickListener listener)
     {
         int imgId;
-
-        LogHelper.d ("*** Binding view: " + this.getItemId ());
 
         imgId = R.mipmap.ic_trip_status_saved;
 

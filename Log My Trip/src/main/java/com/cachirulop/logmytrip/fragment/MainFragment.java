@@ -266,6 +266,7 @@ public class MainFragment
     {
         if (_actionMode == null) {
             _adapter.clearTrips ();
+            _tripsLoaded = false;
         }
 
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);

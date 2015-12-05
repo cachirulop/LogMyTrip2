@@ -1,6 +1,4 @@
 
-* When saving trip only draw new points on map fragment
-* Try to load the trips fastest
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 * Save configuration and data to google drive
@@ -60,3 +58,5 @@ X New autostart option 'Always'
 X Export trips to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml,
     export to Google drive
 X Save trip locations on timer to save battery
+X When saving trip only draw new points on map fragment -> too dificult
+X Try to load the trips fastest

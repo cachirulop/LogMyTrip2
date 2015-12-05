@@ -7,7 +7,9 @@
         CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                            title TEXT NOT NULL,
                            description TEXT,
-                           trip_date TIMESTAMP NOT NULL);
+                           trip_date TIMESTAMP NOT NULL,
+                           total_time INTEGER DEFAULT -1,
+                           total_distance DOUBLE default -1);
         
         CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                                     id_trip INTEGER NOT NULL,
@@ -30,10 +32,8 @@
     <!--DROP TABLE trip;-->
     <string name="SQL_on_upgrade" translatable="false">
     <![CDATA[
-            CREATE INDEX IF NOT EXISTS idx_location_trip ON trip_location (id_trip);
-            CREATE INDEX IF NOT EXISTS idx_location_time ON trip_location (location_time ASC);
-            REINDEX idx_location_trip;
-            REINDEX idx_location_time;
+        ALTER TABLE trip ADD COLUMN total_time INTEGER DEFAULT -1;
+        ALTER TABLE trip ADD COLUMN total_distance DOUBLE default -1;
     ]]>
     </string>
 

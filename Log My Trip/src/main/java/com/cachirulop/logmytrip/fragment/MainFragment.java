@@ -60,14 +60,14 @@ public class MainFragment
 {
     public static final int RESOLVE_CONNECTION_REQUEST_CODE = 10201;
 
-    private GoogleApiClient _client;
+    private GoogleApiClient      _client;
     private boolean              _tripsLoaded;
     private boolean              _startLog;
     private RecyclerView         _recyclerView;
     private TripItemAdapter      _adapter;
     private ActionMode           _actionMode;
     private FloatingActionButton _fabTripLog;
-    public  BroadcastReceiver _onTripLogStopReceiver  = new BroadcastReceiver ()
+    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
@@ -96,7 +96,13 @@ public class MainFragment
         public void onReceive (Context context, Intent intent)
         {
             if (_tripsLoaded) {
-                _adapter.setItem (0, TripManager.getActiveTrip (getContext ()));
+                // _adapter.setItem (0, TripManager.getActiveTrip (getContext ()));
+                Trip current;
+
+                current = _adapter.getItem (0);
+
+                current.computeLiveStatistics (getContext ());
+
                 _adapter.notifyItemChanged (0);
             }
         }

@@ -24,6 +24,7 @@ import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.MapHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -120,6 +121,7 @@ public class TabMapFragment
         super.onCreate (savedInstanceState);
 
         _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+        TripManager.loadTripSegments (getContext (), _trip);
     }
 
     @Override
@@ -203,11 +205,9 @@ public class TabMapFragment
     @Override
     public void onMapReady (GoogleMap googleMap)
     {
-        Trip    activeTrip;
         boolean isActiveTrip;
 
-        activeTrip = TripManager.getActiveTrip (getContext ());
-        isActiveTrip = (_trip.equals (activeTrip));
+        isActiveTrip = (_trip.getId () == SettingsManager.getCurrentTripId (getContext ()));
 
         _map = googleMap;
         _map.setMyLocationEnabled (true);

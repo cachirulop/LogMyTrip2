@@ -32,7 +32,6 @@ public class TabStatisticsFragment
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _trip.refresh ();
             _adapter.notifyDataSetChanged ();
         }
     };

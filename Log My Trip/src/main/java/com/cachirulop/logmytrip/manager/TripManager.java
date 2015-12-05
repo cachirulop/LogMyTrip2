@@ -43,8 +43,20 @@ public class TripManager
             for (TripLocation tl : _tripLocationsPool) {
                 insertTripLocation (ctx, tl);
             }
+
+            _tripLocationsPool.clear ();
         }
     }
+
+    public static void mergePendingLocations (Trip trip)
+    {
+        synchronized (_tripLocationsPool) {
+            for (TripLocation tl : _tripLocationsPool) {
+                trip.addLocation (tl);
+            }
+        }
+    }
+
 
     public static TripLocation insertTripLocation (Context ctx, TripLocation tl)
     {
@@ -129,13 +141,15 @@ public class TripManager
         result.setTitle (c.getString (c.getColumnIndex ("title")));
         result.setDescription (c.getString (c.getColumnIndex ("description")));
         result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
+        result.setTotalTime (c.getLong (c.getColumnIndex ("total_time")));
+        result.setTotalDistance (c.getDouble (c.getColumnIndex ("total_distance")));
 
-        loadTripSegments (db, result);
+        //loadTripSegments (db, result);
 
         return result;
     }
 
-    private static void loadTripSegments (SQLiteDatabase db, Trip t)
+    public static void loadTripSegments (Context ctx, Trip trip)
     {
         List<TripSegment>  result;
         List<TripLocation> all;
@@ -147,7 +161,7 @@ public class TripManager
 
         result = new ArrayList<> ();
 
-        all = createLocationList (db, t);
+        all = createLocationList (ctx, trip.getId ());
         last = null;
         for (TripLocation l : all) {
             boolean newSegment;
@@ -163,7 +177,7 @@ public class TripManager
             }
 
             if (newSegment) {
-                current = new TripSegment (t);
+                current = new TripSegment (trip);
                 current.getLocations ().add (l);
 
                 result.add (current);
@@ -175,34 +189,48 @@ public class TripManager
             last = l;
         }
 
-        t.setSegments (result);
+        trip.setSegments (result);
     }
 
-    private static List<TripLocation> createLocationList (SQLiteDatabase db, Trip t)
+    private static List<TripLocation> createLocationList (Context ctx, Long tripId)
     {
+        SQLiteDatabase db = null;
         ArrayList<TripLocation> result;
         Cursor                  c = null;
 
-        c = db.query (CONST_LOCATION_TABLE_NAME,
-                      null,
-                      "id_trip = ?",
-                      new String[]{ Long.toString (t.getId ()) },
-                      null,
-                      null,
-                      "location_time ASC");
 
-        result = new ArrayList<TripLocation> ();
+        try {
+            db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
+            c = db.query (CONST_LOCATION_TABLE_NAME,
+                          null,
+                          "id_trip = ?",
+                          new String[]{ Long.toString (tripId) },
+                          null,
+                          null,
+                          "location_time ASC");
 
-        if (c != null) {
-            if (c.moveToFirst ()) {
-                do {
-                    result.add (createTripLocation (c));
+            result = new ArrayList<TripLocation> ();
+
+            if (c != null) {
+                if (c.moveToFirst ()) {
+                    do {
+                        result.add (createTripLocation (c));
+                    }
+                    while (c.moveToNext ());
                 }
-                while (c.moveToNext ());
+            }
+
+            return result;
+        }
+        finally {
+            if (c != null) {
+                c.close ();
+            }
+
+            if (db != null) {
+                db.close ();
             }
         }
-
-        return result;
     }
 
     private static TripLocation createTripLocation (Cursor c)
@@ -388,6 +416,8 @@ public class TripManager
             values.put ("trip_date", t.getTripDate ().getTime ());
             values.put ("title", t.getTitle ());
             values.put ("description", t.getDescription ());
+            values.put ("total_time", t.getTotalTime ());
+            values.put ("total_distance", t.getTotalDistance ());
 
             if (isInsert) {
                 db.insert (CONST_TRIP_TABLE_NAME, null, values);
@@ -421,6 +451,14 @@ public class TripManager
     public static Trip updateTrip (Context ctx, Trip t)
     {
         return saveTrip (ctx, t, false);
+    }
+
+    public static void updateTripStatistics (Context ctx, Trip t)
+    {
+        t.computeTotalTime (ctx);
+        t.computeTotalDistance (ctx);
+
+        updateTrip (ctx, t);
     }
 
     public static void unsetActiveTrip (Context ctx)

@@ -14,7 +14,6 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 
 /**
  * Created by dmagro on 19/10/2015.
@@ -115,10 +114,7 @@ public class TripItemViewHolder
         imgId = R.mipmap.ic_trip_status_saved;
 
         if (SettingsManager.isLogTrip (_ctx)) {
-            Trip active;
-
-            active = TripManager.getActiveTrip (_ctx);
-            if (active != null && trip.equals (active)) {
+            if (trip.getId () == SettingsManager.getCurrentTripId (_ctx)) {
                 imgId = R.mipmap.ic_trip_status_logging;
             }
         }
@@ -134,7 +130,7 @@ public class TripItemViewHolder
             getDescription ().setVisibility (View.GONE);
         }
 
-        getDuration ().setText (trip.getSummary ());
+        getDuration ().setText (trip.getSummary (_ctx));
         getDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
         getTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));
 

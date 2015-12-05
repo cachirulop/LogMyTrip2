@@ -78,8 +78,6 @@ public class LogMyTripService
             stopLog ();
             stopForegroundService ();
 
-            TripManager.flushLocations (this);
-
             _notificationTimer.cancel ();
         }
 
@@ -136,7 +134,11 @@ public class LogMyTripService
         Trip trip;
         LocationManager locationMgr;
 
+        TripManager.flushLocations (this);
+
         trip = TripManager.getActiveTrip (this);
+
+        TripManager.updateTripStatistics (this, trip);
 
         LogMyTripBroadcastManager.sendStopTripLogMessage (this, trip);
 

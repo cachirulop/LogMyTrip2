@@ -1,6 +1,9 @@
 package com.cachirulop.logmytrip.entity;
 
+import android.content.Context;
+
 import com.cachirulop.logmytrip.helper.FormatHelper;
+import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,8 +22,6 @@ public class Trip
     private String _description;
     private double _totalDistance = -1;
     private long   _totalTime     = -1;
-    private float  _maxSpeed      = -1;
-    private float  _mediumSpeed   = -1;
 
     private List<TripSegment> _segments = null;
 
@@ -86,6 +87,26 @@ public class Trip
         this._description = description;
     }
 
+    public double getTotalDistance ()
+    {
+        return _totalDistance;
+    }
+
+    public void setTotalDistance (double totalDistance)
+    {
+        _totalDistance = totalDistance;
+    }
+
+    public long getTotalTime ()
+    {
+        return _totalTime;
+    }
+
+    public void setTotalTime (long totalTime)
+    {
+        _totalTime = totalTime;
+    }
+
     public List<TripSegment> getSegments ()
     {
         return _segments;
@@ -96,11 +117,23 @@ public class Trip
         _segments = segments;
     }
 
-    public String getSummary ()
+    public String getSummary (Context ctx)
     {
+        if (_totalTime == -1) {
+            computeTotalTime (ctx);
+
+            TripManager.updateTrip (ctx, this);
+        }
+
+        if (_totalDistance == -1) {
+            computeTotalDistance (ctx);
+
+            TripManager.updateTrip (ctx, this);
+        }
+
         return String.format ("%s - %s",
-                            FormatHelper.formatDuration (computeTotalTime ()),
-                            FormatHelper.formatDistance (computeTotalDistance ()));
+                              FormatHelper.formatDuration (_totalTime),
+                              FormatHelper.formatDistance (_totalDistance));
     }
 
     /**
@@ -108,35 +141,31 @@ public class Trip
      *
      * @return All segments duration time in milliseconds
      */
-    public long computeTotalTime ()
+    public long computeTotalTime (Context ctx)
     {
         if (_segments == null) {
-            return 0;
+            TripManager.loadTripSegments (ctx, this);
         }
 
-        if (_totalTime == -1) {
-            _totalTime = 0;
+        _totalTime = 0;
 
-            for (TripSegment s : _segments) {
-                _totalTime += s.computeTotalTime ();
-            }
+        for (TripSegment s : _segments) {
+            _totalTime += s.computeTotalTime ();
         }
 
         return _totalTime;
     }
 
-    public double computeTotalDistance ()
+    public double computeTotalDistance (Context ctx)
     {
         if (_segments == null) {
-            return 0.0d;
+            TripManager.loadTripSegments (ctx, this);
         }
 
-        if (_totalDistance == -1) {
-            _totalDistance = 0;
+        _totalDistance = 0;
 
-            for (TripSegment s : _segments) {
-                _totalDistance += s.computeTotalDistance ();
-            }
+        for (TripSegment s : _segments) {
+            _totalDistance += s.computeTotalDistance ();
         }
 
         return _totalDistance;
@@ -148,20 +177,20 @@ public class Trip
             return 0.0f;
         }
 
-        if (_maxSpeed == -1) {
-            _maxSpeed = 0;
+        float result;
 
-            for (TripSegment s : _segments) {
-                float current;
+        result = 0;
 
-                current = s.computeMaxSpeed ();
-                if (current > _maxSpeed) {
-                    _maxSpeed = current;
-                }
+        for (TripSegment s : _segments) {
+            float current;
+
+            current = s.computeMaxSpeed ();
+            if (current > result) {
+                result = current;
             }
         }
 
-        return _maxSpeed;
+        return result;
     }
 
     public float computeMediumSpeed ()
@@ -170,20 +199,15 @@ public class Trip
             return 0.0f;
         }
 
-        if (_mediumSpeed == -1) {
-            _mediumSpeed = 0;
+        float result;
 
-            for (TripSegment s : _segments) {
-                float current;
+        result = 0;
 
-                current = s.computeMediumSpeed ();
-                if (current > _mediumSpeed) {
-                    _mediumSpeed = current;
-                }
-            }
+        for (TripSegment s : _segments) {
+            result += s.computeMediumSpeed ();
         }
 
-        return _mediumSpeed;
+        return result / _segments.size ();
     }
 
     public TripLocation getStartLocation ()
@@ -203,20 +227,6 @@ public class Trip
         }
         else {
             return null;
-        }
-    }
-
-    public void refresh ()
-    {
-        _mediumSpeed = -1;
-        _maxSpeed = -1;
-        _totalDistance = -1;
-        _totalTime = -1;
-
-        if (_segments != null) {
-            for (TripSegment s : _segments) {
-                s.refresh ();
-            }
         }
     }
 
@@ -257,5 +267,16 @@ public class Trip
         result = 31 * result + _title.hashCode ();
 
         return result;
+    }
+
+    public void computeLiveStatistics (Context ctx)
+    {
+        _segments = null;
+
+        TripManager.loadTripSegments (ctx, this);
+        TripManager.mergePendingLocations (this);
+
+        this.computeTotalDistance (ctx);
+        this.computeTotalTime (ctx);
     }
 }

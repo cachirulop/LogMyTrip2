@@ -4,12 +4,9 @@ import android.content.Context;
 
 import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.TimerTask;
 
 /**
@@ -34,16 +31,15 @@ public class LogMyTripServiceUpdaterTask
             {
                 Trip t;
 
-                LogHelper.d ("*** LogMyTripUpdaterTask: updating: " + DateFormat.getDateTimeInstance ()
-                                                                                .format (new Date ()));
+                // Flush the pending locations
+                TripManager.flushLocations (_ctx);
 
                 t = TripManager.getActiveTrip (_ctx);
 
+                TripManager.updateTripStatistics (_ctx, t);
+
                 // Update the notification information
                 LogMyTripNotificationManager.updateTripLogging (_ctx, t);
-
-                // Flush the pending locations
-                TripManager.flushLocations (_ctx);
             }
         });
     }

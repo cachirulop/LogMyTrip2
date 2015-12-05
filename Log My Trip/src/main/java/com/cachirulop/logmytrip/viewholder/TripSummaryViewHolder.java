@@ -138,8 +138,8 @@ public class TripSummaryViewHolder
             getEndTime ().setText ("");
         }
 
-        getTotalDistance ().setText (FormatHelper.formatDistance (trip.computeTotalDistance ()));
-        getTotalTime ().setText (FormatHelper.formatDuration (trip.computeTotalTime ()));
+        getTotalDistance ().setText (FormatHelper.formatDistance (trip.computeTotalDistance (_ctx)));
+        getTotalTime ().setText (FormatHelper.formatDuration (trip.computeTotalTime (_ctx)));
         getMaxSpeed ().setText (FormatHelper.formatSpeed (trip.computeMaxSpeed ()));
         getMediumSpeed ().setText (FormatHelper.formatSpeed (trip.computeMediumSpeed ()));
     }

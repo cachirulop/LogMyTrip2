@@ -19,9 +19,6 @@ public class TripSegment
     private List<TripLocation> _locations = new ArrayList<> ();
 
     private Trip _trip;
-    private double _totalDistance = -1;
-    private float  _maxSpeed      = -1;
-    private float  _mediumSpeed   = -1;
 
     public TripSegment (Trip trip)
     {
@@ -65,24 +62,23 @@ public class TripSegment
      */
     public double computeTotalDistance ()
     {
-        if (_totalDistance == -1) {
-            Location previous;
+        Location previous;
+        double   result;
 
-            previous = null;
-            _totalDistance = 0;
-            for (TripLocation l : _locations) {
-                Location current;
+        previous = null;
+        result = 0;
+        for (TripLocation l : _locations) {
+            Location current;
 
-                current = l.toLocation ();
-                if (previous != null) {
-                    _totalDistance += previous.distanceTo (current);
-                }
-
-                previous = current;
+            current = l.toLocation ();
+            if (previous != null) {
+                result += previous.distanceTo (current);
             }
+
+            previous = current;
         }
 
-        return _totalDistance;
+        return result;
     }
 
     /**
@@ -154,13 +150,6 @@ public class TripSegment
         return new Date (getEndTime ());
     }
 
-    public void refresh ()
-    {
-        _mediumSpeed = -1;
-        _maxSpeed = -1;
-        _totalDistance = -1;
-    }
-
     public void addLocation (TripLocation location)
     {
         _locations.add (location);
@@ -192,35 +181,31 @@ public class TripSegment
 
     public float computeMaxSpeed ()
     {
-        if (_maxSpeed == -1) {
-            _maxSpeed = 0;
+        float result;
 
-            for (TripLocation l : _locations) {
-                if (l.getSpeed () > _maxSpeed) {
-                    _maxSpeed = l.getSpeed ();
-                }
+        result = 0;
+
+        for (TripLocation l : _locations) {
+            if (l.getSpeed () > result) {
+                result = l.getSpeed ();
             }
-
-            // Convert m/s to km/h
-            _maxSpeed *= 3.6f;
         }
 
-        return _maxSpeed;
+        // Convert m/s to km/h
+        return result *= 3.6f;
     }
 
     public float computeMediumSpeed ()
     {
-        if (_mediumSpeed == -1) {
-            _mediumSpeed = 0;
+        float result;
 
-            for (TripLocation l : _locations) {
-                _mediumSpeed += l.getSpeed ();
-            }
+        result = 0;
 
-            // Convert m/s to km/h
-            _mediumSpeed = (_mediumSpeed / _locations.size ()) * 3.6f;
+        for (TripLocation l : _locations) {
+            result += l.getSpeed ();
         }
 
-        return _mediumSpeed;
+        // Convert m/s to km/h
+        return (result / _locations.size ()) * 3.6f;
     }
 }

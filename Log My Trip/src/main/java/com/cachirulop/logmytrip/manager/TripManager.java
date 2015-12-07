@@ -469,6 +469,8 @@ public class TripManager
     public static void exportTrip (Context ctx, Trip t, String format, Writer writer)
             throws IOException
     {
+        TripManager.loadTripSegments (ctx, t);
+
         if (format.toUpperCase ().equals ("GPX")) {
             exportTripToGPX (ctx, t, writer);
         }

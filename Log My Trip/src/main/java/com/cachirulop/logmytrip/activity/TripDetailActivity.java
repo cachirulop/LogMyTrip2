@@ -237,7 +237,6 @@ public class TripDetailActivity
 
                 TripManager.updateTrip (TripDetailActivity.this, _trip);
 
-                // TODO: Refresh the trip data
                 _detailFragment.setToolbarTitle (_trip.getTitle ());
 
                 if (SettingsManager.isLogTrip (TripDetailActivity.this) && (SettingsManager.getCurrentTripId (

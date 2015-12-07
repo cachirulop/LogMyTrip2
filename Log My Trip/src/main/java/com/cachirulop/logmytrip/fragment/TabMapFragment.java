@@ -162,11 +162,13 @@ public class TabMapFragment
     {
         super.onResume ();
 
-        LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
-                                                               _onNewLocationReceiver);
-        LogMyTripBroadcastManager.registerProviderEnableChange (getContext (),
-                                                                _onProviderEnabledChange);
-        LogMyTripBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
+        if (_trip.getId () == SettingsManager.getCurrentTripId (getContext ())) {
+            LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
+                                                                   _onNewLocationReceiver);
+            LogMyTripBroadcastManager.registerProviderEnableChange (getContext (),
+                                                                    _onProviderEnabledChange);
+            LogMyTripBroadcastManager.registerStatusChange (getContext (), _onProviderStatusChange);
+        }
     }
 
     @Override
@@ -174,9 +176,11 @@ public class TabMapFragment
     {
         super.onPause ();
 
-        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
-        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
-        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
+        if (_trip.getId () == SettingsManager.getCurrentTripId (getContext ())) {
+            LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
+            LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
+            LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
+        }
     }
 
     private void drawTrackMainThread ()

@@ -10,11 +10,9 @@ public class ServiceManager
 {
     public static void startTripLog (Context ctx)
     {
-        if (!SettingsManager.isLogTrip (ctx)) {
-            SettingsManager.setLogTrip (ctx, true);
+        SettingsManager.setLogTrip (ctx, true);
 
-            ctx.startService (new Intent (ctx, LogMyTripService.class));
-        }
+        ctx.startService (new Intent (ctx, LogMyTripService.class));
     }
 
     public static void stopTripLog (Context ctx)
@@ -28,12 +26,10 @@ public class ServiceManager
 
     public static void startBluetooth (Context ctx)
     {
-        if (!SettingsManager.isWaitingBluetooth (ctx)) {
-            SettingsManager.setAutoStartLog (ctx, true);
-            SettingsManager.setIsWaitingBluetooth (ctx, true);
+        SettingsManager.setAutoStartLog (ctx, true);
+        SettingsManager.setIsWaitingBluetooth (ctx, true);
 
-            ctx.startService (new Intent (ctx, BluetoothService.class));
-        }
+        ctx.startService (new Intent (ctx, BluetoothService.class));
     }
 
     public static void stopBluetooth (Context ctx)

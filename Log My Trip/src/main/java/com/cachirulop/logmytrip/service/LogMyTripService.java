@@ -9,6 +9,7 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
@@ -36,6 +37,7 @@ public class LogMyTripService
     public void onCreate ()
     {
         super.onCreate ();
+        LogHelper.d ("*** onCreate");
 
         _started = false;
     }
@@ -43,12 +45,16 @@ public class LogMyTripService
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
     {
+        LogHelper.d ("*** onStartCommand");
+
         Trip current;
 
         super.onStartCommand (intent, flags, startId);
 
         current = startLog ();
         if (current != null) {
+            LogHelper.d ("*** onStartCommand: current != null");
+
             startForegroundService (current);
 
             _notificationTimer = new Timer ();
@@ -57,6 +63,9 @@ public class LogMyTripService
             _notificationTimer.schedule (_updaterTask, 0, 60000);
 
             _started = true;
+        }
+        else {
+            LogHelper.d ("*** onStartCommand: current == null");
         }
 
         return START_STICKY;
@@ -79,6 +88,7 @@ public class LogMyTripService
             stopForegroundService ();
 
             _notificationTimer.cancel ();
+            _started = false;
         }
 
         super.onDestroy ();

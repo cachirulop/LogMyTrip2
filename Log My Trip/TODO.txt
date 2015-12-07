@@ -1,4 +1,6 @@
 
+* In the map fragment when it is logging a trip always follow the trip, although if the loaded
+  trip is not the active. In statistics tab do the same.
 * When launch from notification starts a new instance and need to press back twice to exit the
     application
 * Save configuration and data to google drive
@@ -60,3 +62,4 @@ X Export trips to gpx, kml -> show progress dialog, show dialog message on error
 X Save trip locations on timer to save battery
 X When saving trip only draw new points on map fragment -> too dificult
 X Try to load the trips fastest
+X When start and it was logging doesn't start the logging service

@@ -18,7 +18,7 @@ public class BootCompletedBroadcastReceiver
                 ServiceManager.startBluetooth (context);
             }
 
-            if (SettingsManager.isAutoStartLogAlways (context)) {
+            if (SettingsManager.isAutoStartLogAlways (context) || SettingsManager.isLogTrip (context)) {
                 ServiceManager.startTripLog (context);
             }
         }

@@ -1,6 +1,5 @@
 
-* When launch from notification starts a new instance and need to press back twice to exit the
-    application
+
 * Save configuration and data to google drive
 * Sync with drive
 * Update statistics on trip list when saving trip
@@ -63,3 +62,5 @@ X Try to load the trips fastest
 X When start and it was logging doesn't start the logging service
 X In the map fragment when it is logging a trip always follow the trip, although if the loaded
   trip is not the active. In statistics tab do the same.
+X When launch from notification starts a new instance and need to press back twice to exit the
+    application -> I don't know how to solve it

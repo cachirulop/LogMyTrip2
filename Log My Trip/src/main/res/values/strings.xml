@@ -220,5 +220,6 @@
     <string name="text_file_exported">%s exported successfully</string>
     <string name="text_start">Start</string>
     <string name="text_end">End</string>
+    <string name="text_export_successful">Exported successful</string>
 
 </resources>

@@ -35,6 +35,7 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
 import com.cachirulop.logmytrip.helper.LogHelper;
+import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -492,20 +493,16 @@ public class MainFragment
                     };
 
                     if (_exportFormatIsGPX) {
-                        // track = TripManager.generateGPX (getContext (), t);
                         fileName = getTrackFileName (t.getTripDate (), "gpx");
                     }
                     else {
-                        // track = TripManager.generateKML (getContext (), t);
                         fileName = getTrackFileName (t.getTripDate (), "kml");
                     }
 
                     if (locationLocal) {
-                        // ExportHelper.exportToFile (ctx, track, fileName, listener);
                         ExportHelper.exportToFile (ctx, t, fileName, listener);
                     }
                     else {
-                        // ExportHelper.exportToGoogleDrive (ctx, track, fileName, _client, listener);
                         ExportHelper.exportToGoogleDrive (ctx, t, fileName, _client, listener);
                     }
                 }
@@ -516,6 +513,8 @@ public class MainFragment
                     public void run ()
                     {
                         _actionMode.finish ();
+
+                        ToastHelper.showLong (ctx, R.string.text_export_successful);
                     }
                 });
 

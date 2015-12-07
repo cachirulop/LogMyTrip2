@@ -187,20 +187,20 @@ public class LogMyTripNotificationManager
         String action;
 
         if (SettingsManager.isAutostartOnConnect (ctx)) {
-            mode = ctx.getText (R.string.notif_ContentWaitingBluetooth_mode_connect).toString ();
+            mode = ctx.getString (R.string.notif_ContentWaitingBluetooth_mode_connect);
         }
         else {
-            mode = ctx.getText (R.string.notif_ContentWaitingBluetooth_mode_disconnect).toString ();
+            mode = ctx.getString (R.string.notif_ContentWaitingBluetooth_mode_disconnect);
         }
 
         if (SettingsManager.isLogTrip (ctx)) {
-            action = ctx.getText (R.string.notif_ContentWaitingBluetooth_action_stop).toString ();
+            action = ctx.getString (R.string.notif_ContentWaitingBluetooth_action_stop);
         }
         else {
-            action = ctx.getText (R.string.notif_ContentWaitingBluetooth_action_start).toString ();
+            action = ctx.getString (R.string.notif_ContentWaitingBluetooth_action_start);
         }
 
-        return String.format (ctx.getText (R.string.notif_ContentWaitingBluetooth).toString (),
+        return String.format (ctx.getString (R.string.notif_ContentWaitingBluetooth),
                               mode,
                               action);
     }

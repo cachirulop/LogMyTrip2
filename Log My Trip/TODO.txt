@@ -1,5 +1,4 @@
 
-
 * Save configuration and data to google drive
 * Sync with drive
 * Update statistics on trip list when saving trip

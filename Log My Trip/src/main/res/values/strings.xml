@@ -221,5 +221,8 @@
     <string name="text_start">Start</string>
     <string name="text_end">End</string>
     <string name="text_export_successful">Exported successful</string>
+    <string name="pref_autosyncGoogleDriveCategoryTitle">Auto sync</string>
+    <string name="pref_autoSyncGoogleDriveSummary">Auto sync trips with Google Drive</string>
+    <string name="pref_autoSyncGoogleDriveTitle">Auto sync with Drive</string>
 
 </resources>

@@ -35,22 +35,33 @@ public class GoogleDriveHelper
                                  final String filePath, final Trip trip,
                                  final IGoogleDriveHelperListener listener)
     {
-        new Thread ()
+        Thread t;
+
+        t = new Thread ()
         {
             @Override
             public void run ()
             {
                 try {
                     realSaveFile (client, ctx, filePath, trip);
-
-                    listener.onSaveFileSuccess ();
                 }
                 catch (GoogleDriveHelperException e) {
                     listener.onSaveFileFails (e.getMessageId ());
                 }
 
             }
-        }.start ();
+        };
+
+        t.start ();
+
+        try {
+            t.join ();
+
+            listener.onSaveFileSuccess ();
+        }
+        catch (InterruptedException e) {
+            listener.onSaveFileFails (R.string.msg_error_exporting);
+        }
     }
 
     private static void realSaveFile (final GoogleApiClient client, final Context ctx,

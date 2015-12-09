@@ -31,6 +31,15 @@
             android:title="@string/pref_bluetoothDeviceTitle" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/pref_autosyncGoogleDriveCategoryTitle">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_autosyncGoogleDrive"
+            android:summary="@string/pref_autoSyncGoogleDriveSummary"
+            android:title="@string/pref_autoSyncGoogleDriveTitle"/>
+
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="@string/pref_gpsCategoryTitle">
         <ListPreference
             android:entries="@array/pref_gpsTimeIntervalEntries"

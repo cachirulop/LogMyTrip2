@@ -21,7 +21,9 @@ public class ExportHelper
                                      final String fileName,
                                      final IExportHelperListener listener)
     {
-        new Thread ()
+        Thread t;
+
+        t = new Thread ()
         {
             @Override
             public void run ()
@@ -39,14 +41,23 @@ public class ExportHelper
 
                     writer.flush ();
                     writer.close ();
-
-                    listener.onExportSuccess (fileName);
                 }
                 catch (IOException e) {
                     listener.onExportFails (R.string.msg_error_exporting);
                 }
             }
-        }.start ();
+        };
+
+        t.start ();
+
+        try {
+            t.join ();
+
+            listener.onExportSuccess (fileName);
+        }
+        catch (InterruptedException e) {
+            listener.onExportFails (R.string.msg_error_exporting);
+        }
     }
 
     private static String getFilePath (Context ctx, String fileName, boolean local)
@@ -85,8 +96,7 @@ public class ExportHelper
 
         path = getFilePath (ctx, fileName, false);
 
-        GoogleDriveHelper.saveFile (client, ctx,
-                                    path, trip,
+        GoogleDriveHelper.saveFile (client, ctx, path, trip,
                                     new GoogleDriveHelper.IGoogleDriveHelperListener ()
                                     {
                                         @Override

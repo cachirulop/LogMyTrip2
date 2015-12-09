@@ -34,7 +34,6 @@ import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
-import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
@@ -460,37 +459,37 @@ public class MainFragment
         {
             public void run ()
             {
-                List<Trip> selectedItems = _adapter.getSelectedItems ();
+                List<Trip>                         selectedItems = _adapter.getSelectedItems ();
+                ExportHelper.IExportHelperListener listener;
+
+                listener = new ExportHelper.IExportHelperListener ()
+                {
+                    @Override
+                    public void onExportSuccess (final String fileName)
+                    {
+                        LogMyTripApplication.runInMainThread (ctx, new Runnable ()
+                        {
+                            @Override
+                            public void run ()
+                            {
+                                progDialog.setMessage (String.format (ctx.getString (R.string.text_file_exported),
+                                                                      fileName));
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onExportFails (int messageId)
+                    {
+                        DialogHelper.showErrorDialogMainThread (ctx,
+                                                                R.string.title_export,
+                                                                messageId);
+                    }
+                };
 
                 for (Trip t : selectedItems) {
                     String track;
                     String fileName = null;
-                    ExportHelper.IExportHelperListener listener;
-
-                    listener = new ExportHelper.IExportHelperListener ()
-                    {
-                        @Override
-                        public void onExportSuccess (final String fileName)
-                        {
-                            LogMyTripApplication.runInMainThread (ctx, new Runnable ()
-                            {
-                                @Override
-                                public void run ()
-                                {
-                                    progDialog.setMessage (String.format (ctx.getString (R.string.text_file_exported),
-                                                                          fileName));
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onExportFails (int messageId)
-                        {
-                            DialogHelper.showErrorDialogMainThread (ctx,
-                                                                    R.string.title_export,
-                                                                    messageId);
-                        }
-                    };
 
                     if (_exportFormatIsGPX) {
                         fileName = getTrackFileName (t.getTripDate (), "gpx");
@@ -519,6 +518,11 @@ public class MainFragment
                 });
 
                 progDialog.dismiss ();
+
+                if (!locationLocal) {
+                    _client.disconnect ();
+                    _client = null;
+                }
             }
         }.start ();
     }
@@ -532,7 +536,7 @@ public class MainFragment
         builder.addScope (Drive.SCOPE_FILE);
         builder.addConnectionCallbacks (this);
         builder.addOnConnectionFailedListener (this);
-        builder.useDefaultAccount ();
+        // builder.useDefaultAccount ();
 
         _client = builder.build ();
         _client.connect ();
@@ -575,14 +579,12 @@ public class MainFragment
     @Override
     public void onConnected (Bundle bundle)
     {
-        LogHelper.d ("*** onConnected");
         exportTrips (false);
     }
 
     @Override
     public void onConnectionSuspended (int i)
     {
-        LogHelper.d ("*** onConnectionSuspended");
     }
 
     @Override

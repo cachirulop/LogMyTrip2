@@ -186,7 +186,7 @@ public class LogMyTripNotificationManager
         String mode;
         String action;
 
-        if (SettingsManager.isAutostartOnConnect (ctx)) {
+        if (SettingsManager.isAutoStartOnConnect (ctx)) {
             mode = ctx.getString (R.string.notif_ContentWaitingBluetooth_mode_connect);
         }
         else {

@@ -224,5 +224,8 @@
     <string name="pref_autosyncGoogleDriveCategoryTitle">Auto sync</string>
     <string name="pref_autoSyncGoogleDriveSummary">Auto sync trips with Google Drive</string>
     <string name="pref_autoSyncGoogleDriveTitle">Auto sync with Drive</string>
+    <string name="pref_autoSyncGoogleDriveAccountTitle">Google drive account</string>
+    <string name="pref_autoSyncGoogleDriveAccountSummary">Sync trips with account: %1$s</string>
+    <string name="msg_error_gd_reading_folder">Can\'t read folder</string>
 
 </resources>

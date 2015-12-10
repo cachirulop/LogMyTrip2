@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -25,12 +26,35 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 
 /**
  * Created by david on 22/11/15.
  */
 public class GoogleDriveHelper
 {
+    public static final int RESOLVE_CONNECTION_REQUEST_CODE = 10201;
+
+    public static GoogleApiClient createClient (Context ctx,
+                                                GoogleApiClient.ConnectionCallbacks connectionListener,
+                                                GoogleApiClient.OnConnectionFailedListener failedListener)
+    {
+        GoogleApiClient.Builder builder;
+
+        builder = new GoogleApiClient.Builder (ctx);
+        builder.addApi (Drive.API);
+        builder.addScope (Drive.SCOPE_FILE);
+        builder.addConnectionCallbacks (connectionListener);
+        builder.addOnConnectionFailedListener (failedListener);
+
+        if (!"".equals (SettingsManager.getAutoSyncGoogleDriveAccount (ctx))) {
+            builder.setAccountName (SettingsManager.getAutoSyncGoogleDriveAccount (ctx));
+        }
+
+        return builder.build ();
+    }
+
+
     public static void saveFile (final GoogleApiClient client, final Context ctx,
                                  final String filePath, final Trip trip,
                                  final IGoogleDriveHelperListener listener)
@@ -170,8 +194,8 @@ public class GoogleDriveHelper
                                                     boolean isFolder)
             throws GoogleDriveHelperException
     {
-        Query.Builder qBuilder;
-        Query         q;
+        Query.Builder                 qBuilder;
+        Query                         q;
         DriveApi.MetadataBufferResult queryResult;
 
         qBuilder = new Query.Builder ();
@@ -221,8 +245,8 @@ public class GoogleDriveHelper
                                              String title)
             throws GoogleDriveHelperException
     {
-        MetadataChangeSet.Builder newFolderBuilder;
-        MetadataChangeSet         newFolder;
+        MetadataChangeSet.Builder     newFolderBuilder;
+        MetadataChangeSet             newFolder;
         DriveFolder.DriveFolderResult result;
 
         newFolderBuilder = new MetadataChangeSet.Builder ();
@@ -242,6 +266,36 @@ public class GoogleDriveHelper
     private static String getFileExtension (String fileName)
     {
         return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
+    }
+
+    public static String[] listFolder (final GoogleApiClient client,
+                                       final Context ctx,
+                                       final String path)
+            throws GoogleDriveHelperException
+    {
+        DriveFolder                   folder;
+        DriveApi.MetadataBufferResult result;
+        MetadataBuffer                metadataBuffer;
+        ArrayList<String>             list;
+
+        folder = getFolder (client, path);
+
+        result = folder.listChildren (client).await ();
+        if (result == null || !result.getStatus ().isSuccess ()) {
+            throw new GoogleDriveHelperException (R.string.msg_error_gd_reading_folder);
+        }
+
+        list = new ArrayList<> ();
+        metadataBuffer = result.getMetadataBuffer ();
+        for (Metadata m : metadataBuffer) {
+            if (m.isDataValid ()) {
+                list.add (m.getTitle ());
+            }
+        }
+
+        metadataBuffer.release ();
+
+        return list.toArray (new String[0]);
     }
 
     public interface IGoogleDriveHelperListener

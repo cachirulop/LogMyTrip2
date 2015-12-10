@@ -1,4 +1,5 @@
 
+* Export to drive fails when export the first time (connect to new google drive account)
 * Save configuration and data to google drive
 * Sync with drive
 * Update statistics on trip list when saving trip

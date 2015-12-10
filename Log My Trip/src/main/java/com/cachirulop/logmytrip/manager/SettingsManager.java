@@ -14,6 +14,8 @@ public class SettingsManager
     public static final String KEY_PREF_AUTO_START_LOG_BLUETOOTH = "pref_autoStartLogBluetooth";
     public static final String KEY_PREF_AUTO_START_MODE          = "pref_autoStartLogMode";
     public static final String KEY_PREF_BLUETOOTH_DEVICE_LIST    = "pref_bluetoothDeviceList";
+    public static final String KEY_PREF_AUTO_SYNC_GDRIVE         = "pref_autoSyncGoogleDrive";
+    public static final String KEY_PREF_AUTO_SYNC_GDRIVE_ACCOUNT = "pref_autoSyncGoogleDriveAccount";
     public static final String KEY_PREF_GPS_TIME_INTERVAL        = "pref_gpsTimeInterval";
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL    = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY             = "pref_gpsAccuracy";
@@ -29,7 +31,6 @@ public class SettingsManager
 
     private static SharedPreferences getSharedPrefs (Context ctx)
     {
-        // return ctx.getSharedPreferences (NAME_DEFAULT_PREFERENCES, Context.MODE_PRIVATE);
         return PreferenceManager.getDefaultSharedPreferences (ctx);
     }
 
@@ -52,7 +53,7 @@ public class SettingsManager
         return ctx.getSharedPreferences (NAME_STATUS_PREFERENCES, Context.MODE_PRIVATE);
     }
 
-    public static boolean isAutostartOnConnect (Context ctx)
+    public static boolean isAutoStartOnConnect (Context ctx)
     {
         int mode;
 
@@ -126,5 +127,24 @@ public class SettingsManager
     public static boolean isAutoStartLogAlways (Context ctx)
     {
         return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_START_LOG_ALWAYS, false);
+    }
+
+    public static boolean isAutoSyncGoogleDrive (Context ctx)
+    {
+        return getSharedPrefs (ctx).getBoolean (KEY_PREF_AUTO_SYNC_GDRIVE, false);
+    }
+
+    public static String getAutoSyncGoogleDriveAccount (Context ctx)
+    {
+        return getSharedPrefs (ctx).getString (KEY_PREF_AUTO_SYNC_GDRIVE_ACCOUNT, "");
+    }
+
+    public static void setAutoSyncGoogleAccount (Context ctx, String value)
+    {
+        SharedPreferences.Editor editor;
+
+        editor = getSharedPrefs (ctx).edit ();
+        editor.putString (KEY_PREF_AUTO_SYNC_GDRIVE_ACCOUNT, value);
+        editor.commit ();
     }
 }

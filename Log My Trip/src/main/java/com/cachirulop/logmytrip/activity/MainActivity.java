@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.fragment.MainFragment;
+import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
@@ -45,7 +46,7 @@ public class MainActivity
     {
         super.onActivityResult (requestCode, resultCode, data);
 
-        if (requestCode == MainFragment.RESOLVE_CONNECTION_REQUEST_CODE) {
+        if (requestCode == GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE) {
             _mainFragment.onActivityResult (requestCode, resultCode, data);
         }
     }

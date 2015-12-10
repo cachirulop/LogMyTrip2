@@ -35,7 +35,7 @@ public class BluetoothBroadcastReceiver
 
         if (isDeviceConfigured) {
             if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals (action)) {
-                if (SettingsManager.isAutostartOnConnect (ctx)) {
+                if (SettingsManager.isAutoStartOnConnect (ctx)) {
                     ServiceManager.stopTripLog (ctx);
                 }
                 else {
@@ -43,7 +43,7 @@ public class BluetoothBroadcastReceiver
                 }
             }
             else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals (action)) {
-                if (SettingsManager.isAutostartOnConnect (ctx)) {
+                if (SettingsManager.isAutoStartOnConnect (ctx)) {
                     ServiceManager.startTripLog (ctx);
                 }
                 else {

@@ -34,10 +34,17 @@
     <PreferenceCategory android:title="@string/pref_autosyncGoogleDriveCategoryTitle">
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="pref_autosyncGoogleDrive"
+            android:key="pref_autoSyncGoogleDrive"
             android:summary="@string/pref_autoSyncGoogleDriveSummary"
             android:title="@string/pref_autoSyncGoogleDriveTitle"/>
 
+        <com.cachirulop.logmytrip.preferences.GoogleAccountSelector
+            android:defaultValue="@array/empty_array"
+            android:dependency="pref_autoSyncGoogleDrive"
+            android:dialogTitle="@string/pref_autoSyncGoogleDriveAccountTitle"
+            android:key="pref_autoSyncGoogleDriveAccount"
+            android:summary="@string/pref_autoSyncGoogleDriveAccountSummary"
+            android:title="@string/pref_autoSyncGoogleDriveAccountTitle"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_gpsCategoryTitle">

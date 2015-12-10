@@ -34,6 +34,7 @@ import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
+import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
@@ -44,7 +45,6 @@ import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,8 +58,6 @@ public class MainFragment
                    GoogleApiClient.ConnectionCallbacks,
                    GoogleApiClient.OnConnectionFailedListener
 {
-    public static final int RESOLVE_CONNECTION_REQUEST_CODE = 10201;
-
     private GoogleApiClient      _client;
     private boolean              _tripsLoaded;
     private boolean              _startLog;
@@ -529,16 +527,7 @@ public class MainFragment
 
     private void startGoogleDriveActivity ()
     {
-        GoogleApiClient.Builder builder;
-
-        builder = new GoogleApiClient.Builder (getContext ());
-        builder.addApi (Drive.API);
-        builder.addScope (Drive.SCOPE_FILE);
-        builder.addConnectionCallbacks (this);
-        builder.addOnConnectionFailedListener (this);
-        // builder.useDefaultAccount ();
-
-        _client = builder.build ();
+        _client = GoogleDriveHelper.createClient (getContext (), this, this);
         _client.connect ();
     }
 
@@ -558,7 +547,7 @@ public class MainFragment
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data)
     {
-        if (requestCode == RESOLVE_CONNECTION_REQUEST_CODE) {
+        if (requestCode == GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 exportTrips (false);
             }
@@ -593,7 +582,7 @@ public class MainFragment
         if (connectionResult.hasResolution ()) {
             try {
                 connectionResult.startResolutionForResult (getActivity (),
-                                                           RESOLVE_CONNECTION_REQUEST_CODE);
+                                                           GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE);
             }
             catch (IntentSender.SendIntentException e) {
             }

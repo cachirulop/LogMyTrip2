@@ -206,6 +206,21 @@ public class LogMyTripDataHelper
     }
 
     /**
+     * Execute all of the SQL statements in the String[] array
+     *
+     * @param db  The database on which to execute the statements
+     * @param sql An array of SQL statements to execute
+     */
+    private void execMultipleSQL (SQLiteDatabase db, String[] sql)
+    {
+        for (String s : sql) {
+            if (s.trim ().length () > 0) {
+                db.execSQL (s);
+            }
+        }
+    }
+
+    /**
      * Drop the tables and recreate it calling onCreate method. To drop
      * the tables uses the SQL_on_upgrade sentences defined in the application
      * resources.
@@ -230,21 +245,6 @@ public class LogMyTripDataHelper
         }
 
         // onCreate (db);
-    }
-
-    /**
-     * Execute all of the SQL statements in the String[] array
-     *
-     * @param db  The database on which to execute the statements
-     * @param sql An array of SQL statements to execute
-     */
-    private void execMultipleSQL (SQLiteDatabase db, String[] sql)
-    {
-        for (String s : sql) {
-            if (s.trim ().length () > 0) {
-                db.execSQL (s);
-            }
-        }
     }
 
     /**
@@ -277,14 +277,12 @@ public class LogMyTripDataHelper
      *
      * @return The last identifier of the table in the sqlite_sequence table
      */
-    public long getLastId (String table)
+    public long getLastId (SQLiteDatabase sdb, String table)
     {
         long           index  = 0;
-        SQLiteDatabase sdb    = null;
         Cursor         cursor = null;
 
         try {
-            sdb = getReadableDatabase ();
             cursor = sdb.query ("sqlite_sequence",
                                 new String[]{ "seq" },
                                 "name = ?",
@@ -303,10 +301,6 @@ public class LogMyTripDataHelper
         finally {
             if (cursor != null) {
                 cursor.close ();
-            }
-
-            if (sdb != null) {
-                sdb.close ();
             }
         }
     }

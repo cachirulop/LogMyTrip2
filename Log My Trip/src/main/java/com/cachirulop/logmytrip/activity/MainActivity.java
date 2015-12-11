@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.fragment.MainFragment;
+import com.cachirulop.logmytrip.fragment.SyncManager;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -52,29 +53,12 @@ public class MainActivity
     }
 
     @Override
-    protected void onCreate (Bundle savedInstanceState)
+    protected void onPause ()
     {
-        // Inflate the view
-        super.onCreate (savedInstanceState);
-        setContentView (R.layout.activity_main);
+        super.onPause ();
 
-        if (SettingsManager.isAutoStartLogBluetooth (this)) {
-            ServiceManager.startBluetooth (this);
-        }
-
-        // Configure action bar
-        ActionBar bar;
-
-        bar = getSupportActionBar ();
-        if (bar != null) {
-            bar.setDisplayShowHomeEnabled (true);
-            bar.setLogo (R.mipmap.ic_launcher);
-            bar.setIcon (R.mipmap.ic_launcher);
-            bar.setTitle (R.string.app_name);
-        }
-
-        // gets the main fragment
-        _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (R.id.fMainFragment);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onBluetoothStartReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onBluetoothStopReceiver);
     }
 
     @Override
@@ -96,12 +80,33 @@ public class MainActivity
     }
 
     @Override
-    protected void onPause ()
+    protected void onCreate (Bundle savedInstanceState)
     {
-        super.onPause ();
+        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+            SyncManager.syncDatabase (this);
+        }
 
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onBluetoothStartReceiver);
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onBluetoothStopReceiver);
+        // Inflate the view
+        super.onCreate (savedInstanceState);
+        setContentView (R.layout.activity_main);
+
+        if (SettingsManager.isAutoStartLogBluetooth (this)) {
+            ServiceManager.startBluetooth (this);
+        }
+
+        // Configure action bar
+        ActionBar bar;
+
+        bar = getSupportActionBar ();
+        if (bar != null) {
+            bar.setDisplayShowHomeEnabled (true);
+            bar.setLogo (R.mipmap.ic_launcher);
+            bar.setIcon (R.mipmap.ic_launcher);
+            bar.setTitle (R.string.app_name);
+        }
+
+        // gets the main fragment
+        _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (R.id.fMainFragment);
     }
 
     @Override

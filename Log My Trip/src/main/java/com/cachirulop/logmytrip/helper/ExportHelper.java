@@ -11,6 +11,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Created by david on 21/11/15.
@@ -82,11 +83,6 @@ public class ExportHelper
         return result.toString ();
     }
 
-    private static String getFileExtension (String fileName)
-    {
-        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
-    }
-
     public static void exportToGoogleDrive (final Context ctx, final Trip trip,
                                             final String fileName,
                                             final GoogleApiClient client,
@@ -96,9 +92,26 @@ public class ExportHelper
 
         path = getFilePath (ctx, fileName, false);
 
-        GoogleDriveHelper.saveFile (client, ctx, path, trip,
+        GoogleDriveHelper.saveFile (client,
+                                    ctx,
+                                    path,
+                                    trip,
                                     new GoogleDriveHelper.IGoogleDriveHelperListener ()
                                     {
+                                        @Override
+                                        public void onWriteContents (Writer w)
+                                        {
+                                            try {
+                                                TripManager.exportTrip (ctx,
+                                                                        trip,
+                                                                        getFileExtension (fileName),
+                                                                        w);
+                                            }
+                                            catch (IOException e) {
+                                                listener.onExportFails (R.string.msg_error_exporting);
+                                            }
+                                        }
+
                                         @Override
                                         public void onSaveFileSuccess ()
                                         {
@@ -111,6 +124,55 @@ public class ExportHelper
                                             listener.onExportFails (messageId);
                                         }
                                     });
+    }
+
+    public static void exportToGoogleDrive (final Context ctx,
+                                            final Trip trip,
+                                            final String fileName,
+                                            final GoogleApiClient client,
+                                            final IExportHelperListener listener)
+    {
+        String path;
+
+        path = getFilePath (ctx, fileName, false);
+
+        GoogleDriveHelper.saveFile (client,
+                                    ctx,
+                                    path,
+                                    trip,
+                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                    {
+                                        @Override
+                                        public void onWriteContents (Writer w)
+                                        {
+                                            try {
+                                                TripManager.exportTrip (ctx,
+                                                                        trip,
+                                                                        getFileExtension (fileName),
+                                                                        w);
+                                            }
+                                            catch (IOException e) {
+                                                listener.onExportFails (R.string.msg_error_exporting);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onSaveFileSuccess ()
+                                        {
+                                            listener.onExportSuccess (fileName);
+                                        }
+
+                                        @Override
+                                        public void onSaveFileFails (int messageId)
+                                        {
+                                            listener.onExportFails (messageId);
+                                        }
+                                    });
+    }
+
+    private static String getFileExtension (String fileName)
+    {
+        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
     }
 
     public interface IExportHelperListener

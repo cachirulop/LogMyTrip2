@@ -673,7 +673,7 @@ public class TripManager
         writer.write ("</kml>\n");
     }
 
-    private static List<TripLocation> createLocationList (Context ctx, Long tripId)
+    public static List<TripLocation> createLocationList (Context ctx, Long tripId)
     {
         SQLiteDatabase          db = null;
         ArrayList<TripLocation> result;

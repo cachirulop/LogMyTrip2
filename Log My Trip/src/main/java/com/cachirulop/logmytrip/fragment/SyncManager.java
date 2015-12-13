@@ -220,27 +220,4 @@ public class SyncManager
 
         return result.toString ();
     }
-
-    private class GoogleDriveHelperListener
-            implements GoogleDriveHelper.IGoogleDriveHelperListener
-    {
-
-        @Override
-        public void onWriteContents (Writer w)
-        {
-
-        }
-
-        @Override
-        public void onSaveFileSuccess ()
-        {
-
-        }
-
-        @Override
-        public void onSaveFileFails (int messageId)
-        {
-
-        }
-    }
 }

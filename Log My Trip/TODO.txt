@@ -1,4 +1,5 @@
 
+* Trip to Santa Cruz de la Zarza on september is very very slow
 * Export to drive fails when export the first time (connect to new google drive account)
 * Save configuration and data to google drive
 * Sync with drive

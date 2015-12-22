@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 
+import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.entity.TripLocation;
@@ -185,24 +185,18 @@ public class TabMapFragment
 
     private void drawTrackMainThread ()
     {
-        Handler  main;
-        Runnable runInMain;
         Activity parent;
 
         parent = getActivity ();
         if (parent != null) {
-            main = new Handler (parent.getMainLooper ());
-
-            runInMain = new Runnable ()
+            LogMyTripApplication.runInMainThread (getContext (), new Runnable ()
             {
                 @Override
                 public void run ()
                 {
                     _mapHelper.drawTrip (_trip, true);
                 }
-            };
-
-            main.post (runInMain);
+            });
         }
     }
 

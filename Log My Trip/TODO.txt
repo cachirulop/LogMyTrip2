@@ -1,5 +1,4 @@
 
-* Trip to Santa Cruz de la Zarza on september is very very slow
 * Export to drive fails when export the first time (connect to new google drive account)
 * Save configuration and data to google drive
 * Sync with drive
@@ -65,3 +64,4 @@ X In the map fragment when it is logging a trip always follow the trip, although
   trip is not the active. In statistics tab do the same.
 X When launch from notification starts a new instance and need to press back twice to exit the
     application -> I don't know how to solve it
+X Trip to Santa Cruz de la Zarza on september is very very slow

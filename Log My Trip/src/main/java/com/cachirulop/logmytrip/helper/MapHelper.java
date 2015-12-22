@@ -32,9 +32,11 @@ import java.util.WeakHashMap;
  */
 public class MapHelper
 {
+    private static final int   PADDING_DEFAULT   = 70;
+    private static final int   PADDING_SHOW_INFO = 300;
     private static final int   COLOR_TRANSPARENCY        = 40;
-    private static final int[] SEGMENT_COLORS = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
-                                                           Color.MAGENTA, Color.YELLOW };
+    private static final int[] SEGMENT_COLORS    = new int[]{ Color.RED, Color.BLUE, Color.GREEN,
+                                                              Color.MAGENTA, Color.YELLOW };
     private static final int[] SEGMENT_COLORS_UNSELECTED = new int[]{
             Color.argb (COLOR_TRANSPARENCY, 255, 0, 0), Color.argb (COLOR_TRANSPARENCY, 0, 0, 255),
             Color.argb (COLOR_TRANSPARENCY, 0, 255, 0),
@@ -126,17 +128,20 @@ public class MapHelper
                                                                 listener));
             if (hasPoints && !isActiveTrip) {
                 if (_selectedSegment == null) {
-                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
+                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (),
+                                                                             PADDING_DEFAULT));
                 }
                 else {
-                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 90));
+                    _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (),
+                                                                             PADDING_SHOW_INFO));
                 }
             }
         }
     }
 
     private void privateDrawSegment (TripSegment segment,
-                                     LatLngBounds.Builder builder, boolean isActiveSegment)
+                                     LatLngBounds.Builder builder,
+                                     boolean isActiveSegment)
     {
         List<TripLocation> points;
         MarkerOptions      markerOptions;
@@ -214,7 +219,10 @@ public class MapHelper
 
             track = new ArrayList<LatLng> ();
 
+            boolean includeInBuilder;
             int i = 0;
+
+            includeInBuilder = (_selectedSegment == null || _selectedSegment.equals (segment));
             for (TripLocation p : points) {
                 LatLng current;
 
@@ -222,7 +230,7 @@ public class MapHelper
 
                 track.add (current);
 
-                if (_selectedSegment == null || _selectedSegment.equals (segment)) {
+                if (includeInBuilder) {
                     builder.include (current);
                 }
 
@@ -267,11 +275,6 @@ public class MapHelper
 
     public void drawSegment (TripSegment segment)
     {
-        drawSegment (segment, null);
-    }
-
-    public void drawSegment (TripSegment segment, MapListener listener)
-    {
         LatLngBounds.Builder builder;
 
         if (_map != null) {
@@ -279,8 +282,8 @@ public class MapHelper
 
             privateDrawSegment (segment, builder, false);
 
-            _map.setOnCameraChangeListener (new CameraListener (_map, builder, false, listener));
-            _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (), 50));
+            _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (),
+                                                                     PADDING_DEFAULT));
         }
     }
 
@@ -534,6 +537,7 @@ public class MapHelper
     }
 
     //////////////////////////////////////////////////////////////////
+
     private class MapClickListener
             implements GoogleMap.OnMapClickListener
     {
@@ -547,7 +551,6 @@ public class MapHelper
             }
         }
     }
-
 
     //////////////////////////////////////////////////////////////////
 

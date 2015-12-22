@@ -79,8 +79,13 @@ public class SyncManager
                                    List<Trip> trips)
     {
         for (String file : remoteFiles) {
-            if (!findTrip (file, trips)) {
-
+            if (!file.contains ("_locations")) {
+                if (!findTrip (file, trips)) {
+                    // Only in remote
+                }
+                else {
+                    // Remote and local, compare locations
+                }
             }
         }
     }

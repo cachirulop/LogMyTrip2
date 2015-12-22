@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.fragment.MainFragment;
+import com.cachirulop.logmytrip.fragment.SyncManager;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -81,9 +82,9 @@ public class MainActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-        //        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-        //            SyncManager.syncDatabase (this);
-        //        }
+        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+            SyncManager.syncDatabase (this);
+        }
 
         // Inflate the view
         super.onCreate (savedInstanceState);

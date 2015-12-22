@@ -153,6 +153,17 @@ public class MainFragment
         }
     }
 
+    private void startDetailActivity (Trip t)
+    {
+        Intent i;
+
+        i = new Intent (getContext (), TripDetailActivity.class);
+
+        SelectedTripHolder.getInstance ().setSelectedTrip (t);
+
+        startActivity (i);
+    }
+
     @Override
     public boolean onCreateActionMode (ActionMode mode, Menu menu)
     {
@@ -386,6 +397,15 @@ public class MainFragment
         updateActionBarSubtitle ();
     }
 
+    private void updateActionBarSubtitle ()
+    {
+        ActionBar bar;
+
+        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
+        bar.setSubtitle (getContext ().getString (R.string.main_activity_subtitle,
+                                                  _adapter.getItemCount ()));
+    }
+
     @Override
     public void onActivityResult (int requestCode, int resultCode, Intent data)
     {
@@ -453,83 +473,6 @@ public class MainFragment
         }
     }
 
-    /**
-     * Load existing trips
-     */
-    private void loadTrips ()
-    {
-        if (getView () != null) {
-            _adapter = new TripItemAdapter (getContext (),
-                                            new TripItemAdapter.TripItemAdapterListener ()
-                                            {
-                                                @Override
-                                                public void onTripListLoaded ()
-                                                {
-                                                    updateActionBarSubtitle ();
-                                                    _tripsLoaded = true;
-
-                                                    if (_startLog) {
-                                                        autoStartLog ();
-                                                        _startLog = false;
-                                                    }
-                                                }
-                                            });
-
-            _adapter.setOnTripItemClickListener (this);
-            _recyclerView.setAdapter (_adapter);
-        }
-    }
-
-    private void updateActionBarSubtitle ()
-    {
-        ActionBar bar;
-
-        bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
-        bar.setSubtitle (getContext ().getString (R.string.main_activity_subtitle,
-                                                  _adapter.getItemCount ()));
-    }
-
-    private void onTripLogClick (View v)
-    {
-        if (SettingsManager.isLogTrip (getContext ())) {
-            _recyclerView.scrollToPosition (0);
-
-            ServiceManager.stopTripLog (getContext ());
-
-            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
-        }
-        else {
-            ServiceManager.startTripLog (getContext ());
-        }
-    }
-
-    private void refreshFabTrip ()
-    {
-        if (SettingsManager.isLogTrip (getContext ())) {
-            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
-        }
-        else {
-            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
-        }
-    }
-
-    private void autoStartLog ()
-    {
-        _adapter.startTripLog ();
-        startDetailActivity (_adapter.getItem (0));
-    }
-
-    private void startDetailActivity (Trip t)
-    {
-        Intent i;
-
-        i = new Intent (getContext (), TripDetailActivity.class);
-
-        SelectedTripHolder.getInstance ().setSelectedTrip (t);
-
-        startActivity (i);
-    }
-
     @Override
     public void onResume ()
     {
@@ -563,6 +506,63 @@ public class MainFragment
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
 
         super.onPause ();
+    }
+
+    /**
+     * Load existing trips
+     */
+    private void loadTrips ()
+    {
+        if (getView () != null) {
+            _adapter = new TripItemAdapter (getContext (),
+                                            new TripItemAdapter.TripItemAdapterListener ()
+                                            {
+                                                @Override
+                                                public void onTripListLoaded ()
+                                                {
+                                                    updateActionBarSubtitle ();
+                                                    _tripsLoaded = true;
+
+                                                    if (_startLog) {
+                                                        autoStartLog ();
+                                                        _startLog = false;
+                                                    }
+                                                }
+                                            });
+
+            _adapter.setOnTripItemClickListener (this);
+            _recyclerView.setAdapter (_adapter);
+        }
+    }
+
+    private void onTripLogClick (View v)
+    {
+        if (SettingsManager.isLogTrip (getContext ())) {
+            _recyclerView.scrollToPosition (0);
+
+            ServiceManager.stopTripLog (getContext ());
+
+            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
+        }
+        else {
+            ServiceManager.startTripLog (getContext ());
+        }
+    }
+
+    private void refreshFabTrip ()
+    {
+        if (SettingsManager.isLogTrip (getContext ())) {
+            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
+        }
+        else {
+            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
+        }
+    }
+
+    private void autoStartLog ()
+    {
+        _adapter.startTripLog ();
+        startDetailActivity (_adapter.getItem (0));
     }
 
     @Override

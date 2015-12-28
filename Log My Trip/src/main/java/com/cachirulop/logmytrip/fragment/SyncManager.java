@@ -82,6 +82,7 @@ public class SyncManager
             if (!file.contains ("_locations")) {
                 if (!findTrip (file, trips)) {
                     // Only in remote
+                    importTrip (file, trips);
                 }
                 else {
                     // Remote and local, compare locations
@@ -198,6 +199,15 @@ public class SyncManager
         }
 
         return false;
+    }
+
+    private static void importTrip (String file, List<Trip> trips)
+    {
+        // Read trip file
+        // Read locations
+        // Save trip
+        // Save locations
+        // Add new trip to trip list
     }
 
     private static String getTripFileName (Trip trip)

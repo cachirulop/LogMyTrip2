@@ -96,7 +96,7 @@ public class ExportHelper
     //                                    ctx,
     //                                    path,
     //                                    trip,
-    //                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
+    //                                    new GoogleDriveHelper.IGoogleDriveWriterListener ()
     //                                    {
     //                                        @Override
     //                                        public void onWriteContents (Writer w)
@@ -139,8 +139,7 @@ public class ExportHelper
         GoogleDriveHelper.saveFile (client,
                                     ctx,
                                     path,
-                                    trip,
-                                    new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                    trip, new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                     {
                                         @Override
                                         public void onWriteContents (Writer w)

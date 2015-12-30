@@ -12,11 +12,11 @@ import android.view.MenuItem;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.fragment.MainFragment;
-import com.cachirulop.logmytrip.fragment.SyncManager;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
+import com.cachirulop.logmytrip.manager.SyncManager;
 
 public class MainActivity
         extends AppCompatActivity

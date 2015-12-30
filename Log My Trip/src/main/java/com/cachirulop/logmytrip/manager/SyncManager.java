@@ -1,4 +1,4 @@
-package com.cachirulop.logmytrip.fragment;
+package com.cachirulop.logmytrip.manager;
 
 import android.content.Context;
 
@@ -7,7 +7,6 @@ import com.cachirulop.logmytrip.entity.TripLocation;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelperException;
 import com.cachirulop.logmytrip.helper.LogHelper;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
@@ -111,8 +110,7 @@ public class SyncManager
                 GoogleDriveHelper.saveFile (client,
                                             ctx,
                                             "Log My Trip/APP/sync/" + fileName,
-                                            t,
-                                            new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                            t, new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                             {
                                                 @Override
                                                 public void onWriteContents (Writer w)
@@ -146,8 +144,7 @@ public class SyncManager
                 GoogleDriveHelper.saveFile (client,
                                             ctx,
                                             "Log My Trip/APP/sync/" + getLocationsFileName (t),
-                                            t,
-                                            new GoogleDriveHelper.IGoogleDriveHelperListener ()
+                                            t, new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                             {
                                                 @Override
                                                 public void onWriteContents (Writer w)

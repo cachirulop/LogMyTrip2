@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 
@@ -92,6 +93,13 @@ public class GoogleDriveHelper
     private static DriveFolder getFolder (GoogleApiClient client, String filePath)
             throws GoogleDriveHelperException
     {
+        return getFolder (client, filePath, true);
+    }
+
+
+    private static DriveFolder getFolder (GoogleApiClient client, String filePath, boolean create)
+            throws GoogleDriveHelperException
+    {
         String[]    path;
         DriveFolder last;
 
@@ -101,8 +109,11 @@ public class GoogleDriveHelper
             DriveFolder current;
 
             current = (DriveFolder) findDriveResource (client, last, s, true);
-            if (current == null) {
+            if (current == null && create) {
                 current = createFolder (client, last, s);
+            }
+            else {
+                throw new GoogleDriveHelperException (R.string.msg_folder_not_found);
             }
 
             last = current;
@@ -189,8 +200,7 @@ public class GoogleDriveHelper
     public static void saveFile (final GoogleApiClient client,
                                  final Context ctx,
                                  final String filePath,
-                                 final Trip trip,
-                                 final IGoogleDriveHelperListener listener)
+                                 final Trip trip, final IGoogleDriveWriterListener listener)
     {
         Thread t;
 
@@ -224,8 +234,7 @@ public class GoogleDriveHelper
     private static void realSaveFile (final GoogleApiClient client,
                                       final Context ctx,
                                       final String filePath,
-                                      final Trip trip,
-                                      final IGoogleDriveHelperListener listener)
+                                      final Trip trip, final IGoogleDriveWriterListener listener)
             throws GoogleDriveHelperException
     {
         DriveFolder folder;
@@ -241,8 +250,7 @@ public class GoogleDriveHelper
                                     Context ctx,
                                     DriveFolder folder,
                                     String name,
-                                    Trip trip,
-                                    IGoogleDriveHelperListener listener)
+                                    Trip trip, IGoogleDriveWriterListener listener)
             throws GoogleDriveHelperException
     {
         // If file exists, remove it
@@ -303,15 +311,84 @@ public class GoogleDriveHelper
         }
     }
 
+    public static void readFile (final GoogleApiClient client,
+                                 final Context ctx,
+                                 final String filePath,
+                                 final IGoogleDriveReaderListener listener)
+    {
+        Thread t;
+
+        t = new Thread ()
+        {
+            @Override
+            public void run ()
+            {
+                try {
+                    realReadFile (client, ctx, filePath, listener);
+                }
+                catch (GoogleDriveHelperException e) {
+                    listener.onReadFileFails (e.getMessageId ());
+                }
+
+            }
+        };
+
+        t.start ();
+
+        try {
+            t.join ();
+
+            listener.onReadFileSuccess ();
+        }
+        catch (InterruptedException e) {
+            listener.onReadFileFails (R.string.msg_error_exporting);
+        }
+    }
+
+    private static void realReadFile (GoogleApiClient client,
+                                      Context ctx,
+                                      String filePath,
+                                      IGoogleDriveReaderListener listener)
+            throws GoogleDriveHelperException
+    {
+        DriveFolder folder;
+        File        file;
+
+        file = new File (filePath);
+        folder = getFolder (client, file.getParent (), false);
+
+        readFileContents (client, ctx, folder, file.getName (), listener);
+        // createFile (client, ctx, folder, file.getName (), trip, listener);
+    }
+
+    private static void readFileContents (GoogleApiClient client,
+                                          Context ctx,
+                                          DriveFolder folder,
+                                          String name,
+                                          IGoogleDriveReaderListener listener)
+    {
+
+    }
+
+
     private static String getFileExtension (String fileName)
     {
         return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
     }
 
-    public interface IGoogleDriveHelperListener
+    public interface IGoogleDriveWriterListener
     {
         void onWriteContents (Writer w);
         void onSaveFileSuccess ();
         void onSaveFileFails (int messageId);
+    }
+
+    public interface IGoogleDriveReaderListener
+    {
+        void onReadContents (Reader r);
+
+        void onReadFileSuccess ();
+
+        void onReadFileFails (int messageId);
     }
 }

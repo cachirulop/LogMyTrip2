@@ -20,8 +20,11 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
@@ -283,6 +286,8 @@ public class GoogleDriveHelper
                 writer.close ();
             }
             catch (IOException e) {
+                contents.discard (client);
+
                 throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
             }
 
@@ -301,6 +306,7 @@ public class GoogleDriveHelper
 
             changeSet = changeSetBuilder.build ();
 
+            // TODO: Commit the contents?
             fileResult = folder.createFile (client, changeSet, contents).await ();
             if (!fileResult.getStatus ().isSuccess ()) {
                 throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
@@ -309,6 +315,11 @@ public class GoogleDriveHelper
         else {
             throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
         }
+    }
+
+    private static String getFileExtension (String fileName)
+    {
+        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
     }
 
     public static void readFile (final GoogleApiClient client,
@@ -366,14 +377,62 @@ public class GoogleDriveHelper
                                           DriveFolder folder,
                                           String name,
                                           IGoogleDriveReaderListener listener)
+            throws GoogleDriveHelperException
     {
+        DriveFile                    file;
+        DriveApi.DriveContentsResult driveResult;
 
-    }
+        file = (DriveFile) findDriveResource (client, folder, name, false);
+        if (file == null) {
+            throw new GoogleDriveHelperException (R.string.msg_file_not_found);
+        }
 
+        driveResult = file.open (client, DriveFile.MODE_READ_ONLY, null).await ();
+        if (driveResult.getStatus ().isSuccess ()) {
+            DriveContents contents;
+            InputStream inputStream;
+            Reader reader;
+            DriveFolder.DriveFileResult fileResult;
 
-    private static String getFileExtension (String fileName)
-    {
-        return fileName.substring (fileName.lastIndexOf (".") + 1).toUpperCase ();
+            contents = driveResult.getDriveContents ();
+
+            inputStream = contents.getInputStream ();
+            reader = new BufferedReader (new InputStreamReader (inputStream));
+            try {
+                listener.onReadContents (reader);
+                reader.close ();
+            }
+            catch (IOException e) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+            finally {
+                // Close the contents
+                contents.discard (client);
+            }
+
+            MetadataChangeSet.Builder changeSetBuilder;
+            MetadataChangeSet changeSet;
+
+            changeSetBuilder = new MetadataChangeSet.Builder ();
+            changeSetBuilder.setTitle (name);
+
+            if (getFileExtension (name).equals ("GPX")) {
+                changeSetBuilder.setMimeType ("application/gpx");
+            }
+            else {
+                changeSetBuilder.setMimeType ("application/vnd.google-earth.kml+xml");
+            }
+
+            changeSet = changeSetBuilder.build ();
+
+            fileResult = folder.createFile (client, changeSet, contents).await ();
+            if (!fileResult.getStatus ().isSuccess ()) {
+                throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+            }
+        }
+        else {
+            throw new GoogleDriveHelperException (R.string.msg_error_gd_creating_new_file);
+        }
     }
 
     public interface IGoogleDriveWriterListener

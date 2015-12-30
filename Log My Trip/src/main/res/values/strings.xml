@@ -228,5 +228,6 @@
     <string name="pref_autoSyncGoogleDriveAccountSummary">Sync trips with account: %1$s</string>
     <string name="msg_error_gd_reading_folder">Can\'t read folder</string>
     <string name="msg_folder_not_found">Folder not found</string>
+    <string name="msg_file_not_found">File not found</string>
 
 </resources>

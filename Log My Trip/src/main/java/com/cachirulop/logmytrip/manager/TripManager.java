@@ -184,6 +184,69 @@ public class TripManager
                 db.close ();
             }
         }
+
+        TripManager.updateTripStatistics (ctx, segment.getTrip ());
+    }
+
+    public static void updateTripStatistics (Context ctx, Trip t)
+    {
+        t.computeTotalTime (ctx);
+        t.computeTotalDistance (ctx);
+
+        updateTrip (ctx, t);
+    }
+
+    public static Trip updateTrip (Context ctx, Trip t)
+    {
+        return saveTrip (ctx, t, false);
+    }
+
+    private static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
+    {
+        SQLiteDatabase db = null;
+
+        try {
+            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
+
+            ContentValues values;
+
+            values = new ContentValues ();
+
+            values.put ("trip_date", t.getTripDate ().getTime ());
+            values.put ("title", t.getTitle ());
+            values.put ("description", t.getDescription ());
+            values.put ("total_time", t.getTotalTime ());
+            values.put ("total_distance", t.getTotalDistance ());
+
+            if (isInsert) {
+                db.insert (CONST_TRIP_TABLE_NAME, null, values);
+            }
+            else {
+                db.update (CONST_TRIP_TABLE_NAME,
+                           values,
+                           "id = ?",
+                           new String[]{ Long.toString (t.getId ()) });
+            }
+
+            t.setId (getLastIdTrip (db, ctx));
+
+            return t;
+        }
+        finally {
+            if (db != null) {
+                db.close ();
+            }
+        }
+    }
+
+    /**
+     * Gets the maximum identifier of the trips table
+     *
+     * @return the maximum trip identifier
+     */
+    private static long getLastIdTrip (SQLiteDatabase db, Context ctx)
+    {
+        return new LogMyTripDataHelper (ctx).getLastId (db, CONST_TRIP_TABLE_NAME);
     }
 
     public static Trip getActiveTrip (Context ctx)
@@ -212,9 +275,12 @@ public class TripManager
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
 
             c = db.query (CONST_TRIP_TABLE_NAME,
-                          null, "id = ?", new String[]{ Long.toString (idTrip) },
                           null,
-                          null, null);
+                          "id = ?",
+                          new String[]{ Long.toString (idTrip) },
+                          null,
+                          null,
+                          null);
 
             if (c != null && c.moveToFirst ()) {
                 return createTripFromCursor (db, c);
@@ -290,67 +356,6 @@ public class TripManager
     public static Trip insertTrip (Context ctx, Trip t)
     {
         return saveTrip (ctx, t, true);
-    }
-
-    private static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
-    {
-        SQLiteDatabase db = null;
-
-        try {
-            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
-
-            ContentValues values;
-
-            values = new ContentValues ();
-
-            values.put ("trip_date", t.getTripDate ().getTime ());
-            values.put ("title", t.getTitle ());
-            values.put ("description", t.getDescription ());
-            values.put ("total_time", t.getTotalTime ());
-            values.put ("total_distance", t.getTotalDistance ());
-
-            if (isInsert) {
-                db.insert (CONST_TRIP_TABLE_NAME, null, values);
-            }
-            else {
-                db.update (CONST_TRIP_TABLE_NAME,
-                           values,
-                           "id = ?",
-                           new String[]{ Long.toString (t.getId ()) });
-            }
-
-            t.setId (getLastIdTrip (db, ctx));
-
-            return t;
-        }
-        finally {
-            if (db != null) {
-                db.close ();
-            }
-        }
-    }
-
-    /**
-     * Gets the maximum identifier of the trips table
-     *
-     * @return the maximum trip identifier
-     */
-    private static long getLastIdTrip (SQLiteDatabase db, Context ctx)
-    {
-        return new LogMyTripDataHelper (ctx).getLastId (db, CONST_TRIP_TABLE_NAME);
-    }
-
-    public static void updateTripStatistics (Context ctx, Trip t)
-    {
-        t.computeTotalTime (ctx);
-        t.computeTotalDistance (ctx);
-
-        updateTrip (ctx, t);
-    }
-
-    public static Trip updateTrip (Context ctx, Trip t)
-    {
-        return saveTrip (ctx, t, false);
     }
 
     public static void unsetActiveTrip (Context ctx)

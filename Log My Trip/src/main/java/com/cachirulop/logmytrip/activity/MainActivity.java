@@ -16,7 +16,6 @@ import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.SyncManager;
 
 public class MainActivity
         extends AppCompatActivity
@@ -82,9 +81,9 @@ public class MainActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-            SyncManager.syncDatabase (this);
-        }
+//        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+//            SyncManager.syncDatabase (this);
+//        }
 
         // Inflate the view
         super.onCreate (savedInstanceState);

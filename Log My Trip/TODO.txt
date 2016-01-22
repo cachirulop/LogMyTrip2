@@ -1,4 +1,12 @@
 
+* Group trips:
+    - Rename trips to journey and make new trip table with from/to dates and automatically
+group journeys in the correspondent trip
+    - Add interface to change between trips and journals
+
+* Add navigation transition from main activity to trip detail
+    (https://www.google.com/design/spec/patterns/navigational-transitions.html#), is nice
+
 * Export to drive fails when export the first time (connect to new google drive account)
 * Save configuration and data to google drive
 * Sync with drive

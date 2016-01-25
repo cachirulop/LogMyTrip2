@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:id="@+id/menuGroupMain"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_journeys"
+            android:icon="@mipmap/ic_trip_status_saved"
+            android:title="@string/action_journeys"
+            android:checked="true"/>
+
+        <item
+            android:id="@+id/action_trips"
+            android:icon="@mipmap/ic_button_map"
+            android:title="@string/action_trips"/>
+    </group>
+
+    <group
+        android:id="@+id/menuGroupSettings">
+
+        <item
+            android:id="@+id/action_settings"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="@string/action_settings"/>
+
+        <item
+            android:id="@+id/action_auto_start_log"
+            app:actionLayout="@layout/action_view_switch"
+            android:title="@string/pref_autoStartLogTitle"/>
+
+        <item
+            android:id="@+id/action_import_db"
+            android:title="@string/action_import_db"/>
+
+        <item
+            android:id="@+id/action_export_db"
+            android:title="@string/action_export_db"/>
+    </group>
+</menu>

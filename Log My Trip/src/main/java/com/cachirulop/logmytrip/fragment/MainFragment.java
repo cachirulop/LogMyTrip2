@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -436,12 +435,6 @@ public class MainFragment
         super.onViewCreated (view, savedInstanceState);
 
         if (getView () != null) {
-            // Toolbar
-            Toolbar toolbar;
-
-            toolbar = (Toolbar) view.findViewById (R.id.fragment_main_toolbar);
-            ((AppCompatActivity) getActivity ()).setSupportActionBar (toolbar);
-
             // Recyclerview
             _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
             _recyclerView.setLayoutManager (new LinearLayoutManager (getContext ()));

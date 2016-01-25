@@ -1,4 +1,7 @@
 
+* Change drawer icons
+* Add toolbar on settings window like gmail
+
 * Group trips:
     - Rename trips to journey and make new trip table with from/to dates and automatically
 group journeys in the correspondent trip

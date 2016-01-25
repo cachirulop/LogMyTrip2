@@ -24,6 +24,7 @@ public class SettingsActivity
         // Display the fragment as the main content.
         getFragmentManager ().beginTransaction ().replace (android.R.id.content, _settingsFragment)
                              .commit ();
+
     }
 
     @Override

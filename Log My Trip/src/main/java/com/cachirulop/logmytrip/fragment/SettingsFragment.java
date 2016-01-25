@@ -71,6 +71,8 @@ public class SettingsFragment
         if (SettingsManager.isAutoSyncGoogleDrive (ctx)) {
             selectAutoSyncGoogleAccount ();
         }
+
+        getView ().setFitsSystemWindows (true);
     }
 
     public void setPrefsDependencies ()

@@ -1,6 +1,5 @@
 
 * Change drawer icons
-* Add toolbar on settings window like gmail
 
 * Group trips:
     - Rename trips to journey and make new trip table with from/to dates and automatically
@@ -76,3 +75,4 @@ X In the map fragment when it is logging a trip always follow the trip, although
 X When launch from notification starts a new instance and need to press back twice to exit the
     application -> I don't know how to solve it
 X Trip to Santa Cruz de la Zarza on september is very very slow
+X Add toolbar on settings window like gmail

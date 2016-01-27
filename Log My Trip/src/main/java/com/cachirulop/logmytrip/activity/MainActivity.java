@@ -132,6 +132,22 @@ public class MainActivity
         // _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (R.id.fMainFragment);
     }
 
+    @Override
+    protected void onPostCreate (Bundle savedInstanceState)
+    {
+        super.onPostCreate (savedInstanceState);
+
+        _drawerToggle.syncState ();
+    }
+
+    @Override
+    public void onConfigurationChanged (Configuration newConfig)
+    {
+        super.onConfigurationChanged (newConfig);
+
+        _drawerToggle.onConfigurationChanged (newConfig);
+    }
+
     private void setupDrawerContent ()
     {
         _nvDrawer.setNavigationItemSelectedListener (new NavigationView.OnNavigationItemSelectedListener ()
@@ -196,22 +212,6 @@ public class MainActivity
 
             fragmentManager.beginTransaction ().replace (R.id.flContent, fragment).commit ();
         }
-    }
-
-    @Override
-    protected void onPostCreate (Bundle savedInstanceState)
-    {
-        super.onPostCreate (savedInstanceState);
-
-        _drawerToggle.syncState ();
-    }
-
-    @Override
-    public void onConfigurationChanged (Configuration newConfig)
-    {
-        super.onConfigurationChanged (newConfig);
-
-        _drawerToggle.onConfigurationChanged (newConfig);
     }
 
     @Override

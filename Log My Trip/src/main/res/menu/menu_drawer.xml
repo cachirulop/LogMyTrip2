@@ -6,13 +6,13 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/action_journeys"
-            android:icon="@mipmap/ic_trip_status_saved"
+            android:icon="@mipmap/ic_trip_status_logging"
             android:title="@string/action_journeys"
             android:checked="true"/>
 
         <item
             android:id="@+id/action_trips"
-            android:icon="@mipmap/ic_button_map"
+            android:icon="@drawable/ic_map"
             android:title="@string/action_trips"/>
     </group>
 
@@ -21,20 +21,23 @@
 
         <item
             android:id="@+id/action_settings"
-            android:icon="@android:drawable/ic_menu_preferences"
+            android:icon="@drawable/ic_settings"
             android:title="@string/action_settings"/>
 
         <item
             android:id="@+id/action_auto_start_log"
             app:actionLayout="@layout/action_view_switch"
+            android:icon="@mipmap/ic_waiting_bluetooth"
             android:title="@string/pref_autoStartLogTitle"/>
 
         <item
             android:id="@+id/action_import_db"
+            android:icon="@android:drawable/stat_sys_download"
             android:title="@string/action_import_db"/>
 
         <item
             android:id="@+id/action_export_db"
+            android:icon="@android:drawable/stat_sys_upload"
             android:title="@string/action_export_db"/>
     </group>
 </menu>

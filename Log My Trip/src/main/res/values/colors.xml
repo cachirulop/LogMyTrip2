@@ -7,5 +7,7 @@
     <color name="pressed">#54000000</color>
     <color name="disabled">#616161</color>
 
+    <color name="window_background">#FFF5F5F5</color>
+
     <color name="recyclerview_background">#64df9d</color>
 </resources>

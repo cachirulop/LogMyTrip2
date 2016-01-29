@@ -1,5 +1,7 @@
 
-* Change drawer icons
+* Change drawer icons => trying to get the google profile photo to put it in the drawer
+* Export track fails: folder not found 'Log My Trip'
+* Export database to google drive
 
 * Group trips:
     - Rename trips to journey and make new trip table with from/to dates and automatically

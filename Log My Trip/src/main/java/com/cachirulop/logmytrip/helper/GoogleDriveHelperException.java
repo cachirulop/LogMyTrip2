@@ -7,6 +7,7 @@ public class GoogleDriveHelperException
         extends Exception
 {
     private int _messageId;
+    private Object[] _formatArgs = null;
 
     public GoogleDriveHelperException ()
     {
@@ -18,8 +19,19 @@ public class GoogleDriveHelperException
         _messageId = messageId;
     }
 
+    public GoogleDriveHelperException (int messageId, Object... formatArgs)
+    {
+        _messageId = messageId;
+        _formatArgs = formatArgs;
+    }
+
     public int getMessageId ()
     {
         return _messageId;
+    }
+
+    public Object[] getFormatArgs ()
+    {
+        return _formatArgs;
     }
 }

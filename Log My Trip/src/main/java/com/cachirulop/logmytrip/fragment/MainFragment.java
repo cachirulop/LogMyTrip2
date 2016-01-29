@@ -34,7 +34,6 @@ import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
-import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedTripHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
@@ -318,11 +317,12 @@ public class MainFragment
                     }
 
                     @Override
-                    public void onExportFails (int messageId)
+                    public void onExportFails (int messageId, Object... formatArgs)
                     {
                         DialogHelper.showErrorDialogMainThread (ctx,
                                                                 R.string.title_export,
-                                                                messageId);
+                                                                messageId,
+                                                                formatArgs);
                     }
                 };
 
@@ -351,8 +351,6 @@ public class MainFragment
                     public void run ()
                     {
                         _actionMode.finish ();
-
-                        ToastHelper.showLong (ctx, R.string.text_export_successful);
                     }
                 });
 
@@ -410,6 +408,16 @@ public class MainFragment
     {
         if (requestCode == GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                //                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+                //                if (result.isSuccess()) {
+                //                    GoogleSignInAccount acct = result.getSignInAccount();
+                //
+                //                    LogHelper.d ("*** " + acct.getDisplayName () + "-.-" + acct.getEmail () + "-.-" + acct
+                //                            .getPhotoUrl ());
+                //                }
+                //                else {
+                //                    LogHelper.d ("*** not success");
+                //                }
                 exportTrips (false);
             }
         }

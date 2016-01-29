@@ -226,7 +226,6 @@ public class SettingsFragment
         }
     }
 
-
     private String getAccountName ()
     {
         String accountName = "";

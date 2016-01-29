@@ -5,6 +5,7 @@ import android.content.Context;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Trip;
 import com.cachirulop.logmytrip.manager.SettingsManager;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.drive.Drive;
@@ -43,9 +44,13 @@ public class GoogleDriveHelper
                                                 GoogleApiClient.OnConnectionFailedListener failedListener)
     {
         GoogleApiClient.Builder builder;
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder (GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestProfile ()
+                .build ();
 
         builder = new GoogleApiClient.Builder (ctx);
         builder.addApi (Drive.API);
+        //builder.addApi (Auth.GOOGLE_SIGN_IN_API, gso);
         builder.addScope (Drive.SCOPE_FILE);
 
         if (connectionListener != null) {
@@ -116,7 +121,7 @@ public class GoogleDriveHelper
                 current = createFolder (client, last, s);
             }
             else {
-                throw new GoogleDriveHelperException (R.string.msg_folder_not_found);
+                throw new GoogleDriveHelperException (R.string.msg_folder_not_found, s);
             }
 
             last = current;
@@ -216,7 +221,7 @@ public class GoogleDriveHelper
                     realSaveFile (client, ctx, filePath, trip, listener);
                 }
                 catch (GoogleDriveHelperException e) {
-                    listener.onSaveFileFails (e.getMessageId ());
+                    listener.onSaveFileFails (e.getMessageId (), e.getFormatArgs ());
                 }
 
             }
@@ -384,7 +389,7 @@ public class GoogleDriveHelper
 
         file = (DriveFile) findDriveResource (client, folder, name, false);
         if (file == null) {
-            throw new GoogleDriveHelperException (R.string.msg_file_not_found);
+            throw new GoogleDriveHelperException (R.string.msg_file_not_found, name);
         }
 
         driveResult = file.open (client, DriveFile.MODE_READ_ONLY, null).await ();
@@ -439,7 +444,8 @@ public class GoogleDriveHelper
     {
         void onWriteContents (Writer w);
         void onSaveFileSuccess ();
-        void onSaveFileFails (int messageId);
+
+        void onSaveFileFails (int messageId, Object... formatArgs);
     }
 
     public interface IGoogleDriveReaderListener

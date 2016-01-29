@@ -134,10 +134,11 @@ public class SyncManager
                                                 }
 
                                                 @Override
-                                                public void onSaveFileFails (int messageId)
+                                                public void onSaveFileFails (int messageId,
+                                                                             Object... formatArgs)
                                                 {
                                                     LogHelper.e ("*** Error saving file: " + fileName + ":" + ctx
-                                                            .getString (messageId));
+                                                            .getString (messageId, formatArgs));
                                                 }
                                             });
 
@@ -176,10 +177,11 @@ public class SyncManager
                                                 }
 
                                                 @Override
-                                                public void onSaveFileFails (int messageId)
+                                                public void onSaveFileFails (int messageId,
+                                                                             Object... formatArgs)
                                                 {
                                                     LogHelper.e ("*** Error saving file: " + fileName + ":" + ctx
-                                                            .getString (messageId));
+                                                            .getString (messageId, formatArgs));
                                                 }
                                             });
 

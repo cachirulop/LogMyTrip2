@@ -54,7 +54,8 @@ public class MainFragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback,
                    GoogleApiClient.ConnectionCallbacks,
-                   GoogleApiClient.OnConnectionFailedListener
+                   GoogleApiClient.OnConnectionFailedListener,
+                   IMainFragment
 {
     private GoogleApiClient      _client;
     private boolean              _tripsLoaded;
@@ -593,5 +594,17 @@ public class MainFragment
                                                    getActivity (),
                                                    0).show ();
         }
+    }
+
+    @Override
+    public void onMainActivityResult (int requestCode, int resultCode, Intent data)
+    {
+        onActivityResult (requestCode, resultCode, data);
+    }
+
+    @Override
+    public void reloadData ()
+    {
+        reloadTrips ();
     }
 }

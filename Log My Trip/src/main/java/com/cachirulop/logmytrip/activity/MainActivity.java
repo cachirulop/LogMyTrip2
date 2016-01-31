@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -15,14 +18,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
+import com.cachirulop.logmytrip.fragment.IMainFragment;
 import com.cachirulop.logmytrip.fragment.MainFragment;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.io.InputStream;
 
 public class MainActivity
         extends AppCompatActivity
@@ -32,8 +46,10 @@ public class MainActivity
     private Toolbar               _toolbar;
     private NavigationView        _nvDrawer;
 
-    private MainFragment _mainFragment;
-    private MenuItem     _menuAutoStartLog;
+    private IMainFragment _mainFragment;
+    private MenuItem      _menuAutoStartLog;
+
+    private final int REQUEST_CODE_GOOGLE_SIGN_API = 1001;
 
     private BroadcastReceiver _onBluetoothStartReceiver = new BroadcastReceiver ()
     {
@@ -58,8 +74,17 @@ public class MainActivity
     {
         super.onActivityResult (requestCode, resultCode, data);
 
-        if (requestCode == GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE) {
-            _mainFragment.onActivityResult (requestCode, resultCode, data);
+        switch (requestCode) {
+            case GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE:
+                _mainFragment.onMainActivityResult (requestCode, resultCode, data);
+                break;
+
+            case REQUEST_CODE_GOOGLE_SIGN_API:
+                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent (data);
+
+                loadUserInfo (result);
+
+                break;
         }
     }
 
@@ -121,15 +146,12 @@ public class MainActivity
                                                    R.string.drawer_close);
         _drawer.setDrawerListener (_drawerToggle);
 
-
-        // Init the drawer content
         _nvDrawer = (NavigationView) findViewById (R.id.nvDrawer);
-        setupDrawerContent ();
 
+        setupDrawerContent ();
         loadFragment (R.id.action_journeys);
 
-        // gets the main fragment
-        // _mainFragment = (MainFragment) getSupportFragmentManager ().findFragmentById (R.id.fMainFragment);
+        requestUserInfo ();
     }
 
     @Override
@@ -183,34 +205,67 @@ public class MainActivity
                 fragmentClass = MainFragment.class;
                 break;
 
-            //            case R.id.nav_second_fragment:
-            //                // fragmentClass = SecondFragment.class;
-            //                break;
-            //
-            //            case R.id.nav_third_fragment:
-            //                // fragmentClass = ThirdFragment.class;
-            //                break;
-
             case R.id.action_settings:
                 showPreferences ();
                 break;
 
             default:
                 fragmentClass = MainFragment.class;
-
+                break;
         }
 
         if (fragmentClass != null) {
             try {
+                FragmentManager fragmentManager = getSupportFragmentManager ();
+
                 fragment = (Fragment) fragmentClass.newInstance ();
+                _mainFragment = (IMainFragment) fragment;
+
+                fragmentManager.beginTransaction ().replace (R.id.flContent, fragment).commit ();
             }
             catch (Exception e) {
                 e.printStackTrace ();
             }
+        }
+    }
 
-            FragmentManager fragmentManager = getSupportFragmentManager ();
+    private void requestUserInfo ()
+    {
+        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+            GoogleApiClient client;
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder (GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail ()
+                    .setAccountName (SettingsManager.getAutoSyncGoogleDriveAccount (this))
+                    .build ();
 
-            fragmentManager.beginTransaction ().replace (R.id.flContent, fragment).commit ();
+            client = new GoogleApiClient.Builder (this).enableAutoManage (this, null)
+                                                       .addApi (Auth.GOOGLE_SIGN_IN_API, gso)
+                                                       .build ();
+
+
+            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent (client);
+            startActivityForResult (signInIntent, REQUEST_CODE_GOOGLE_SIGN_API);
+        }
+    }
+
+    private void loadUserInfo (GoogleSignInResult result)
+    {
+        if (result.isSuccess ()) {
+            GoogleSignInAccount acct = result.getSignInAccount ();
+            DownloadImageTask task;
+            ImageView photo;
+            TextView txt;
+
+            photo = (ImageView) findViewById (R.id.iv_profile);
+
+            task = new DownloadImageTask (photo);
+            task.execute (acct.getPhotoUrl ().toString ());
+
+            txt = (TextView) findViewById (R.id.tv_display_name);
+            txt.setText (acct.getDisplayName ());
+
+            txt = (TextView) findViewById (R.id.tv_email);
+            txt.setText (acct.getEmail ());
         }
     }
 
@@ -256,7 +311,7 @@ public class MainActivity
 
             case R.id.action_import_db:
                 LogMyTripDataHelper.importDB (this);
-                _mainFragment.reloadTrips ();
+                _mainFragment.reloadData ();
                 return true;
 
             case R.id.action_export_db:
@@ -271,5 +326,40 @@ public class MainActivity
     private void showPreferences ()
     {
         startActivity (new Intent (this, SettingsActivity.class));
+    }
+
+
+    private class DownloadImageTask
+            extends AsyncTask<String, Void, Bitmap>
+    {
+        ImageView _image;
+
+        public DownloadImageTask (ImageView bmImage)
+        {
+            _image = bmImage;
+        }
+
+        protected Bitmap doInBackground (String... urls)
+        {
+            Bitmap bmp = null;
+
+            try {
+                InputStream in;
+
+                in = new java.net.URL (urls[0]).openStream ();
+
+                bmp = BitmapFactory.decodeStream (in);
+            }
+            catch (Exception e) {
+                LogHelper.e ("Can't load image: " + e.getMessage ());
+            }
+
+            return bmp;
+        }
+
+        protected void onPostExecute (Bitmap result)
+        {
+            _image.setImageBitmap (result);
+        }
     }
 }

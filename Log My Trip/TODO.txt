@@ -1,8 +1,11 @@
 
+* Change database and logic
+    - Changing SQL for the table creation
+    - Change classes
+
 * Change drawer icons => trying to get the google profile photo to put it in the drawer
 * Export track fails: folder not found 'Log My Trip'
 * Export database to google drive
-* Close drawer on back button press
 
 * Group trips:
     - Rename trips to journey and make new trip table with from/to dates and automatically
@@ -79,3 +82,4 @@ X When launch from notification starts a new instance and need to press back twi
     application -> I don't know how to solve it
 X Trip to Santa Cruz de la Zarza on september is very very slow
 X Add toolbar on settings window like gmail
+X Close drawer on back button press

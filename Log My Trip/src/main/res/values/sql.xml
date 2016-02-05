@@ -3,16 +3,22 @@
 <resources>
 
     <!-- Creates the database. -->
-    <string name="SQL_on_create" translatable="false">        
+    <string name="SQL_on_create" translatable="false">
         CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                            title TEXT NOT NULL,
                            description TEXT,
-                           trip_date TIMESTAMP NOT NULL,
-                           total_time INTEGER DEFAULT -1,
-                           total_distance DOUBLE default -1);
+                           begin_date TIMESTAMP NOT NULL,
+                           end_date TIMESTAMP);
+
+        CREATE TABLE journey (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                              title TEXT NOT NULL,
+                              description TEXT,
+                              journey_date TIMESTAMP NOT NULL,
+                              total_time INTEGER DEFAULT -1,
+                              total_distance DOUBLE default -1);
         
         CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                                    id_trip INTEGER NOT NULL,
+                                    id_journey INTEGER NOT NULL,
                                     location_time TIMESTAMP NOT NULL,
                                     latitude REAL NOT NULL,
                                     longitude REAL NOT NULL,
@@ -23,7 +29,7 @@
                                     provider TEXT,
                                     FOREIGN KEY(id_trip) REFERENCES trip(id));
 
-        CREATE INDEX idx_location_trip ON trip_location (id_trip);
+        CREATE INDEX idx_location_trip ON trip_location (id_journey);
         CREATE INDEX idx_location_time ON trip_location (location_time ASC);
     </string>
 

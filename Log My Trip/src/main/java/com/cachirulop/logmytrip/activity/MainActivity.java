@@ -19,7 +19,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
@@ -42,22 +44,22 @@ import java.io.InputStream;
 public class MainActivity
         extends AppCompatActivity
 {
+    private final int REQUEST_CODE_GOOGLE_SIGN_API = 1001;
+
     private DrawerLayout          _drawer;
     private ActionBarDrawerToggle _drawerToggle;
     private Toolbar               _toolbar;
     private NavigationView        _nvDrawer;
+    private Switch                _swAutoStartLog;
 
     private IMainFragment _mainFragment;
-    private MenuItem      _menuAutoStartLog;
-
-    private final int REQUEST_CODE_GOOGLE_SIGN_API = 1001;
 
     private BroadcastReceiver _onBluetoothStartReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            updateMenuItemState ();
+            updateAutoStartLogSwitch ();
         }
     };
 
@@ -66,7 +68,7 @@ public class MainActivity
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            updateMenuItemState ();
+            updateAutoStartLogSwitch ();
         }
     };
 
@@ -106,13 +108,13 @@ public class MainActivity
         LogMyTripBroadcastManager.registerBluetoothStartReceiver (this, _onBluetoothStartReceiver);
         LogMyTripBroadcastManager.registerBluetoothStopReceiver (this, _onBluetoothStopReceiver);
 
-        updateMenuItemState ();
+        updateAutoStartLogSwitch ();
     }
 
-    private void updateMenuItemState ()
+    private void updateAutoStartLogSwitch ()
     {
-        if (_menuAutoStartLog != null) {
-            _menuAutoStartLog.setChecked (SettingsManager.isAutoStartLogBluetooth (this));
+        if (_swAutoStartLog != null) {
+            _swAutoStartLog.setChecked (SettingsManager.isAutoStartLogBluetooth (this));
         }
     }
 
@@ -130,9 +132,9 @@ public class MainActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-//        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-//            SyncManager.syncDatabase (this);
-//        }
+        //        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+        //            SyncManager.syncDatabase (this);
+        //        }
 
         // Inflate the view
         super.onCreate (savedInstanceState);
@@ -184,27 +186,45 @@ public class MainActivity
 
     private void setupDrawerContent ()
     {
+        Menu     mnu;
+        MenuItem autoStartLog;
+
+        mnu = _nvDrawer.getMenu ();
+        if (mnu != null) {
+            autoStartLog = mnu.findItem (R.id.action_auto_start_log);
+            if (autoStartLog != null) {
+                _swAutoStartLog = (Switch) autoStartLog.getActionView ()
+                                                       .findViewById (R.id.switch1);
+                _swAutoStartLog.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener ()
+                {
+                    @Override
+                    public void onCheckedChanged (CompoundButton buttonView, boolean isChecked)
+                    {
+                        toggleAutoStartLog ();
+                    }
+                });
+            }
+        }
+
         _nvDrawer.setNavigationItemSelectedListener (new NavigationView.OnNavigationItemSelectedListener ()
         {
             @Override
             public boolean onNavigationItemSelected (MenuItem menuItem)
             {
-                selectMainContent (menuItem);
+                onDrawerMenuOptionsItemSelected (menuItem);
                 return true;
             }
         });
     }
 
-    public void selectMainContent (MenuItem menuItem)
+    private void toggleAutoStartLog ()
     {
-        loadFragment (menuItem.getItemId ());
-
-        if (menuItem.getItemId () == R.id.action_journeys || menuItem.getItemId () == R.id.action_trips) {
-            menuItem.setChecked (true);
-            setTitle (menuItem.getTitle ());
+        if (SettingsManager.isAutoStartLogBluetooth (this)) {
+            ServiceManager.stopBluetooth (this);
         }
-
-        _drawer.closeDrawers ();
+        else {
+            ServiceManager.startBluetooth (this);
+        }
     }
 
     private void loadFragment (int itemId)
@@ -281,57 +301,47 @@ public class MainActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu (Menu menu)
+    public void onDrawerMenuOptionsItemSelected (MenuItem item)
     {
-        getMenuInflater ().inflate (R.menu.main, menu);
-
-        _menuAutoStartLog = menu.findItem (R.id.action_auto_start_log);
-
-        updateMenuItemState ();
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected (MenuItem item)
-    {
-        if (_drawerToggle.onOptionsItemSelected (item)) {
-            return true;
-        }
-
         switch (item.getItemId ()) {
             case android.R.id.home:
                 _drawer.openDrawer (GravityCompat.START);
-                return true;
+                break;
 
+            case R.id.action_journeys:
+            case R.id.action_trips:
             case R.id.action_settings:
-                showPreferences ();
-                return true;
+                item.setChecked (true);
+                setTitle (item.getTitle ());
+                loadFragment (item.getItemId ());
+
+                _drawer.closeDrawers ();
+
+                break;
 
             case R.id.action_auto_start_log:
-                if (SettingsManager.isAutoStartLogBluetooth (this)) {
-                    ServiceManager.stopBluetooth (this);
-                }
-                else {
-                    ServiceManager.startBluetooth (this);
-                }
 
-                updateMenuItemState ();
+                this makes an infinite loop !!!!!
 
-                return true;
+                    toggleAutoStartLog ();
+                updateAutoStartLogSwitch ();
+
+                break;
 
             case R.id.action_import_db:
                 LogMyTripDataHelper.importDB (this);
                 _mainFragment.reloadData ();
-                return true;
+
+                _drawer.closeDrawers ();
+
+                break;
 
             case R.id.action_export_db:
                 LogMyTripDataHelper.exportDB (this);
-                return true;
 
-            default:
-                return super.onOptionsItemSelected (item);
+                _drawer.closeDrawers ();
+
+                break;
         }
     }
 
@@ -339,7 +349,6 @@ public class MainActivity
     {
         startActivity (new Intent (this, SettingsActivity.class));
     }
-
 
     private class DownloadImageTask
             extends AsyncTask<String, Void, Bitmap>

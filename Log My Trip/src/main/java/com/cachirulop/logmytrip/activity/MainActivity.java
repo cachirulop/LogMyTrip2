@@ -114,7 +114,11 @@ public class MainActivity
     private void updateAutoStartLogSwitch ()
     {
         if (_swAutoStartLog != null) {
+            disableAutoStartLogSwitchEvent ();
+
             _swAutoStartLog.setChecked (SettingsManager.isAutoStartLogBluetooth (this));
+
+            enableAutoStartLogSwitchEvent ();
         }
     }
 
@@ -195,14 +199,7 @@ public class MainActivity
             if (autoStartLog != null) {
                 _swAutoStartLog = (Switch) autoStartLog.getActionView ()
                                                        .findViewById (R.id.switch1);
-                _swAutoStartLog.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener ()
-                {
-                    @Override
-                    public void onCheckedChanged (CompoundButton buttonView, boolean isChecked)
-                    {
-                        toggleAutoStartLog ();
-                    }
-                });
+                enableAutoStartLogSwitchEvent ();
             }
         }
 
@@ -215,6 +212,23 @@ public class MainActivity
                 return true;
             }
         });
+    }
+
+    private void enableAutoStartLogSwitchEvent ()
+    {
+        _swAutoStartLog.setOnCheckedChangeListener (new CompoundButton.OnCheckedChangeListener ()
+        {
+            @Override
+            public void onCheckedChanged (CompoundButton buttonView, boolean isChecked)
+            {
+                toggleAutoStartLog ();
+            }
+        });
+    }
+
+    private void disableAutoStartLogSwitchEvent ()
+    {
+        _swAutoStartLog.setOnCheckedChangeListener (null);
     }
 
     private void toggleAutoStartLog ()
@@ -321,10 +335,10 @@ public class MainActivity
 
             case R.id.action_auto_start_log:
 
-                this makes an infinite loop !!!!!
-
-                    toggleAutoStartLog ();
-                updateAutoStartLogSwitch ();
+                // this makes an infinite loop !!!!!
+                _swAutoStartLog.toggle ();
+                // toggleAutoStartLog ();
+                // updateAutoStartLogSwitch ();
 
                 break;
 

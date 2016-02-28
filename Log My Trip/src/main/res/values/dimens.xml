@@ -15,5 +15,7 @@
 
 
     <dimen name="header_left_padding">16dp</dimen>
-    <dimen name="header_height">130dp</dimen>
+    <dimen name="header_top_padding">16dp</dimen>
+    <dimen name="header_bottom_padding">10dp</dimen>
+    <dimen name="header_height">175dp</dimen>
 </resources>

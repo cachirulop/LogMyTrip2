@@ -234,5 +234,6 @@
     <string name="action_journeys">Journeys</string>
     <string name="action_trips">Trips</string>
     <string name="text_no_user">No user</string>
+    <string name="text_no_email">No email</string>
 
 </resources>

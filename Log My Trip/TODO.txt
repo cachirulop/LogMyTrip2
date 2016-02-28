@@ -20,6 +20,8 @@ group journeys in the correspondent trip
 * Sync with drive
 * Update statistics on trip list when saving trip
 
+* Manage multiple accounts
+
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size. -> testing
 - Capture the states changes on the location provider -> Done, testing

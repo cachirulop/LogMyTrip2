@@ -148,12 +148,15 @@ public class JourneyManager
     public static void deleteJourney (Context ctx, Journey j)
     {
         SQLiteDatabase db = null;
+        DateFormat df;
 
         try {
             db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
 
+            df = new SimpleDateFormat ("yyyy-MM-dd");
+
             db.execSQL (ctx.getString (R.string.SQL_delete_journey_locations),
-                        new Object[]{ j.getJouneyDate () });
+                        new String[]{ df.format (j.getJouneyDate ()) });
 
             db.delete (CONST_JOURNEY_TABLE_NAME,
                        "id = ?",

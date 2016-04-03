@@ -8,13 +8,13 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.IBinder;
 
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.ToastHelper;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.receiver.LocationReceiver;
 
 import java.util.Timer;
@@ -47,7 +47,7 @@ public class LogMyTripService
     {
         LogHelper.d ("*** onStartCommand");
 
-        Trip current;
+        Journey current;
 
         super.onStartCommand (intent, flags, startId);
 
@@ -94,17 +94,17 @@ public class LogMyTripService
         super.onDestroy ();
     }
 
-    private Trip startLog ()
+    private Journey startLog ()
     {
         LocationManager locationMgr;
-        Trip            result = null;
+        Journey result = null;
 
         locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
 
         if (locationMgr.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            result = TripManager.startTrip (this);
+            result = JourneyManager.startJourney (this);
 
-            LogMyTripBroadcastManager.sendStartTripLogMessage (this);
+            LogMyTripBroadcastManager.sendStartLogMessage (this);
 
             locationMgr.requestLocationUpdates (LocationManager.GPS_PROVIDER,
                                                 SettingsManager.getGpsTimeInterval (this),
@@ -118,13 +118,13 @@ public class LogMyTripService
         return result;
     }
 
-    private void startForegroundService (Trip t)
+    private void startForegroundService (Journey t)
     {
         Notification note;
 
-        note = LogMyTripNotificationManager.createTripLogging (this, t);
+        note = LogMyTripNotificationManager.createLogging (this, t);
 
-        startForeground (LogMyTripNotificationManager.NOTIFICATION_TRIP_LOGGING, note);
+        startForeground (LogMyTripNotificationManager.NOTIFICATION_LOGGING, note);
     }
 
     private PendingIntent getLocationIntent ()
@@ -141,21 +141,23 @@ public class LogMyTripService
 
     private void stopLog ()
     {
-        Trip trip;
+        Journey journey;
         LocationManager locationMgr;
 
-        TripManager.flushLocations (this);
+        JourneyManager.flushLocations (this);
 
-        trip = TripManager.getActiveTrip (this);
+        journey = JourneyManager.getActiveJourney (this);
+        if (journey != null) {
+            JourneyManager.updateJourneyStatistics (this, journey);
 
-        TripManager.updateTripStatistics (this, trip);
-
-        LogMyTripBroadcastManager.sendStopTripLogMessage (this, trip);
+            LogMyTripBroadcastManager.sendStopLogMessage (this, journey);
+        }
 
         locationMgr = (LocationManager) this.getSystemService (LOCATION_SERVICE);
         locationMgr.removeUpdates (getLocationIntent ());
 
-        TripManager.unsetActiveTrip (this);
+        JourneyManager.unsetActiveJourney (this);
+
 
         _started = false;
     }

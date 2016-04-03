@@ -7,9 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.JourneySegment;
+import com.cachirulop.logmytrip.entity.Location;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 
 import java.io.IOException;
@@ -21,17 +21,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class TripManager
+public class JourneyManager
 {
-    private static final String CONST_TRIP_TABLE_NAME = "trip";
-    private static final String CONST_LOCATION_TABLE_NAME = "trip_location";
+    private static final String CONST_JOURNEY_TABLE_NAME  = "journey";
+    private static final String CONST_LOCATION_TABLE_NAME = "location";
 
-    private static ArrayList<TripLocation> _tripLocationsPool = new ArrayList<> ();
+    private static ArrayList<Location> _LocationsPool = new ArrayList<> ();
 
-    public static TripLocation saveTripLocation (Context ctx, TripLocation tl)
+    public static Location saveLocation (Context ctx, Location tl)
     {
-        synchronized (_tripLocationsPool) {
-            _tripLocationsPool.add (tl);
+        synchronized (_LocationsPool) {
+            _LocationsPool.add (tl);
         }
 
         return tl;
@@ -39,17 +39,17 @@ public class TripManager
 
     public static void flushLocations (Context ctx)
     {
-        synchronized (_tripLocationsPool) {
+        synchronized (_LocationsPool) {
             SQLiteDatabase db = null;
 
             try {
                 db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
 
-                for (TripLocation tl : _tripLocationsPool) {
-                    insertTripLocation (ctx, db, tl);
+                for (Location tl : _LocationsPool) {
+                    insertLocation (ctx, db, tl);
                 }
 
-                _tripLocationsPool.clear ();
+                _LocationsPool.clear ();
             }
             finally {
                 if (db != null) {
@@ -59,13 +59,12 @@ public class TripManager
         }
     }
 
-    private static TripLocation insertTripLocation (Context ctx, SQLiteDatabase db, TripLocation tl)
+    private static Location insertLocation (Context ctx, SQLiteDatabase db, Location tl)
     {
         ContentValues values;
 
         values = new ContentValues ();
 
-        values.put ("id_trip", tl.getIdTrip ());
         values.put ("location_time", tl.getLocationTime ());
         values.put ("latitude", tl.getLatitude ());
         values.put ("longitude", tl.getLongitude ());
@@ -77,41 +76,41 @@ public class TripManager
 
         db.insert (CONST_LOCATION_TABLE_NAME, null, values);
 
-        tl.setId (getLastIdTripLocation (db, ctx));
+        tl.setId (getLastLocationId (db, ctx));
 
         return tl;
     }
 
-    private static long getLastIdTripLocation (SQLiteDatabase db, Context ctx)
+    private static long getLastLocationId (SQLiteDatabase db, Context ctx)
     {
         return new LogMyTripDataHelper (ctx).getLastId (db, CONST_LOCATION_TABLE_NAME);
     }
 
-    public static void mergePendingLocations (Trip trip)
+    public static void mergePendingLocations (Journey journey)
     {
-        synchronized (_tripLocationsPool) {
-            for (TripLocation tl : _tripLocationsPool) {
-                trip.addLocation (tl);
+        synchronized (_LocationsPool) {
+            for (Location tl : _LocationsPool) {
+                journey.addLocation (tl);
             }
         }
     }
 
-    public static List<Trip> loadTrips (Context ctx)
+    public static List<Journey> loadJourneys (Context ctx)
     {
         SQLiteDatabase db = null;
         Cursor         c  = null;
-        List<Trip>     result;
+        List<Journey> result;
 
-        result = new ArrayList<Trip> ();
+        result = new ArrayList<Journey> ();
 
         try {
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
 
-            c = db.rawQuery (ctx.getString (R.string.SQL_get_all_trips), null);
+            c = db.rawQuery (ctx.getString (R.string.SQL_get_all_journeys), null);
 
             if (c.moveToFirst ()) {
                 while (!c.isAfterLast ()) {
-                    result.add (createTripFromCursor (db, c));
+                    result.add (createJourneyFromCursor (db, c));
 
                     c.moveToNext ();
                 }
@@ -130,34 +129,35 @@ public class TripManager
         }
     }
 
-    private static Trip createTripFromCursor (SQLiteDatabase db, Cursor c)
+    private static Journey createJourneyFromCursor (SQLiteDatabase db, Cursor c)
     {
-        Trip result;
+        Journey result;
 
-        result = new Trip ();
+        result = new Journey ();
 
         result.setId (c.getLong (c.getColumnIndex ("id")));
         result.setTitle (c.getString (c.getColumnIndex ("title")));
         result.setDescription (c.getString (c.getColumnIndex ("description")));
-        result.setTripDate (new Date (c.getLong (c.getColumnIndex ("trip_date"))));
+        result.setJouneyDate (new Date (c.getLong (c.getColumnIndex ("journey_date"))));
         result.setTotalTime (c.getLong (c.getColumnIndex ("total_time")));
         result.setTotalDistance (c.getDouble (c.getColumnIndex ("total_distance")));
 
         return result;
     }
 
-    public static void deleteTrip (Context ctx, Trip t)
+    public static void deleteJourney (Context ctx, Journey j)
     {
         SQLiteDatabase db = null;
 
         try {
             db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
 
-            db.delete (CONST_LOCATION_TABLE_NAME,
-                       "id_trip = ?",
-                       new String[]{ Long.toString (t.getId ()) });
+            db.execSQL (ctx.getString (R.string.SQL_delete_journey_locations),
+                        new Object[]{ j.getJouneyDate () });
 
-            db.delete (CONST_TRIP_TABLE_NAME, "id = ?", new String[]{ Long.toString (t.getId ()) });
+            db.delete (CONST_JOURNEY_TABLE_NAME,
+                       "id = ?",
+                       new String[]{ Long.toString (j.getId ()) });
         }
         finally {
             if (db != null) {
@@ -166,14 +166,14 @@ public class TripManager
         }
     }
 
-    public static void deleteSegment (Context ctx, TripSegment segment)
+    public static void deleteSegment (Context ctx, JourneySegment segment)
     {
         SQLiteDatabase db = null;
 
         try {
             db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
 
-            for (TripLocation l : segment.getLocations ()) {
+            for (Location l : segment.getLocations ()) {
                 db.delete (CONST_LOCATION_TABLE_NAME,
                            "id = ?",
                            new String[]{ Long.toString (l.getId ()) });
@@ -185,23 +185,23 @@ public class TripManager
             }
         }
 
-        TripManager.updateTripStatistics (ctx, segment.getTrip ());
+        JourneyManager.updateJourneyStatistics (ctx, segment.getJourney ());
     }
 
-    public static void updateTripStatistics (Context ctx, Trip t)
+    public static void updateJourneyStatistics (Context ctx, Journey j)
     {
-        t.computeTotalTime (ctx);
-        t.computeTotalDistance (ctx);
+        j.computeTotalTime (ctx);
+        j.computeTotalDistance (ctx);
 
-        updateTrip (ctx, t);
+        updateJourney (ctx, j);
     }
 
-    public static Trip updateTrip (Context ctx, Trip t)
+    public static Journey updateJourney (Context ctx, Journey j)
     {
-        return saveTrip (ctx, t, false);
+        return saveJourney (ctx, j, false);
     }
 
-    private static Trip saveTrip (Context ctx, Trip t, boolean isInsert)
+    private static Journey saveJourney (Context ctx, Journey j, boolean isInsert)
     {
         SQLiteDatabase db = null;
 
@@ -212,25 +212,24 @@ public class TripManager
 
             values = new ContentValues ();
 
-            values.put ("trip_date", t.getTripDate ().getTime ());
-            values.put ("title", t.getTitle ());
-            values.put ("description", t.getDescription ());
-            values.put ("total_time", t.getTotalTime ());
-            values.put ("total_distance", t.getTotalDistance ());
+            values.put ("journey_date", j.getJouneyDate ().getTime ());
+            values.put ("title", j.getTitle ());
+            values.put ("description", j.getDescription ());
+            values.put ("total_time", j.getTotalTime ());
+            values.put ("total_distance", j.getTotalDistance ());
 
             if (isInsert) {
-                db.insert (CONST_TRIP_TABLE_NAME, null, values);
+                db.insert (CONST_JOURNEY_TABLE_NAME, null, values);
             }
             else {
-                db.update (CONST_TRIP_TABLE_NAME,
+                db.update (CONST_JOURNEY_TABLE_NAME,
                            values,
-                           "id = ?",
-                           new String[]{ Long.toString (t.getId ()) });
+                           "id = ?", new String[]{ Long.toString (j.getId ()) });
             }
 
-            t.setId (getLastIdTrip (db, ctx));
+            j.setId (getLastJourneyId (db, ctx));
 
-            return t;
+            return j;
         }
         finally {
             if (db != null) {
@@ -240,33 +239,33 @@ public class TripManager
     }
 
     /**
-     * Gets the maximum identifier of the trips table
+     * Gets the maximum identifier of the journeys table
      *
-     * @return the maximum trip identifier
+     * @return the maximum journey identifier
      */
-    private static long getLastIdTrip (SQLiteDatabase db, Context ctx)
+    private static long getLastJourneyId (SQLiteDatabase db, Context ctx)
     {
-        return new LogMyTripDataHelper (ctx).getLastId (db, CONST_TRIP_TABLE_NAME);
+        return new LogMyTripDataHelper (ctx).getLastId (db, CONST_JOURNEY_TABLE_NAME);
     }
 
-    public static Trip getActiveTrip (Context ctx)
+    public static Journey getActiveJourney (Context ctx)
     {
         long current;
 
-        current = SettingsManager.getCurrentTripId (ctx);
+        current = SettingsManager.getCurrentJourneyId (ctx);
         if (current == 0) {
             return null;
         }
         else {
-            Trip result;
+            Journey result;
 
-            result = getTrip (ctx, current);
+            result = getJourney (ctx, current);
 
             return result;
         }
     }
 
-    public static Trip getTrip (Context ctx, long idTrip)
+    public static Journey getJourney (Context ctx, long idJourney)
     {
         SQLiteDatabase db = null;
         Cursor c = null;
@@ -274,16 +273,15 @@ public class TripManager
         try {
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
 
-            c = db.query (CONST_TRIP_TABLE_NAME,
+            c = db.query (CONST_JOURNEY_TABLE_NAME,
                           null,
-                          "id = ?",
-                          new String[]{ Long.toString (idTrip) },
+                          "id = ?", new String[]{ Long.toString (idJourney) },
                           null,
                           null,
                           null);
 
             if (c != null && c.moveToFirst ()) {
-                return createTripFromCursor (db, c);
+                return createJourneyFromCursor (db, c);
             }
             else {
                 return null;
@@ -300,21 +298,21 @@ public class TripManager
         }
     }
 
-    public static Trip startTrip (Context ctx)
+    public static Journey startJourney (Context ctx)
     {
-        Trip result;
+        Journey result;
 
-        result = getTodayTrip (ctx);
+        result = getTodayJourney (ctx);
         if (result == null) {
-            result = createTodayTrip (ctx);
+            result = createTodayJourney (ctx);
         }
 
-        SettingsManager.setCurrentTripId (ctx, result.getId ());
+        SettingsManager.setCurrentJourneyId (ctx, result.getId ());
 
         return result;
     }
 
-    public static Trip getTodayTrip (Context ctx)
+    public static Journey getTodayJourney (Context ctx)
     {
         SQLiteDatabase db = null;
         Cursor         c  = null;
@@ -322,10 +320,10 @@ public class TripManager
         try {
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
 
-            c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_trip), null);
+            c = db.rawQuery (ctx.getString (R.string.SQL_get_last_active_journey), null);
 
             if (c != null && c.moveToFirst ()) {
-                return createTripFromCursor (db, c);
+                return createJourneyFromCursor (db, c);
             }
             else {
                 return null;
@@ -342,55 +340,55 @@ public class TripManager
         }
     }
 
-    private static Trip createTodayTrip (Context ctx)
+    private static Journey createTodayJourney (Context ctx)
     {
-        Trip result;
+        Journey result;
 
-        result = new Trip ();
-        result.setTripDate (new Date ());
-        result.setTitle (FormatHelper.formatDate (ctx, result.getTripDate ()));
+        result = new Journey ();
+        result.setJouneyDate (new Date ());
+        result.setTitle (FormatHelper.formatDate (ctx, result.getJouneyDate ()));
 
-        return insertTrip (ctx, result);
+        return insertJourney (ctx, result);
     }
 
-    public static Trip insertTrip (Context ctx, Trip t)
+    public static Journey insertJourney (Context ctx, Journey j)
     {
-        return saveTrip (ctx, t, true);
+        return saveJourney (ctx, j, true);
     }
 
-    public static void unsetActiveTrip (Context ctx)
+    public static void unsetActiveJourney (Context ctx)
     {
-        SettingsManager.setCurrentTripId (ctx, 0);
+        SettingsManager.setCurrentJourneyId (ctx, 0);
     }
 
-    public static void exportTrip (Context ctx, Trip t, String format, Writer writer)
+    public static void exportJourney (Context ctx, Journey j, String format, Writer writer)
             throws IOException
     {
-        TripManager.loadTripSegments (ctx, t);
+        JourneyManager.loadJourneySegments (ctx, j);
 
         if (format.toUpperCase ().equals ("GPX")) {
-            exportTripToGPX (ctx, t, writer);
+            exportJourneyToGPX (ctx, j, writer);
         }
         else {
-            exportTripToKML (ctx, t, writer);
+            exportJourneyToKML (ctx, j, writer);
         }
     }
 
-    public static void loadTripSegments (Context ctx, Trip trip)
+    public static void loadJourneySegments (Context ctx, Journey journey)
     {
-        List<TripSegment>  result;
-        List<TripLocation> all;
-        TripLocation       last;
+        List<JourneySegment> result;
+        List<Location>       all;
+        Location             last;
         Calendar           cal;
-        TripSegment        current = null;
+        JourneySegment       current = null;
 
         cal = Calendar.getInstance ();
 
         result = new ArrayList<> ();
 
-        all = createLocationList (ctx, trip.getId ());
+        all = createLocationList (ctx, journey);
         last = null;
-        for (TripLocation l : all) {
+        for (Location l : all) {
             boolean newSegment;
 
             if (last == null) {
@@ -404,7 +402,7 @@ public class TripManager
             }
 
             if (newSegment) {
-                current = new TripSegment (trip);
+                current = new JourneySegment (journey);
                 current.getLocations ().add (l);
 
                 result.add (current);
@@ -416,10 +414,10 @@ public class TripManager
             last = l;
         }
 
-        trip.setSegments (result);
+        journey.setSegments (result);
     }
 
-    private static void exportTripToGPX (Context ctx, Trip t, Writer writer)
+    private static void exportJourneyToGPX (Context ctx, Journey journey, Writer writer)
             throws IOException
     {
         DateFormat df;
@@ -434,11 +432,11 @@ public class TripManager
         writer.write ("<metadata>\n");
 
         writer.write ("<name><![CDATA[");
-        writer.write (t.getTitle ());
+        writer.write (journey.getTitle ());
         writer.write ("]]></name>\n");
-        if (t.getDescription () != null) {
+        if (journey.getDescription () != null) {
             writer.write ("<description><![CDATA[");
-            writer.write (t.getDescription ());
+            writer.write (journey.getDescription ());
             writer.write ("]]></description>\n");
         }
 
@@ -446,7 +444,7 @@ public class TripManager
 
         df = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-        for (TripSegment s : t.getSegments ()) {
+        for (JourneySegment s : journey.getSegments ()) {
             writer.write ("<trk>\n");
             writer.write ("<name><![CDATA[");
             writer.write (s.getTitle (ctx));
@@ -454,7 +452,7 @@ public class TripManager
 
             writer.write ("<trkseg>\n");
 
-            for (TripLocation l : s.getLocations ()) {
+            for (Location l : s.getLocations ()) {
                 writer.write ("<trkpt");
                 writer.write (" lat=\"");
                 writer.write (Double.toString (l.getLatitude ()));
@@ -484,7 +482,7 @@ public class TripManager
         writer.write ("</gpx>\n");
     }
 
-    private static void exportTripToKML (Context ctx, Trip t, Writer writer)
+    private static void exportJourneyToKML (Context ctx, Journey journey, Writer writer)
             throws IOException
     {
         DateFormat    df;
@@ -538,40 +536,40 @@ public class TripManager
         writer.write ("</Style>\n");
 
         writer.write ("<name><![CDATA[");
-        writer.write (t.getTitle ());
+        writer.write (journey.getTitle ());
         writer.write ("]]></name>\n");
-        if (t.getDescription () != null) {
+        if (journey.getDescription () != null) {
             writer.write ("<description><![CDATA[");
-            writer.write (t.getDescription ());
+            writer.write (journey.getDescription ());
             writer.write ("]]></description>\n");
         }
 
         // Start Placemark
         writer.write ("<Placemark>\n");
         writer.write ("<name><![CDATA[");
-        writer.write (t.getTitle ());
+        writer.write (journey.getTitle ());
         writer.write (" - ");
         writer.write (ctx.getString (R.string.text_start));
         writer.write ("]]>");
         writer.write ("</name>\n");
 
-        if (t.getDescription () != null) {
+        if (journey.getDescription () != null) {
             writer.write ("<description><![CDATA[");
-            writer.write (t.getDescription ());
+            writer.write (journey.getDescription ());
             writer.write ("]]></description>\n");
         }
 
         writer.write ("<TimeStamp><when>");
-        writer.write (df.format (t.getStartLocation ().getLocationTimeAsDate ()));
+        writer.write (df.format (journey.getStartLocation ().getLocationTimeAsDate ()));
         writer.write ("</when></TimeStamp>\n");
         writer.write ("<styleUrl>#start</styleUrl>\n");
         writer.write ("<Point>\n");
         writer.write ("<coordinates>");
-        writer.write (Double.toString (t.getStartLocation ().getLongitude ()));
+        writer.write (Double.toString (journey.getStartLocation ().getLongitude ()));
         writer.write (",");
-        writer.write (Double.toString (t.getStartLocation ().getLatitude ()));
+        writer.write (Double.toString (journey.getStartLocation ().getLatitude ()));
         writer.write (",");
-        writer.write (Double.toString (t.getStartLocation ().getAltitude ()));
+        writer.write (Double.toString (journey.getStartLocation ().getAltitude ()));
         writer.write ("</coordinates>\n");
         writer.write ("</Point>\n");
         writer.write ("</Placemark>\n");
@@ -580,13 +578,13 @@ public class TripManager
         writer.write ("<Placemark id=\"tour\">\n");
         writer.write ("<styleUrl>#track</styleUrl>\n");
         writer.write ("<name><![CDATA[");
-        writer.write (t.getTitle ());
+        writer.write (journey.getTitle ());
         writer.write ("]]>");
         writer.write ("</name>\n");
 
-        if (t.getDescription () != null) {
+        if (journey.getDescription () != null) {
             writer.write ("<description><![CDATA[");
-            writer.write (t.getDescription ());
+            writer.write (journey.getDescription ());
             writer.write ("]]></description>\n");
         }
 
@@ -594,7 +592,7 @@ public class TripManager
         writer.write ("<altitudeMode>absolute</altitudeMode>\n");
         writer.write ("<gx:interpolate>1</gx:interpolate>\n");
 
-        for (TripSegment s : t.getSegments ()) {
+        for (JourneySegment s : journey.getSegments ()) {
             StringBuffer speed;
             StringBuffer bearing;
             StringBuffer accuracy;
@@ -609,7 +607,7 @@ public class TripManager
             bearing.append ("<gx:SimpleArrayData name=\"bearing\">\n");
             accuracy.append ("<gx:SimpleArrayData name=\"accuracy\">\n");
 
-            for (TripLocation l : s.getLocations ()) {
+            for (Location l : s.getLocations ()) {
                 writer.write ("<when>");
                 writer.write (df.format (l.getLocationTimeAsDate ()));
                 writer.write ("</when>\n");
@@ -647,29 +645,29 @@ public class TripManager
         // End Placemark
         writer.write ("<Placemark>\n");
         writer.write ("<name><![CDATA[");
-        writer.write (t.getTitle ());
+        writer.write (journey.getTitle ());
         writer.write (" - ");
         writer.write (ctx.getString (R.string.text_end));
         writer.write ("]]>");
         writer.write ("</name>\n");
 
-        if (t.getDescription () != null) {
+        if (journey.getDescription () != null) {
             writer.write ("<description><![CDATA[");
-            writer.write (t.getDescription ());
+            writer.write (journey.getDescription ());
             writer.write ("]]></description>\n");
         }
 
         writer.write ("<TimeStamp><when>");
-        writer.write (df.format (t.getEndLocation ().getLocationTimeAsDate ()));
+        writer.write (df.format (journey.getEndLocation ().getLocationTimeAsDate ()));
         writer.write ("</when></TimeStamp>\n");
         writer.write ("<styleUrl>#end</styleUrl>\n");
         writer.write ("<Point>\n");
         writer.write ("<coordinates>");
-        writer.write (Double.toString (t.getEndLocation ().getLongitude ()));
+        writer.write (Double.toString (journey.getEndLocation ().getLongitude ()));
         writer.write (",");
-        writer.write (Double.toString (t.getEndLocation ().getLatitude ()));
+        writer.write (Double.toString (journey.getEndLocation ().getLatitude ()));
         writer.write (",");
-        writer.write (Double.toString (t.getEndLocation ().getAltitude ()));
+        writer.write (Double.toString (journey.getEndLocation ().getAltitude ()));
         writer.write ("</coordinates>\n");
         writer.write ("</Point>\n");
         writer.write ("</Placemark>\n");
@@ -678,29 +676,27 @@ public class TripManager
         writer.write ("</kml>\n");
     }
 
-    public static List<TripLocation> createLocationList (Context ctx, Long tripId)
+    public static List<Location> createLocationList (Context ctx, Journey journey)
     {
         SQLiteDatabase          db = null;
-        ArrayList<TripLocation> result;
+        ArrayList<Location> result;
         Cursor                  c  = null;
-
+        DateFormat          df;
 
         try {
             db = new LogMyTripDataHelper (ctx).getReadableDatabase ();
-            c = db.query (CONST_LOCATION_TABLE_NAME,
-                          null,
-                          "id_trip = ?",
-                          new String[]{ Long.toString (tripId) },
-                          null,
-                          null,
-                          "location_time ASC");
 
-            result = new ArrayList<TripLocation> ();
+            df = new SimpleDateFormat ("yyyy-MM-dd");
+
+            c = db.rawQuery (ctx.getString (R.string.SQL_get_journey_locations),
+                             new String[]{ df.format (journey.getJouneyDate ()) });
+
+            result = new ArrayList<Location> ();
 
             if (c != null) {
                 if (c.moveToFirst ()) {
                     do {
-                        result.add (createTripLocation (c));
+                        result.add (createLocation (c));
                     }
                     while (c.moveToNext ());
                 }
@@ -719,14 +715,13 @@ public class TripManager
         }
     }
 
-    private static TripLocation createTripLocation (Cursor c)
+    private static Location createLocation (Cursor c)
     {
-        TripLocation result;
+        Location result;
 
-        result = new TripLocation ();
+        result = new Location ();
 
         result.setId (c.getLong (c.getColumnIndex ("id")));
-        result.setIdTrip (c.getLong (c.getColumnIndex ("id_trip")));
         result.setLocationTime (c.getLong (c.getColumnIndex ("location_time")));
         result.setLatitude (c.getDouble (c.getColumnIndex ("latitude")));
         result.setLongitude (c.getDouble (c.getColumnIndex ("longitude")));

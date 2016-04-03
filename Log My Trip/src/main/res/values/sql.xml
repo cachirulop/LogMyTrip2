@@ -17,51 +17,99 @@
                               total_time INTEGER DEFAULT -1,
                               total_distance DOUBLE default -1);
         
-        CREATE TABLE trip_location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                                    id_journey INTEGER NOT NULL,
-                                    location_time TIMESTAMP NOT NULL,
-                                    latitude REAL NOT NULL,
-                                    longitude REAL NOT NULL,
-                                    altitude REAL,
-                                    speed REAL,
-                                    accuracy REAL,
-                                    bearing REAL,
-                                    provider TEXT,
-                                    FOREIGN KEY(id_trip) REFERENCES trip(id));
+        CREATE TABLE location (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                               location_time TIMESTAMP NOT NULL,
+                               latitude REAL NOT NULL,
+                               longitude REAL NOT NULL,
+                               altitude REAL,
+                               speed REAL,
+                               accuracy REAL,
+                               bearing REAL,
+                               provider TEXT);
 
-        CREATE INDEX idx_location_trip ON trip_location (id_journey);
-        CREATE INDEX idx_location_time ON trip_location (location_time ASC);
+        CREATE INDEX idx_location_time ON location (location_time ASC);
     </string>
 
     <!-- Drop all the tables. -->
     <!--DROP TABLE trip_location;-->
-    <!--DROP TABLE trip;-->
+    <!--DROP TABLE journey;-->
     <string name="SQL_on_upgrade" translatable="false">
     <![CDATA[
-        ALTER TABLE trip ADD COLUMN total_time INTEGER DEFAULT -1;
-        ALTER TABLE trip ADD COLUMN total_distance DOUBLE default -1;
+        CREATE TABLE journey (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                              title TEXT NOT NULL,
+                              description TEXT,
+                              journey_date TIMESTAMP NOT NULL,
+                              total_time INTEGER DEFAULT -1,
+                              total_distance DOUBLE default -1);
+
+
+        INSERT INTO journey (id, title, description, journey_date, total_time, total_distance)
+            SELECT id, title, description, trip_date as journey_date, total_time, total_distance
+            FROM trip;
+
+        DROP TABLE trip;
+
+        CREATE TABLE trip (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                           title TEXT NOT NULL,
+                           description TEXT,
+                           begin_date TIMESTAMP NOT NULL,
+                           end_date TIMESTAMP);
+
+        CREATE TABLE location AS
+            SELECT id,
+                   location_time,
+                   latitude,
+                   longitude,
+                   altitude,
+                   speed,
+                   accuracy,
+                   bearing,
+                   provider
+            FROM trip_location;
+
+        DROP INDEX idx_location_trip;
+        DROP INDEX idx_location_time;
+        DROP TABLE trip_location;
+
+        CREATE INDEX idx_location_time ON location (location_time ASC);
     ]]>
     </string>
 
     <string name="SQL_reindex" translatable="false">
     <![CDATA[
-            REINDEX idx_location_trip;
             REINDEX idx_location_time;
     ]]>
     </string>
 
     
-    <string name="SQL_get_last_active_trip">
+    <string name="SQL_get_last_active_journey">
         <![CDATA[
             SELECT *
-            FROM trip
-            WHERE date(trip_date / 1000, \'unixepoch\', \'localtime\') =  date (\'now\')
+            FROM journey
+            WHERE date(journey_date / 1000, \'unixepoch\', \'localtime\') =  date (\'now\')
         ]]>
     </string>
 
-    <string name="SQL_get_all_trips">
+    <string name="SQL_get_all_journeys">
         <![CDATA[
-            SELECT * FROM trip ORDER BY trip_date DESC
+            SELECT * FROM journey ORDER BY journey_date DESC
+        ]]>
+    </string>
+
+    <string name="SQL_get_journey_locations">
+        <![CDATA[
+            SELECT *
+            FROM location l
+            WHERE date (l.location_time / 1000, \'unixepoch\', \'localtime\') = ?
+            ORDER BY location_time ASC
+        ]]>
+    </string>
+
+    <string name="SQL_delete_journey_locations">
+        <![CDATA[
+            DELETE
+            FROM location l
+            WHERE date (l.location_time / 1000, \'unixepoch\', \'localtime\') = ?
         ]]>
     </string>
 

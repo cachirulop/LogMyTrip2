@@ -1,7 +1,6 @@
 package com.cachirulop.logmytrip.entity;
 
 import android.content.Context;
-import android.location.Location;
 
 import com.cachirulop.logmytrip.R;
 
@@ -13,16 +12,16 @@ import java.util.List;
 /**
  * Created by david on 23/09/15.
  */
-public class TripSegment
+public class JourneySegment
         implements Serializable
 {
-    private List<TripLocation> _locations = new ArrayList<> ();
+    private List<Location> _locations = new ArrayList<> ();
 
-    private Trip _trip;
+    private Journey _journey;
 
-    public TripSegment (Trip trip)
+    public JourneySegment (Journey journey)
     {
-        _trip = trip;
+        _journey = journey;
     }
 
     public String getTitle (Context ctx)
@@ -30,27 +29,27 @@ public class TripSegment
         return String.format (ctx.getString (R.string.title_segment_num), getIndex () + 1);
     }
 
-    public Trip getTrip ()
+    public Journey getJourney ()
     {
-        return _trip;
+        return _journey;
     }
 
-    public void setTrip (Trip trip)
+    public void setJourney (Journey journey)
     {
-        _trip = trip;
+        _journey = journey;
     }
 
     public int getIndex ()
     {
-        return _trip.getSegments ().indexOf (this);
+        return _journey.getSegments ().indexOf (this);
     }
 
-    public List<TripLocation> getLocations ()
+    public List<Location> getLocations ()
     {
         return _locations;
     }
 
-    public void setLocations (List<TripLocation> locations)
+    public void setLocations (List<Location> locations)
     {
         _locations = locations;
     }
@@ -62,13 +61,13 @@ public class TripSegment
      */
     public double computeTotalDistance ()
     {
-        Location previous;
+        android.location.Location previous;
         double   result;
 
         previous = null;
         result = 0;
-        for (TripLocation l : _locations) {
-            Location current;
+        for (Location l : _locations) {
+            android.location.Location current;
 
             current = l.toLocation ();
             if (previous != null) {
@@ -93,7 +92,7 @@ public class TripSegment
 
     public long getEndTime ()
     {
-        TripLocation result;
+        Location result;
 
         result = getEndLocation ();
         if (result == null) {
@@ -106,7 +105,7 @@ public class TripSegment
 
     public long getSTartTime ()
     {
-        TripLocation result;
+        Location result;
 
         result = getStartLocation ();
         if (result == null) {
@@ -117,7 +116,7 @@ public class TripSegment
         }
     }
 
-    public TripLocation getEndLocation ()
+    public Location getEndLocation ()
     {
         if (_locations == null || _locations.size () == 0) {
             return null;
@@ -130,7 +129,7 @@ public class TripSegment
         }
     }
 
-    public TripLocation getStartLocation ()
+    public Location getStartLocation ()
     {
         if (_locations == null || _locations.size () == 0) {
             return null;
@@ -150,7 +149,7 @@ public class TripSegment
         return new Date (getEndTime ());
     }
 
-    public void addLocation (TripLocation location)
+    public void addLocation (Location location)
     {
         _locations.add (location);
     }
@@ -161,11 +160,11 @@ public class TripSegment
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TripSegment)) {
+        if (!(o instanceof JourneySegment)) {
             return false;
         }
 
-        TripSegment segment = (TripSegment) o;
+        JourneySegment segment = (JourneySegment) o;
 
         return segment.hashCode () == this.hashCode ();
 
@@ -185,7 +184,7 @@ public class TripSegment
 
         result = 0;
 
-        for (TripLocation l : _locations) {
+        for (Location l : _locations) {
             if (l.getSpeed () > result) {
                 result = l.getSpeed ();
             }
@@ -201,7 +200,7 @@ public class TripSegment
 
         result = 0;
 
-        for (TripLocation l : _locations) {
+        for (Location l : _locations) {
             result += l.getSpeed ();
         }
 

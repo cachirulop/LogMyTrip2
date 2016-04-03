@@ -8,19 +8,19 @@
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/trip_detail_appbar"
+        android:id="@+id/journey_detail_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/trip_detail_toolbar"
+            android:id="@+id/journey_detail_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
         <android.support.design.widget.TabLayout
-            android:id="@+id/trip_detail_tablayout"
+            android:id="@+id/journey_detail_tablayout"
             android:layout_width="match_parent"
             android:layout_height="25dp"
             app:tabMode="fixed"

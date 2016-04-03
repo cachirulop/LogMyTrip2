@@ -11,21 +11,21 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_delete_selected_trip"
+        android:id="@+id/action_delete_selected_journey"
         android:icon="@android:drawable/ic_menu_delete"
         android:orderInCategory="202"
         android:title="@string/action_delete"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_select_all_trips"
+        android:id="@+id/action_select_all_journeys"
         android:icon="@mipmap/ic_select_all"
         android:orderInCategory="203"
         android:title="@string/action_select_all"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/action_deselect_all_trips"
+        android:id="@+id/action_deselect_all_journeys"
         android:icon="@mipmap/ic_deselect_all"
         android:orderInCategory="204"
         android:title="@string/action_deselect_all"

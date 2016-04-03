@@ -2,8 +2,8 @@ package com.cachirulop.logmytrip.manager;
 
 import android.content.Context;
 
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.Location;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelperException;
 import com.cachirulop.logmytrip.helper.LogHelper;
@@ -43,7 +43,7 @@ public class SyncManager
     private static void doSync (final Context ctx)
     {
         List<String>     remoteFiles;
-        List<Trip>       trips;
+        List<Journey> journeys;
         GoogleApiClient  client;
         ConnectionResult connResult;
 
@@ -60,11 +60,11 @@ public class SyncManager
 
             remoteFiles = Arrays.asList (GoogleDriveHelper.listFolder (client,
                                                                        ctx,
-                                                                       "Log My Trip/APP/sync"));
-            trips = TripManager.loadTrips (ctx);
+                                                                       "Log My Journey/APP/sync"));
+            journeys = JourneyManager.loadJourneys (ctx);
 
-            syncLocal (ctx, client, remoteFiles, trips);
-            syncRemote (ctx, client, remoteFiles, trips);
+            syncLocal (ctx, client, remoteFiles, journeys);
+            syncRemote (ctx, client, remoteFiles, journeys);
 
         }
         catch (GoogleDriveHelperException ex) {
@@ -74,14 +74,13 @@ public class SyncManager
 
     private static void syncLocal (final Context ctx,
                                    final GoogleApiClient client,
-                                   List<String> remoteFiles,
-                                   List<Trip> trips)
+                                   List<String> remoteFiles, List<Journey> journeys)
     {
         for (String file : remoteFiles) {
             if (!file.contains ("_locations")) {
-                if (!findTrip (file, trips)) {
+                if (!findJourney (file, journeys)) {
                     // Only in remote
-                    importTrip (file, trips);
+                    importJourney (file, journeys);
                 }
                 else {
                     // Remote and local, compare locations
@@ -92,24 +91,22 @@ public class SyncManager
 
     private static void syncRemote (final Context ctx,
                                     final GoogleApiClient client,
-                                    List<String> remoteFiles,
-                                    List<Trip> trips)
+                                    List<String> remoteFiles, List<Journey> journeys)
     {
         final Gson generator;
 
         generator = new Gson ();
 
-        for (final Trip t : trips) {
-            final List<TripLocation> locations;
+        for (final Journey t : journeys) {
+            final List<Location> locations;
             final String fileName;
 
             fileName = getTripFileName (t);
             if (!remoteFiles.contains (fileName)) {
-                locations = TripManager.createLocationList (ctx, t.getId ());
+                locations = JourneyManager.createLocationList (ctx, t);
 
                 GoogleDriveHelper.saveFile (client,
-                                            ctx,
-                                            "Log My Trip/APP/sync/" + fileName,
+                                            ctx, "Log My Journey/APP/sync/" + fileName,
                                             t, new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                             {
                                                 @Override
@@ -118,7 +115,7 @@ public class SyncManager
                                                     JsonWriter writer;
 
                                                     writer = new JsonWriter (w);
-                                                    generator.toJson (t, Trip.class, writer);
+                                                    generator.toJson (t, Journey.class, writer);
 
                                                     try {
                                                         writer.close ();
@@ -144,7 +141,7 @@ public class SyncManager
 
                 GoogleDriveHelper.saveFile (client,
                                             ctx,
-                                            "Log My Trip/APP/sync/" + getLocationsFileName (t),
+                                            "Log My Journey/APP/sync/" + getLocationsFileName (t),
                                             t, new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                             {
                                                 @Override
@@ -156,9 +153,8 @@ public class SyncManager
                                                         writer = new JsonWriter (w);
                                                         writer.beginArray ();
 
-                                                        for (TripLocation tl : locations) {
-                                                            generator.toJson (tl,
-                                                                              TripLocation.class,
+                                                        for (Location tl : locations) {
+                                                            generator.toJson (tl, Location.class,
                                                                               writer);
                                                         }
 
@@ -189,9 +185,9 @@ public class SyncManager
         }
     }
 
-    private static boolean findTrip (String name, List<Trip> trips)
+    private static boolean findJourney (String name, List<Journey> journeys)
     {
-        for (Trip t : trips) {
+        for (Journey t : journeys) {
             if (name.equals (getTripFileName (t))) {
                 return true;
             }
@@ -200,7 +196,7 @@ public class SyncManager
         return false;
     }
 
-    private static void importTrip (String file, List<Trip> trips)
+    private static void importJourney (String file, List<Journey> journeys)
     {
         // Read trip file
         // Read locations
@@ -209,7 +205,7 @@ public class SyncManager
         // Add new trip to trip list
     }
 
-    private static String getTripFileName (Trip trip)
+    private static String getTripFileName (Journey journey)
     {
         StringBuilder result;
         DateFormat    dfFileName;
@@ -217,12 +213,12 @@ public class SyncManager
         dfFileName = new SimpleDateFormat ("yyyy-MM-dd");
 
         result = new StringBuilder ();
-        result.append (dfFileName.format (trip.getTripDate ())).append (".json");
+        result.append (dfFileName.format (journey.getJouneyDate ())).append (".json");
 
         return result.toString ();
     }
 
-    private static String getLocationsFileName (Trip trip)
+    private static String getLocationsFileName (Journey journey)
     {
         StringBuilder result;
         DateFormat    dfFileName;
@@ -230,7 +226,7 @@ public class SyncManager
         dfFileName = new SimpleDateFormat ("yyyy-MM-dd");
 
         result = new StringBuilder ();
-        result.append (dfFileName.format (trip.getTripDate ())).append ("_locations.json");
+        result.append (dfFileName.format (journey.getJouneyDate ())).append ("_locations.json");
 
         return result.toString ();
     }

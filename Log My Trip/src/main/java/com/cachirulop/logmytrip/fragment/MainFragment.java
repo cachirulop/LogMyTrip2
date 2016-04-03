@@ -26,19 +26,19 @@ import android.widget.RadioButton;
 
 import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.activity.TripDetailActivity;
-import com.cachirulop.logmytrip.adapter.TripItemAdapter;
+import com.cachirulop.logmytrip.activity.JourneyDetailActivity;
+import com.cachirulop.logmytrip.adapter.JourneyItemAdapter;
 import com.cachirulop.logmytrip.dialog.ConfirmDialog;
 import com.cachirulop.logmytrip.dialog.CustomViewDialog;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
 import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -58,28 +58,28 @@ public class MainFragment
                    IMainFragment
 {
     private GoogleApiClient      _client;
-    private boolean              _tripsLoaded;
+    private boolean              _journeysLoaded;
     private boolean              _startLog;
     private RecyclerView         _recyclerView;
-    private TripItemAdapter      _adapter;
+    private JourneyItemAdapter   _adapter;
     private ActionMode           _actionMode;
-    private FloatingActionButton _fabTripLog;
-    public BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
+    private FloatingActionButton _fabLog;
+    public BroadcastReceiver _onLogStopReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            _adapter.stopTripLog (LogMyTripBroadcastManager.getTrip (intent));
-            refreshFabTrip ();
+            _adapter.stopLog (LogMyTripBroadcastManager.getTrip (intent));
+            refreshFabLog ();
         }
     };
     private boolean _exportFormatIsGPX;
-    private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onLogStartReceiver    = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            if (_tripsLoaded) {
+            if (_journeysLoaded) {
                 autoStartLog ();
             }
             else {
@@ -87,14 +87,14 @@ public class MainFragment
             }
         }
     };
-    private BroadcastReceiver _onNewLocationReceiver  = new BroadcastReceiver ()
+    private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            if (_tripsLoaded) {
-                // _adapter.setItem (0, TripManager.getActiveTrip (getContext ()));
-                Trip current;
+            if (_journeysLoaded) {
+                // _adapter.setItem (0, JourneyManager.getActiveJourney (getContext ()));
+                Journey current;
 
                 current = _adapter.getItem (0);
 
@@ -107,14 +107,14 @@ public class MainFragment
 
     public MainFragment ()
     {
-        _tripsLoaded = false;
+        _journeysLoaded = false;
         _startLog = false;
     }
 
-    public void reloadTrips ()
+    public void reloadJourneys ()
     {
         if (_actionMode == null) {
-            _adapter.reloadTrips ();
+            _adapter.reloadItems ();
         }
     }
 
@@ -152,13 +152,13 @@ public class MainFragment
         }
     }
 
-    private void startDetailActivity (Trip t)
+    private void startDetailActivity (Journey t)
     {
         Intent i;
 
-        i = new Intent (getContext (), TripDetailActivity.class);
+        i = new Intent (getContext (), JourneyDetailActivity.class);
 
-        SelectedTripHolder.getInstance ().setSelectedTrip (t);
+        SelectedJourneyHolder.getInstance ().setSelectedJourney (t);
 
         startActivity (i);
     }
@@ -169,9 +169,9 @@ public class MainFragment
         _adapter.setActionMode (true);
 
         MenuInflater inflater = mode.getMenuInflater ();
-        inflater.inflate (R.menu.menu_trip_actionmode, menu);
+        inflater.inflate (R.menu.menu_journey_actionmode, menu);
 
-        _fabTripLog.hide ();
+        _fabLog.hide ();
 
         return true;
     }
@@ -186,20 +186,20 @@ public class MainFragment
     public boolean onActionItemClicked (ActionMode mode, MenuItem item)
     {
         switch (item.getItemId ()) {
-            case R.id.action_delete_selected_trip:
-                deleteSelectedTrips ();
+            case R.id.action_delete_selected_journey:
+                deleteSelectedJourneys ();
                 return true;
 
-            case R.id.action_select_all_trips:
-                selectAllTrips ();
+            case R.id.action_select_all_journeys:
+                selectAllJourneys ();
                 return true;
 
-            case R.id.action_deselect_all_trips:
-                deselectAllTrips ();
+            case R.id.action_deselect_all_journeys:
+                deselectAllJourneys ();
                 return true;
 
             case R.id.action_export:
-                exportTripsDialog ();
+                exportJourneysDialog ();
                 return true;
 
             default:
@@ -207,7 +207,7 @@ public class MainFragment
         }
     }
 
-    private void deleteSelectedTrips ()
+    private void deleteSelectedJourneys ()
     {
         ConfirmDialog dlg;
 
@@ -216,10 +216,10 @@ public class MainFragment
             @Override
             public void onOkClicked ()
             {
-                List<Trip> selectedItems = _adapter.getSelectedItems ();
+                List<Journey> selectedItems = _adapter.getSelectedItems ();
 
-                for (Trip t : selectedItems) {
-                    TripManager.deleteTrip (getContext (), t);
+                for (Journey t : selectedItems) {
+                    JourneyManager.deleteJourney (getContext (), t);
                     _adapter.removeItem (t);
                 }
 
@@ -227,20 +227,20 @@ public class MainFragment
             }
         };
 
-        dlg.show (getActivity ().getSupportFragmentManager (), "deleteTrips");
+        dlg.show (getActivity ().getSupportFragmentManager (), "deleteJourneys");
     }
 
-    private void selectAllTrips ()
+    private void selectAllJourneys ()
     {
         _adapter.selectAllItems ();
     }
 
-    private void deselectAllTrips ()
+    private void deselectAllJourneys ()
     {
         _adapter.deselectAllItems ();
     }
 
-    private void exportTripsDialog ()
+    private void exportJourneysDialog ()
     {
         CustomViewDialog dlg;
 
@@ -259,7 +259,7 @@ public class MainFragment
                 locationLocal = rb.isChecked ();
 
                 if (locationLocal) {
-                    exportTrips (locationLocal);
+                    exportJourneys (locationLocal);
                 }
                 else {
                     startGoogleDriveActivity ();
@@ -279,10 +279,10 @@ public class MainFragment
             }
         };
 
-        dlg.show (getActivity ().getSupportFragmentManager (), "exportTrips");
+        dlg.show (getActivity ().getSupportFragmentManager (), "exportJourneys");
     }
 
-    private void exportTrips (final boolean locationLocal)
+    private void exportJourneys (final boolean locationLocal)
     {
         final ProgressDialog progDialog;
         final Context        ctx;
@@ -290,7 +290,7 @@ public class MainFragment
         ctx = getContext ();
 
         progDialog = ProgressDialog.show (getContext (),
-                                          getContext ().getString (R.string.msg_exporting_trips),
+                                          getContext ().getString (R.string.msg_exporting_journeys),
                                           null,
                                           true);
 
@@ -298,7 +298,7 @@ public class MainFragment
         {
             public void run ()
             {
-                List<Trip>                         selectedItems = _adapter.getSelectedItems ();
+                List<Journey> selectedItems = _adapter.getSelectedItems ();
                 ExportHelper.IExportHelperListener listener;
 
                 listener = new ExportHelper.IExportHelperListener ()
@@ -327,15 +327,15 @@ public class MainFragment
                     }
                 };
 
-                for (Trip t : selectedItems) {
+                for (Journey t : selectedItems) {
                     String track;
                     String fileName = null;
 
                     if (_exportFormatIsGPX) {
-                        fileName = getTrackFileName (t.getTripDate (), "gpx");
+                        fileName = getTrackFileName (t.getJouneyDate (), "gpx");
                     }
                     else {
-                        fileName = getTrackFileName (t.getTripDate (), "kml");
+                        fileName = getTrackFileName (t.getJouneyDate (), "kml");
                     }
 
                     if (locationLocal) {
@@ -390,7 +390,7 @@ public class MainFragment
         _actionMode = null;
         _adapter.setActionMode (false);
         _adapter.deselectAllItems ();
-        _fabTripLog.show ();
+        _fabLog.show ();
 
         updateActionBarSubtitle ();
     }
@@ -419,7 +419,7 @@ public class MainFragment
                 //                else {
                 //                    LogHelper.d ("*** not success");
                 //                }
-                exportTrips (false);
+                exportJourneys (false);
             }
         }
     }
@@ -445,51 +445,49 @@ public class MainFragment
 
         if (getView () != null) {
             // Recyclerview
-            _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvTrips);
+            _recyclerView = (RecyclerView) getView ().findViewById (R.id.rvJourneys);
             _recyclerView.setLayoutManager (new LinearLayoutManager (getContext ()));
 
             _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
-            loadTrips ();
+            loadJourneys ();
             updateActionBarSubtitle ();
 
             // Log button
-            _fabTripLog = (FloatingActionButton) getView ().findViewById (R.id.fabTripLog);
-            _fabTripLog.setOnClickListener (new View.OnClickListener ()
+            _fabLog = (FloatingActionButton) getView ().findViewById (R.id.fabLog);
+            _fabLog.setOnClickListener (new View.OnClickListener ()
             {
                 @Override
                 public void onClick (View v)
                 {
-                    onTripLogClick (v);
+                    onFabLogClick (v);
                 }
             });
 
-            if (SettingsManager.isLogTrip (getContext ())) {
+            if (SettingsManager.isLogJourney (getContext ())) {
                 // Ensure to start log service
                 if (!LogMyTripService.isRunning ()) {
-                    ServiceManager.startTripLog (getContext ());
+                    ServiceManager.startLog (getContext ());
                 }
             }
 
-            refreshFabTrip ();
+            refreshFabLog ();
         }
     }
 
     @Override
     public void onResume ()
     {
-        _adapter.reloadTrips ();
+        _adapter.reloadItems ();
 
         // Receive the broadcast of the LogMyTripService class
-        LogMyTripBroadcastManager.registerTripLogStartReceiver (getContext (),
-                                                                _onTripLogStartReceiver);
-        LogMyTripBroadcastManager.registerTripLogStopReceiver (getContext (),
-                                                               _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.registerLogStartReceiver (getContext (), _onLogStartReceiver);
+        LogMyTripBroadcastManager.registerLogStopReceiver (getContext (), _onLogStopReceiver);
 
         LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
                                                                _onNewLocationReceiver);
 
-        refreshFabTrip ();
+        refreshFabLog ();
 
         super.onResume ();
     }
@@ -498,12 +496,12 @@ public class MainFragment
     public void onPause ()
     {
         if (_actionMode == null) {
-            _adapter.clearTrips ();
-            _tripsLoaded = false;
+            _adapter.clearJourneys ();
+            _journeysLoaded = false;
         }
 
-        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStartReceiver);
-        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onLogStartReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onLogStopReceiver);
 
         LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
 
@@ -511,19 +509,19 @@ public class MainFragment
     }
 
     /**
-     * Load existing trips
+     * Load existing journeys
      */
-    private void loadTrips ()
+    private void loadJourneys ()
     {
         if (getView () != null) {
-            _adapter = new TripItemAdapter (getContext (),
-                                            new TripItemAdapter.TripItemAdapterListener ()
+            _adapter = new JourneyItemAdapter (getContext (),
+                                               new JourneyItemAdapter.JourneyItemAdapterListener ()
                                             {
                                                 @Override
-                                                public void onTripListLoaded ()
+                                                public void onJourneyListLoaded ()
                                                 {
                                                     updateActionBarSubtitle ();
-                                                    _tripsLoaded = true;
+                                                    _journeysLoaded = true;
 
                                                     if (_startLog) {
                                                         autoStartLog ();
@@ -532,45 +530,45 @@ public class MainFragment
                                                 }
                                             });
 
-            _adapter.setOnTripItemClickListener (this);
+            _adapter.setOnJourneyItemClickListener (this);
             _recyclerView.setAdapter (_adapter);
         }
     }
 
-    private void onTripLogClick (View v)
+    private void onFabLogClick (View v)
     {
-        if (SettingsManager.isLogTrip (getContext ())) {
+        if (SettingsManager.isLogJourney (getContext ())) {
             _recyclerView.scrollToPosition (0);
 
-            ServiceManager.stopTripLog (getContext ());
+            ServiceManager.stopLog (getContext ());
 
-            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
+            _fabLog.setImageResource (R.mipmap.ic_button_save);
         }
         else {
-            ServiceManager.startTripLog (getContext ());
+            ServiceManager.startLog (getContext ());
         }
     }
 
-    private void refreshFabTrip ()
+    private void refreshFabLog ()
     {
-        if (SettingsManager.isLogTrip (getContext ())) {
-            _fabTripLog.setImageResource (android.R.drawable.ic_media_pause);
+        if (SettingsManager.isLogJourney (getContext ())) {
+            _fabLog.setImageResource (android.R.drawable.ic_media_pause);
         }
         else {
-            _fabTripLog.setImageResource (R.mipmap.ic_button_save);
+            _fabLog.setImageResource (R.mipmap.ic_button_save);
         }
     }
 
     private void autoStartLog ()
     {
-        _adapter.startTripLog ();
+        _adapter.startLog ();
         startDetailActivity (_adapter.getItem (0));
     }
 
     @Override
     public void onConnected (Bundle bundle)
     {
-        exportTrips (false);
+        exportJourneys (false);
     }
 
     @Override
@@ -605,6 +603,6 @@ public class MainFragment
     @Override
     public void reloadData ()
     {
-        reloadTrips ();
+        reloadJourneys ();
     }
 }

@@ -36,18 +36,18 @@ public class BluetoothBroadcastReceiver
         if (isDeviceConfigured) {
             if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals (action)) {
                 if (SettingsManager.isAutoStartOnConnect (ctx)) {
-                    ServiceManager.stopTripLog (ctx);
+                    ServiceManager.stopLog (ctx);
                 }
                 else {
-                    ServiceManager.startTripLog (ctx);
+                    ServiceManager.startLog (ctx);
                 }
             }
             else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals (action)) {
                 if (SettingsManager.isAutoStartOnConnect (ctx)) {
-                    ServiceManager.startTripLog (ctx);
+                    ServiceManager.startLog (ctx);
                 }
                 else {
-                    ServiceManager.stopTripLog (ctx);
+                    ServiceManager.stopLog (ctx);
                 }
             }
         }

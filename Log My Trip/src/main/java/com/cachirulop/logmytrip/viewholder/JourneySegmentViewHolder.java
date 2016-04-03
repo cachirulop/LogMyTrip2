@@ -11,13 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
+import com.cachirulop.logmytrip.adapter.JourneyStatisticsAdapter;
 import com.cachirulop.logmytrip.dialog.ConfirmDialog;
-import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.entity.JourneySegment;
+import com.cachirulop.logmytrip.entity.Location;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.helper.MapHelper;
-import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,10 +26,10 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
-public class TripSegmentViewHolder
+public class JourneySegmentViewHolder
         extends RecyclerView.ViewHolder
 {
-    private TripStatisticsAdapter _adapter;
+    private JourneyStatisticsAdapter _adapter;
 
     private Toolbar _toolbar;
     private TextView _locationFrom;
@@ -43,18 +43,18 @@ public class TripSegmentViewHolder
     private TextView _maxSpeed;
     private TextView _mediumSpeed;
 
-    private FrameLayout _mapFrame;
-    private MapView     _mapView;
-    private MapHelper   _mapHelper;
+    private FrameLayout    _mapFrame;
+    private MapView        _mapView;
+    private MapHelper      _mapHelper;
     private MapReadyCallback _mapCallback;
-    private TripSegment _segment;
-    private Context     _ctx;
-    private int         _mapType;
+    private JourneySegment _segment;
+    private Context        _ctx;
+    private int            _mapType;
 
-    public TripSegmentViewHolder (TripStatisticsAdapter adapter,
-                                  View parent,
-                                  Context ctx,
-                                  int mapType)
+    public JourneySegmentViewHolder (JourneyStatisticsAdapter adapter,
+                                     View parent,
+                                     Context ctx,
+                                     int mapType)
     {
         super (parent);
 
@@ -82,27 +82,27 @@ public class TripSegmentViewHolder
 
         _mapFrame.addView (_mapView);
 
-        _locationFrom = (TextView) parent.findViewById (R.id.tvTripSegmentLocationFrom);
-        _locationTo = (TextView) parent.findViewById (R.id.tvTripSegmentLocationTo);
+        _locationFrom = (TextView) parent.findViewById (R.id.tvJourneySegmentLocationFrom);
+        _locationTo = (TextView) parent.findViewById (R.id.tvJourneySegmentLocationTo);
 
-        _startDate = (TextView) parent.findViewById (R.id.tvTripSegmentStartDate);
-        _endDate = (TextView) parent.findViewById (R.id.tvTripSegmentEndDate);
-        _startTime = (TextView) parent.findViewById (R.id.tvTripSegmentStartTime);
-        _endTime = (TextView) parent.findViewById (R.id.tvTripSegmentEndTime);
-        _totalDistance = (TextView) parent.findViewById (R.id.tvTripSegmentTotalDistance);
-        _totalTime = (TextView) parent.findViewById (R.id.tvTripSegmentTotalTime);
-        _maxSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMaxSpeed);
-        _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSegmentMediumSpeed);
+        _startDate = (TextView) parent.findViewById (R.id.tvJourneySegmentStartDate);
+        _endDate = (TextView) parent.findViewById (R.id.tvJourneySegmentEndDate);
+        _startTime = (TextView) parent.findViewById (R.id.tvJourneySegmentStartTime);
+        _endTime = (TextView) parent.findViewById (R.id.tvJourneySegmentEndTime);
+        _totalDistance = (TextView) parent.findViewById (R.id.tvJourneySegmentTotalDistance);
+        _totalTime = (TextView) parent.findViewById (R.id.tvJourneySegmentTotalTime);
+        _maxSpeed = (TextView) parent.findViewById (R.id.tvJourneySegmentMaxSpeed);
+        _mediumSpeed = (TextView) parent.findViewById (R.id.tvJourneySegmentMediumSpeed);
 
         _toolbar = (Toolbar) parent.findViewById (R.id.tbSegmentToolbar);
         _toolbar.inflateMenu (R.menu.menu_segment_actionmode);
     }
 
-    public void bindView (final TripSegment tripSegment, int position)
+    public void bindView (final JourneySegment journeySegment, int position)
     {
-        TripLocation l;
+        Location l;
 
-        _segment = tripSegment;  // To get locations
+        _segment = journeySegment;  // To get locations
 
         _toolbar.setTitle (_segment.getTitle (_ctx));
         _toolbar.setOnMenuItemClickListener (new Toolbar.OnMenuItemClickListener ()
@@ -119,13 +119,13 @@ public class TripSegmentViewHolder
                             @Override
                             public void onOkClicked ()
                             {
-                                _adapter.removeItem (tripSegment);
-                                TripManager.deleteSegment (_ctx, tripSegment);
+                                _adapter.removeItem (journeySegment);
+                                JourneyManager.deleteSegment (_ctx, journeySegment);
                             }
                         };
 
                         dlg.show (((FragmentActivity) _ctx).getSupportFragmentManager (),
-                                  "deleteTrip");
+                                  "deleteJourney");
                 }
 
                 return true;

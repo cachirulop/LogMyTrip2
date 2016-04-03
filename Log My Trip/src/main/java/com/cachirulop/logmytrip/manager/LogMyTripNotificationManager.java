@@ -10,8 +10,8 @@ import android.content.Intent;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.MainActivity;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.JourneySegment;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.receiver.NotifyReceiver;
 
@@ -19,22 +19,22 @@ import java.util.Set;
 
 public class LogMyTripNotificationManager
 {
-    public static final int NOTIFICATION_TRIP_LOGGING = 1133;
+    public static final int NOTIFICATION_LOGGING = 1133;
     public static final int NOTIFICATION_WAITING_BLUETOOTH = 1134;
 
 
-    public static Notification createTripLogging (Context ctx, Trip t)
+    public static Notification createLogging (Context ctx, Journey t)
     {
-        return createTripLoggingNotification (ctx, t);
+        return createLoggingNotification (ctx, t);
     }
 
-    private static Notification createTripLoggingNotification (Context ctx, Trip t)
+    private static Notification createLoggingNotification (Context ctx, Journey t)
     {
         Notification.Builder    builder;
         Intent                  notificationIntent;
         PendingIntent           pi;
         Notification.InboxStyle style;
-        TripSegment             currentSegment;
+        JourneySegment currentSegment;
 
         builder = new Notification.Builder (ctx);
         builder.setContentTitle (ctx.getText (R.string.notif_Title));
@@ -79,7 +79,7 @@ public class LogMyTripNotificationManager
 
         builder.setStyle (style);
 
-        builder.setSmallIcon (R.mipmap.ic_trip_status_logging);
+        builder.setSmallIcon (R.mipmap.ic_status_logging);
 
         return builder.build ();
     }
@@ -100,13 +100,13 @@ public class LogMyTripNotificationManager
         builder.addAction (icon, ctx.getString (title), pi);
     }
 
-    public static void updateTripLogging (Context ctx, Trip t)
+    public static void updateLogging (Context ctx, Journey t)
     {
         Notification note;
 
-        note = createTripLoggingNotification (ctx, t);
+        note = createLoggingNotification (ctx, t);
 
-        getManager (ctx).notify (NOTIFICATION_TRIP_LOGGING, note);
+        getManager (ctx).notify (NOTIFICATION_LOGGING, note);
     }
 
     private static NotificationManager getManager (Context ctx)
@@ -147,7 +147,7 @@ public class LogMyTripNotificationManager
                    android.R.drawable.stat_sys_data_bluetooth,
                    R.string.action_stop_bluetooth);
 
-        if (!SettingsManager.isLogTrip (ctx)) {
+        if (!SettingsManager.isLogJourney (ctx)) {
             addAction (ctx,
                        builder,
                        NotifyReceiver.ACTION_START_LOG,
@@ -193,7 +193,7 @@ public class LogMyTripNotificationManager
             mode = ctx.getString (R.string.notif_ContentWaitingBluetooth_mode_disconnect);
         }
 
-        if (SettingsManager.isLogTrip (ctx)) {
+        if (SettingsManager.isLogJourney (ctx)) {
             action = ctx.getString (R.string.notif_ContentWaitingBluetooth_action_stop);
         }
         else {

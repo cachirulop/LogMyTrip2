@@ -8,17 +8,17 @@ import com.cachirulop.logmytrip.service.LogMyTripService;
 
 public class ServiceManager
 {
-    public static void startTripLog (Context ctx)
+    public static void startLog (Context ctx)
     {
-        SettingsManager.setLogTrip (ctx, true);
+        SettingsManager.setLogJourney (ctx, true);
 
         ctx.startService (new Intent (ctx, LogMyTripService.class));
     }
 
-    public static void stopTripLog (Context ctx)
+    public static void stopLog (Context ctx)
     {
-        if (SettingsManager.isLogTrip (ctx)) {
-            SettingsManager.setLogTrip (ctx, false);
+        if (SettingsManager.isLogJourney (ctx)) {
+            SettingsManager.setLogJourney (ctx, false);
 
             ctx.stopService (new Intent (ctx, LogMyTripService.class));
         }

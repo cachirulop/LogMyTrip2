@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.File;
@@ -18,7 +18,7 @@ import java.io.Writer;
  */
 public class ExportHelper
 {
-    public static void exportToFile (final Context ctx, final Trip trip,
+    public static void exportToFile (final Context ctx, final Journey journey,
                                      final String fileName,
                                      final IExportHelperListener listener)
     {
@@ -38,7 +38,10 @@ public class ExportHelper
 
                     writer = new FileWriter (file, false);
 
-                    TripManager.exportTrip (ctx, trip, getFileExtension (fileName), writer);
+                    JourneyManager.exportJourney (ctx,
+                                                  journey,
+                                                  getFileExtension (fileName),
+                                                  writer);
 
                     writer.flush ();
                     writer.close ();
@@ -83,8 +86,7 @@ public class ExportHelper
         return result.toString ();
     }
 
-    public static void exportToGoogleDrive (final Context ctx,
-                                            final Trip trip,
+    public static void exportToGoogleDrive (final Context ctx, final Journey journey,
                                             final String fileName,
                                             final GoogleApiClient client,
                                             final IExportHelperListener listener)
@@ -96,16 +98,18 @@ public class ExportHelper
         GoogleDriveHelper.saveFile (client,
                                     ctx,
                                     path,
-                                    trip, new GoogleDriveHelper.IGoogleDriveWriterListener ()
+                                    journey,
+                                    new GoogleDriveHelper.IGoogleDriveWriterListener ()
                                     {
                                         @Override
                                         public void onWriteContents (Writer w)
                                         {
                                             try {
-                                                TripManager.exportTrip (ctx,
-                                                                        trip,
-                                                                        getFileExtension (fileName),
-                                                                        w);
+                                                JourneyManager.exportJourney (ctx,
+                                                                              journey,
+                                                                              getFileExtension (
+                                                                                      fileName),
+                                                                              w);
                                             }
                                             catch (IOException e) {
                                                 listener.onExportFails (R.string.msg_error_exporting);

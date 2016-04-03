@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripSegment;
-import com.cachirulop.logmytrip.viewholder.TripSegmentViewHolder;
-import com.cachirulop.logmytrip.viewholder.TripSummaryViewHolder;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.JourneySegment;
+import com.cachirulop.logmytrip.viewholder.JourneySegmentViewHolder;
+import com.cachirulop.logmytrip.viewholder.JourneySummaryViewHolder;
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.List;
@@ -19,21 +19,21 @@ import java.util.List;
 /**
  * Created by dmagro on 01/09/2015.
  */
-public class TripStatisticsAdapter
+public class JourneyStatisticsAdapter
         extends RecyclerView.Adapter
 {
 
-    private final int ITEM_TYPE_TRIP    = 0;
+    private final int ITEM_TYPE_JOURNEY = 0;
     private final int ITEM_TYPE_SEGMENT = 1;
 
     private Context _ctx;
-    private Trip    _trip;
-    private int _mapType;
+    private Journey _journey;
+    private int     _mapType;
 
-    public TripStatisticsAdapter (Context ctx, Fragment parentFragment, Trip trip)
+    public JourneyStatisticsAdapter (Context ctx, Fragment parentFragment, Journey journey)
     {
         _ctx = ctx;
-        _trip = trip;
+        _journey = journey;
 
         _mapType = GoogleMap.MAP_TYPE_NORMAL;
     }
@@ -46,15 +46,15 @@ public class TripStatisticsAdapter
         LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
 
         switch (viewType) {
-            case ITEM_TYPE_TRIP:
-                rowView = inflater.inflate (R.layout.trip_summary, parent, false);
+            case ITEM_TYPE_JOURNEY:
+                rowView = inflater.inflate (R.layout.journey_summary, parent, false);
 
-                return new TripSummaryViewHolder (this, rowView, _ctx);
+                return new JourneySummaryViewHolder (this, rowView, _ctx);
 
             case ITEM_TYPE_SEGMENT:
-                rowView = inflater.inflate (R.layout.trip_segment, parent, false);
+                rowView = inflater.inflate (R.layout.journey_segment, parent, false);
 
-                return new TripSegmentViewHolder (this, rowView, _ctx, _mapType);
+                return new JourneySegmentViewHolder (this, rowView, _ctx, _mapType);
         }
 
         return null;
@@ -64,15 +64,15 @@ public class TripStatisticsAdapter
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position)
     {
         switch (getItemViewType (position)) {
-            case ITEM_TYPE_TRIP:
-                ((TripSummaryViewHolder) holder).bindView (_trip, position);
+            case ITEM_TYPE_JOURNEY:
+                ((JourneySummaryViewHolder) holder).bindView (_journey, position);
                 break;
 
             case ITEM_TYPE_SEGMENT:
-                TripSegment segment;
+                JourneySegment segment;
 
-                segment = _trip.getSegments ().get (position - 1);
-                ((TripSegmentViewHolder) holder).bindView (segment, position);
+                segment = _journey.getSegments ().get (position - 1);
+                ((JourneySegmentViewHolder) holder).bindView (segment, position);
 
                 break;
         }
@@ -82,7 +82,7 @@ public class TripStatisticsAdapter
     public int getItemViewType (int position)
     {
         if (position == 0) {
-            return ITEM_TYPE_TRIP;
+            return ITEM_TYPE_JOURNEY;
         }
         else {
             return ITEM_TYPE_SEGMENT;
@@ -100,7 +100,7 @@ public class TripStatisticsAdapter
     {
         int numSegments;
 
-        numSegments = _trip.getSegments ().size ();
+        numSegments = _journey.getSegments ().size ();
         if (numSegments <= 1) {
             // 1 or 0 segments, only show the summary
             return 1;
@@ -117,12 +117,12 @@ public class TripStatisticsAdapter
         notifyDataSetChanged ();
     }
 
-    public void removeItem (TripSegment t)
+    public void removeItem (JourneySegment t)
     {
         int               pos;
-        List<TripSegment> segments;
+        List<JourneySegment> segments;
 
-        segments = _trip.getSegments ();
+        segments = _journey.getSegments ();
 
         pos = segments.indexOf (t);
         if (pos != -1) {

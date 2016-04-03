@@ -8,7 +8,7 @@ import android.location.Location;
 import android.os.Parcelable;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 
 import java.util.HashMap;
 
@@ -20,15 +20,15 @@ public class LogMyTripBroadcastManager
     private static final String BROADCAST_PREFIX = LogMyTripBroadcastManager.class.getPackage ()
                                                                                   .getName ();
 
-    private static final String ACTION_TRIP_LOG_START         = BROADCAST_PREFIX + "start";
-    private static final String ACTION_TRIP_LOG_STOP          = BROADCAST_PREFIX + "stop";
+    private static final String ACTION_LOG_START       = BROADCAST_PREFIX + "start";
+    private static final String ACTION_LOG_STOP        = BROADCAST_PREFIX + "stop";
     private static final String ACTION_NEW_LOCATION           = BROADCAST_PREFIX + "new_location";
     private static final String ACTION_PROVIDER_ENABLE_CHANGE = BROADCAST_PREFIX + "provider_change";
     private static final String ACTION_STATUS_CHANGE          = BROADCAST_PREFIX + "status_change";
     private static final String ACTION_BLUETOOTH_START = BROADCAST_PREFIX + "bluetooth_start";
     private static final String ACTION_BLUETOOTH_STOP  = BROADCAST_PREFIX + "bluetooth_start";
 
-    private static final String EXTRA_TRIP            = BROADCAST_PREFIX + "trip";
+    private static final String EXTRA_JOURNEY = BROADCAST_PREFIX + "journey";
     private static final String EXTRA_PROVIDER_ENABLE = BROADCAST_PREFIX + "enabled";
     private static final String EXTRA_STATUS          = BROADCAST_PREFIX + "status";
     private static final String EXTRA_LOCATION        = BROADCAST_PREFIX + "location";
@@ -51,8 +51,8 @@ public class LogMyTripBroadcastManager
                 Object value;
 
                 value = params.get (k);
-                if (value instanceof Trip) {
-                    intent.putExtra (k, (Trip) params.get (k));
+                if (value instanceof Journey) {
+                    intent.putExtra (k, (Journey) params.get (k));
                 }
                 else if (value instanceof Integer) {
                     intent.putExtra (k, ((Integer) params.get (k)).intValue ());
@@ -69,19 +69,19 @@ public class LogMyTripBroadcastManager
         LocalBroadcastManager.getInstance (ctx).sendBroadcast (intent);
     }
 
-    public static void sendStartTripLogMessage (Context ctx)
+    public static void sendStartLogMessage (Context ctx)
     {
-        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_START);
+        sendBroadcastMessage (ctx, ACTION_LOG_START);
     }
 
-    public static void sendStopTripLogMessage (Context ctx, Trip trip)
+    public static void sendStopLogMessage (Context ctx, Journey journey)
     {
         HashMap<String, Object> params;
 
         params = new HashMap<> ();
-        params.put (EXTRA_TRIP, trip);
+        params.put (EXTRA_JOURNEY, journey);
 
-        sendBroadcastMessage (ctx, ACTION_TRIP_LOG_STOP, params);
+        sendBroadcastMessage (ctx, ACTION_LOG_STOP, params);
     }
 
     public static void sendNewLocationMessage (Context ctx, Location loc)
@@ -124,16 +124,16 @@ public class LogMyTripBroadcastManager
         sendBroadcastMessage (ctx, ACTION_BLUETOOTH_STOP);
     }
 
-    public static void registerTripLogStartReceiver (Context ctx, BroadcastReceiver receiver)
+    public static void registerLogStartReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_TRIP_LOG_START));
+                             .registerReceiver (receiver, new IntentFilter (ACTION_LOG_START));
     }
 
-    public static void registerTripLogStopReceiver (Context ctx, BroadcastReceiver receiver)
+    public static void registerLogStopReceiver (Context ctx, BroadcastReceiver receiver)
     {
         LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_TRIP_LOG_STOP));
+                             .registerReceiver (receiver, new IntentFilter (ACTION_LOG_STOP));
     }
 
     public static void registerNewLocationReceiver (Context ctx, BroadcastReceiver receiver)
@@ -173,14 +173,14 @@ public class LogMyTripBroadcastManager
         LocalBroadcastManager.getInstance (ctx).unregisterReceiver (receiver);
     }
 
-    public static boolean hasTrip (Intent intent)
+    public static boolean hasJourney (Intent intent)
     {
-        return intent.hasExtra (EXTRA_TRIP);
+        return intent.hasExtra (EXTRA_JOURNEY);
     }
 
-    public static Trip getTrip (Intent intent)
+    public static Journey getTrip (Intent intent)
     {
-        return (Trip) intent.getSerializableExtra (EXTRA_TRIP);
+        return (Journey) intent.getSerializableExtra (EXTRA_JOURNEY);
     }
 
     public static Location getLocation (Intent intent)

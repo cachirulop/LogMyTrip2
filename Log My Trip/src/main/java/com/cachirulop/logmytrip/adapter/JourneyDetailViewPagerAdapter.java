@@ -5,21 +5,21 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.fragment.TabMapFragment;
 import com.cachirulop.logmytrip.fragment.TabStatisticsFragment;
 
 /**
  * Created by hp1 on 21-01-2015.
  */
-public class TripDetailViewPagerAdapter
+public class JourneyDetailViewPagerAdapter
         extends FragmentStatePagerAdapter
 {
 
     CharSequence[] _titles;
     Fragment[] _fragments;
 
-    public TripDetailViewPagerAdapter (FragmentActivity activity, Trip trip)
+    public JourneyDetailViewPagerAdapter (FragmentActivity activity, Journey journey)
     {
         super (activity.getSupportFragmentManager ());
 

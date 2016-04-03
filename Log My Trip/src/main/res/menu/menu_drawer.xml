@@ -6,7 +6,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/action_journeys"
-            android:icon="@mipmap/ic_trip_status_logging"
+            android:icon="@mipmap/ic_status_logging"
             android:title="@string/action_journeys"
             android:checked="true"/>
 

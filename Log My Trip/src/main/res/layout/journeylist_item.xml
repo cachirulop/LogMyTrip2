@@ -4,16 +4,16 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="@dimen/card_margin"
-                                    android:background="@drawable/trip_list_selector"
+                                    android:background="@drawable/list_selector"
                                     app:cardElevation="@dimen/card_elevation">
 
     <RelativeLayout
-        android:id="@+id/tripListItemContainer"
+        android:id="@+id/journeyListItemContainer"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/trip_list_selector"
+        android:background="@drawable/list_selector"
         android:clickable="true"
         android:longClickable="true"
         android:orientation="vertical"
@@ -21,67 +21,67 @@
         android:scrollIndicators="right">
 
         <TextView
-            android:id="@+id/tvTripItemTitle"
+            android:id="@+id/tvJourneyItemTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/ivTripItemStatus"
+            android:layout_alignTop="@+id/ivJourneyItemStatus"
             android:layout_marginLeft="0dp"
             android:layout_marginTop="0dp"
-            android:layout_toEndOf="@+id/ivTripItemStatus"
+            android:layout_toEndOf="@+id/ivJourneyItemStatus"
             android:text="Title"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"/>
 
         <TextView
-            android:id="@+id/tvTripItemDescription"
+            android:id="@+id/tvJourneyItemDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvTripItemTitle"
-            android:layout_toEndOf="@+id/ivTripItemStatus"
+            android:layout_below="@+id/tvJourneyItemTitle"
+            android:layout_toEndOf="@+id/ivJourneyItemStatus"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
-            android:id="@+id/tvTripItemDate"
+            android:id="@+id/tvJourneyItemDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/tvTripItemTitle"
+            android:layout_alignBaseline="@+id/tvJourneyItemTitle"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_gravity="right"
             android:layout_marginLeft="626dp"
-            android:text="Trip date"
+            android:text="Journey date"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
-            android:id="@+id/tvTripItemDuration"
+            android:id="@+id/tvJourneyItemDuration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvTripItemDescription"
+            android:layout_below="@+id/tvJourneyItemDescription"
             android:layout_marginLeft="0dp"
-            android:layout_toEndOf="@+id/ivTripItemStatus"
+            android:layout_toEndOf="@+id/ivJourneyItemStatus"
             android:text="Duration time + kilometers"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="italic"/>
 
         <TextView
-            android:id="@+id/tvTripItemDatetime"
+            android:id="@+id/tvJourneyItemDatetime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/tvTripItemDuration"
-            android:layout_alignEnd="@+id/tvTripItemDate"
+            android:layout_alignBottom="@+id/tvJourneyItemDuration"
+            android:layout_alignEnd="@+id/tvJourneyItemDate"
             android:layout_alignParentRight="true"
             android:layout_gravity="right"
             android:layout_marginLeft="554dp"
-            android:text="Trip datetime"
+            android:text="Journey datetime"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <ImageView
-            android:id="@+id/ivTripItemStatus"
+            android:id="@+id/ivJourneyItemStatus"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
-            android:src="@mipmap/ic_trip_status_saved"/>
+            android:src="@mipmap/ic_journey_status_saved"/>
 
     </RelativeLayout>
 

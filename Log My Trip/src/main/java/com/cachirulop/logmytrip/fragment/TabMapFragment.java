@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.Snackbar;
@@ -18,14 +17,14 @@ import android.view.ViewStub;
 
 import com.cachirulop.logmytrip.LogMyTripApplication;
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.Location;
 import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.MapHelper;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,20 +37,20 @@ public class TabMapFragment
 {
     private GoogleMap _map;
     private MapHelper _mapHelper;
-    private Trip      _trip;
+    private Journey   _journey;
 
     private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
         {
-            Location     l;
-            TripLocation tl;
+            android.location.Location l;
+            Location                  tl;
 
             l = LogMyTripBroadcastManager.getLocation (intent);
-            tl = new TripLocation (_trip, l);
+            tl = new Location (l);
 
-            _trip.addLocation (tl);
+            _journey.addLocation (tl);
 
             _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
                                                                                l.getLongitude ()),
@@ -120,8 +119,8 @@ public class TabMapFragment
     {
         super.onCreate (savedInstanceState);
 
-        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
-        TripManager.loadTripSegments (getContext (), _trip);
+        _journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
+        JourneyManager.loadJourneySegments (getContext (), _journey);
     }
 
     @Override
@@ -147,7 +146,7 @@ public class TabMapFragment
 
         fm = getFragmentManager ();
 
-        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (R.id.gmTripDetail)).getMapAsync (
+        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (R.id.gmJourneyDetail)).getMapAsync (
                 this);
     }
 
@@ -162,7 +161,7 @@ public class TabMapFragment
     {
         super.onResume ();
 
-        if (_trip.getId () == SettingsManager.getCurrentTripId (getContext ())) {
+        if (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ())) {
             LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
                                                                    _onNewLocationReceiver);
             LogMyTripBroadcastManager.registerProviderEnableChange (getContext (),
@@ -176,7 +175,7 @@ public class TabMapFragment
     {
         super.onPause ();
 
-        if (_trip.getId () == SettingsManager.getCurrentTripId (getContext ())) {
+        if (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ())) {
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
@@ -194,7 +193,7 @@ public class TabMapFragment
                 @Override
                 public void run ()
                 {
-                    _mapHelper.drawTrip (_trip, true);
+                    _mapHelper.drawJourney (_journey, true);
                 }
             });
         }
@@ -203,16 +202,16 @@ public class TabMapFragment
     @Override
     public void onMapReady (GoogleMap googleMap)
     {
-        boolean isActiveTrip;
+        boolean isActiveJourney;
 
-        isActiveTrip = (_trip.getId () == SettingsManager.getCurrentTripId (getContext ()));
+        isActiveJourney = (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ()));
 
         _map = googleMap;
         _map.setMyLocationEnabled (true);
 
         _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);
-        _mapHelper.drawTrip (_trip, isActiveTrip);
+        _mapHelper.drawJourney (_journey, isActiveJourney);
     }
 
     public void setMapType (int mapType)

@@ -8,9 +8,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.adapter.JourneyStatisticsAdapter;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.Location;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.receiver.AddressResultReceiver;
 import com.cachirulop.logmytrip.service.FetchAddressService;
@@ -18,10 +18,10 @@ import com.cachirulop.logmytrip.service.FetchAddressService;
 /**
  * Created by dmagro on 06/10/2015.
  */
-public class TripSummaryViewHolder
+public class JourneySummaryViewHolder
         extends RecyclerView.ViewHolder
 {
-    private TripStatisticsAdapter _adapter;
+    private JourneyStatisticsAdapter _adapter;
 
     private TextView _description;
     private TableRow _descriptionRow;
@@ -40,7 +40,7 @@ public class TripSummaryViewHolder
     private AddressResultReceiver _addressFromReceiver;
     private AddressResultReceiver _addressToReceiver;
 
-    public TripSummaryViewHolder (TripStatisticsAdapter adapter, View parent, Context ctx)
+    public JourneySummaryViewHolder (JourneyStatisticsAdapter adapter, View parent, Context ctx)
     {
         super (parent);
 
@@ -50,23 +50,23 @@ public class TripSummaryViewHolder
         parent.setClickable (false);
         parent.setLongClickable (false);
 
-        _descriptionRow = (TableRow) parent.findViewById (R.id.tvTripSummaryDescriptionRow);
-        _description = (TextView) parent.findViewById (R.id.tvTripSummaryDescription);
+        _descriptionRow = (TableRow) parent.findViewById (R.id.tvJourneySummaryDescriptionRow);
+        _description = (TextView) parent.findViewById (R.id.tvJourneySummaryDescription);
 
-        _locationFrom = (TextView) parent.findViewById (R.id.tvTripSummaryLocationFrom);
-        _locationTo = (TextView) parent.findViewById (R.id.tvTripSummaryLocationTo);
+        _locationFrom = (TextView) parent.findViewById (R.id.tvJourneySummaryLocationFrom);
+        _locationTo = (TextView) parent.findViewById (R.id.tvJourneySummaryLocationTo);
 
         _addressFromReceiver = new AddressResultReceiver (new Handler (), getLocationFrom ());
         _addressToReceiver = new AddressResultReceiver (new Handler (), getLocationTo ());
 
-        _startDate = (TextView) parent.findViewById (R.id.tvTripSummaryStartDate);
-        _endDate = (TextView) parent.findViewById (R.id.tvTripSummaryEndDate);
-        _startTime = (TextView) parent.findViewById (R.id.tvTripSummaryStartTime);
-        _endTime = (TextView) parent.findViewById (R.id.tvTripSummaryEndTime);
-        _totalDistance = (TextView) parent.findViewById (R.id.tvTripSummaryTotalDistance);
-        _totalTime = (TextView) parent.findViewById (R.id.tvTripSummaryTotalTime);
-        _maxSpeed = (TextView) parent.findViewById (R.id.tvTripSummaryMaxSpeed);
-        _mediumSpeed = (TextView) parent.findViewById (R.id.tvTripSummaryMediumSpeed);
+        _startDate = (TextView) parent.findViewById (R.id.tvJourneySummaryStartDate);
+        _endDate = (TextView) parent.findViewById (R.id.tvJourneySummaryEndDate);
+        _startTime = (TextView) parent.findViewById (R.id.tvJourneySummaryStartTime);
+        _endTime = (TextView) parent.findViewById (R.id.tvJourneySummaryEndTime);
+        _totalDistance = (TextView) parent.findViewById (R.id.tvJourneySummaryTotalDistance);
+        _totalTime = (TextView) parent.findViewById (R.id.tvJourneySummaryTotalTime);
+        _maxSpeed = (TextView) parent.findViewById (R.id.tvJourneySummaryMaxSpeed);
+        _mediumSpeed = (TextView) parent.findViewById (R.id.tvJourneySummaryMediumSpeed);
     }
 
     public TextView getLocationFrom ()
@@ -89,22 +89,22 @@ public class TripSummaryViewHolder
         _locationFrom = locationFrom;
     }
 
-    public void bindView (Trip trip, int position)
+    public void bindView (Journey journey, int position)
     {
-        TripLocation l;
+        Location l;
 
-        if (trip.getDescription () != null && !"".equals (trip.getDescription ())) {
+        if (journey.getDescription () != null && !"".equals (journey.getDescription ())) {
             _descriptionRow.setVisibility (View.VISIBLE);
-            _description.setText (trip.getDescription ());
+            _description.setText (journey.getDescription ());
         }
         else {
             _descriptionRow.setVisibility (View.GONE);
         }
 
-        getStartDate ().setText (FormatHelper.formatDate (_ctx, trip.getTripDate ()));
-        getStartTime ().setText (FormatHelper.formatTime (_ctx, trip.getTripDate ()));
+        getStartDate ().setText (FormatHelper.formatDate (_ctx, journey.getJouneyDate ()));
+        getStartTime ().setText (FormatHelper.formatTime (_ctx, journey.getJouneyDate ()));
 
-        l = trip.getStartLocation ();
+        l = journey.getStartLocation ();
         if (l != null) {
             if (getLocationFrom ().getText ().equals ("")) {
                 getLocationFrom ().setText (l.toString ());
@@ -119,7 +119,7 @@ public class TripSummaryViewHolder
             getLocationFrom ().setText ("");
         }
 
-        l = trip.getEndLocation ();
+        l = journey.getEndLocation ();
         if (l != null) {
             if (getLocationTo ().getText ().equals ("")) {
                 getLocationTo ().setText (l.toString ());
@@ -138,10 +138,10 @@ public class TripSummaryViewHolder
             getEndTime ().setText ("");
         }
 
-        getTotalDistance ().setText (FormatHelper.formatDistance (trip.computeTotalDistance (_ctx)));
-        getTotalTime ().setText (FormatHelper.formatDuration (trip.computeTotalTime (_ctx)));
-        getMaxSpeed ().setText (FormatHelper.formatSpeed (trip.computeMaxSpeed ()));
-        getMediumSpeed ().setText (FormatHelper.formatSpeed (trip.computeMediumSpeed ()));
+        getTotalDistance ().setText (FormatHelper.formatDistance (journey.computeTotalDistance (_ctx)));
+        getTotalTime ().setText (FormatHelper.formatDuration (journey.computeTotalTime (_ctx)));
+        getMaxSpeed ().setText (FormatHelper.formatSpeed (journey.computeMaxSpeed ()));
+        getMediumSpeed ().setText (FormatHelper.formatSpeed (journey.computeMediumSpeed ()));
     }
 
     public TextView getStartDate ()
@@ -224,12 +224,12 @@ public class TripSummaryViewHolder
         _startDate = startDate;
     }
 
-    public TripStatisticsAdapter getAdapter ()
+    public JourneyStatisticsAdapter getAdapter ()
     {
         return _adapter;
     }
 
-    public void setAdapter (TripStatisticsAdapter adapter)
+    public void setAdapter (JourneyStatisticsAdapter adapter)
     {
         _adapter = adapter;
     }

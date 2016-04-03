@@ -10,11 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
-import com.cachirulop.logmytrip.viewholder.TripItemViewHolder;
+import com.cachirulop.logmytrip.viewholder.JourneyItemViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,36 +22,35 @@ import java.util.List;
 /**
  * Created by dmagro on 01/09/2015.
  */
-public class TripItemAdapter
+public class JourneyItemAdapter
         extends RecyclerView.Adapter
 {
 
-    private Context    _ctx;
-    private List<Trip> _items;
+    private Context       _ctx;
+    private List<Journey> _items;
 
     private SparseBooleanArray            _selectedItems;
     private boolean                       _actionMode;
-    private RecyclerViewItemClickListener _onTripItemClickListener;
-    private TripItemAdapterListener _listener = null;
+    private RecyclerViewItemClickListener _onJourneyItemClickListener;
+    private JourneyItemAdapterListener _listener = null;
 
-    public TripItemAdapter (Context ctx, TripItemAdapterListener listener)
+    public JourneyItemAdapter (Context ctx, JourneyItemAdapterListener listener)
     {
         _ctx = ctx;
         _listener = listener;
 
-        loadTrips ();
+        loadItems ();
 
-        _onTripItemClickListener = null;
+        _onJourneyItemClickListener = null;
 
         _selectedItems = new SparseBooleanArray ();
     }
 
-    public void loadTrips ()
+    public void loadItems ()
     {
         final ProgressDialog progDialog;
 
-        progDialog = ProgressDialog.show (_ctx,
-                                          _ctx.getString (R.string.msg_loading_trips),
+        progDialog = ProgressDialog.show (_ctx, _ctx.getString (R.string.msg_loading_journeys),
                                           null,
                                           true);
 
@@ -59,16 +58,16 @@ public class TripItemAdapter
         {
             public void run ()
             {
-                _items = TripManager.loadTrips (_ctx);
+                _items = JourneyManager.loadJourneys (_ctx);
 
-                onTripLoadedMainThread ();
+                onJourneyLoadedMainThread ();
 
                 progDialog.dismiss ();
             }
         }.start ();
     }
 
-    private void onTripLoadedMainThread ()
+    private void onJourneyLoadedMainThread ()
     {
         Handler  main;
         Runnable runInMain;
@@ -83,7 +82,7 @@ public class TripItemAdapter
                 notifyDataSetChanged ();
 
                 if (_listener != null) {
-                    _listener.onTripListLoaded ();
+                    _listener.onJourneyListLoaded ();
                 }
             }
         };
@@ -91,14 +90,14 @@ public class TripItemAdapter
         main.post (runInMain);
     }
 
-    public RecyclerViewItemClickListener getOnTripItemClickListener ()
+    public RecyclerViewItemClickListener getOnJourneyItemClickListener ()
     {
-        return _onTripItemClickListener;
+        return _onJourneyItemClickListener;
     }
 
-    public void setOnTripItemClickListener (RecyclerViewItemClickListener listener)
+    public void setOnJourneyItemClickListener (RecyclerViewItemClickListener listener)
     {
-        _onTripItemClickListener = listener;
+        _onJourneyItemClickListener = listener;
     }
 
     @Override
@@ -107,22 +106,22 @@ public class TripItemAdapter
         View rowView;
 
         LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
-        rowView = inflater.inflate (R.layout.triplist_item, parent, false);
+        rowView = inflater.inflate (R.layout.journeylist_item, parent, false);
 
-        return new TripItemViewHolder (_ctx, this, rowView);
+        return new JourneyItemViewHolder (_ctx, this, rowView);
     }
 
     @Override
     public void onBindViewHolder (RecyclerView.ViewHolder holder, int position)
     {
-        TripItemViewHolder vh;
+        JourneyItemViewHolder vh;
 
-        vh = (TripItemViewHolder) holder;
+        vh = (JourneyItemViewHolder) holder;
 
         // Drawable background;
         int background;
 
-        if (_actionMode && SettingsManager.isLogTrip (_ctx) && position == 0) {
+        if (_actionMode && SettingsManager.isLogJourney (_ctx) && position == 0) {
             background = R.color.disabled;
         }
         else if (_actionMode && isSelected (vh.getLayoutPosition ())) {
@@ -134,9 +133,7 @@ public class TripItemAdapter
 
         // Set data into the view.
         vh.bindView (_items.get (position),
-                     _selectedItems.get (position, false),
-                     background,
-                     _onTripItemClickListener);
+                     _selectedItems.get (position, false), background, _onJourneyItemClickListener);
     }
 
     public boolean isSelected (int pos)
@@ -161,12 +158,12 @@ public class TripItemAdapter
         }
     }
 
-    public void startTripLog ()
+    public void startLog ()
     {
-        Trip current;
+        Journey current;
         int position;
 
-        current = TripManager.getActiveTrip (_ctx);
+        current = JourneyManager.getActiveJourney (_ctx);
         if (current != null && _items != null) {
             position = _items.indexOf (current);
             if (position == -1) {
@@ -180,11 +177,11 @@ public class TripItemAdapter
         }
     }
 
-    public void stopTripLog (Trip trip)
+    public void stopLog (Journey journey)
     {
         int position;
 
-        position = _items.indexOf (trip);
+        position = _items.indexOf (journey);
         if (position != -1) {
             notifyItemChanged (position);
         }
@@ -192,7 +189,7 @@ public class TripItemAdapter
 
     public void toggleSelection (int pos)
     {
-        if (!SettingsManager.isLogTrip (_ctx) || pos != 0) {
+        if (!SettingsManager.isLogJourney (_ctx) || pos != 0) {
             if (_selectedItems.get (pos, false)) {
                 _selectedItems.delete (pos);
             }
@@ -227,11 +224,11 @@ public class TripItemAdapter
         return _selectedItems.size ();
     }
 
-    public List<Trip> getSelectedItems ()
+    public List<Journey> getSelectedItems ()
     {
-        List<Trip> result;
+        List<Journey> result;
 
-        result = new ArrayList<Trip> (_selectedItems.size ());
+        result = new ArrayList<Journey> (_selectedItems.size ());
 
         for (int i = 0 ; i < _selectedItems.size () ; i++) {
             result.add (_items.get (_selectedItems.keyAt (i)));
@@ -251,7 +248,7 @@ public class TripItemAdapter
         this.notifyDataSetChanged ();
     }
 
-    public void removeItem (Trip t)
+    public void removeItem (Journey t)
     {
         int pos;
 
@@ -262,34 +259,34 @@ public class TripItemAdapter
         }
     }
 
-    public void setItem (int position, Trip value)
+    public void setItem (int position, Journey value)
     {
         _items.set (position, value);
     }
 
-    public Trip getItem (int position)
+    public Journey getItem (int position)
     {
         return _items.get (position);
     }
 
-    public void reloadTrips ()
+    public void reloadItems ()
     {
         if (_items != null) {
             _items.clear ();
         }
 
-        loadTrips ();
+        loadItems ();
     }
 
-    public void clearTrips ()
+    public void clearJourneys ()
     {
         if (_items != null) {
             _items.clear ();
         }
     }
 
-    public interface TripItemAdapterListener
+    public interface JourneyItemAdapterListener
     {
-        void onTripListLoaded ();
+        void onJourneyListLoaded ();
     }
 }

@@ -21,7 +21,7 @@ public class BluetoothService
 {
     private BluetoothBroadcastReceiver _btReceiver = null;
 
-    private BroadcastReceiver _onTripLogReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onLogReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
@@ -41,8 +41,8 @@ public class BluetoothService
     {
         super.onStartCommand (intent, flags, startId);
 
-        LogMyTripBroadcastManager.registerTripLogStartReceiver (this, _onTripLogReceiver);
-        LogMyTripBroadcastManager.registerTripLogStopReceiver (this, _onTripLogReceiver);
+        LogMyTripBroadcastManager.registerLogStartReceiver (this, _onLogReceiver);
+        LogMyTripBroadcastManager.registerLogStopReceiver (this, _onLogReceiver);
 
         registerBluetoothReceiver ();
         startForegroundService ();
@@ -80,7 +80,7 @@ public class BluetoothService
 
         LogMyTripBroadcastManager.sendStopBluetoothMessage (this);
 
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onLogReceiver);
 
         unregisterBluetoothReceiver ();
         stopForegroundService ();

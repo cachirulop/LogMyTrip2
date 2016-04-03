@@ -8,9 +8,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
-import com.cachirulop.logmytrip.entity.TripSegment;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.JourneySegment;
+import com.cachirulop.logmytrip.entity.Location;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
@@ -55,14 +55,14 @@ public class MapHelper
             88);
 
 
-    private ArrayList<Polyline> _arrows        = new ArrayList<> ();
-    private List<TripSegment>   _drawnSegments = new ArrayList<> ();
-    private TripSegment _selectedSegment;
-    private GoogleMap                        _map              = null;
-    private boolean                          _drawn            = false;
-    private MarkerClickListener              _markerListener   = new MarkerClickListener ();
-    private MapClickListener                 _mapClickListener = new MapClickListener ();
-    private WeakHashMap<Marker, TripSegment> _markerSegment    = new WeakHashMap<> ();
+    private ArrayList<Polyline>  _arrows        = new ArrayList<> ();
+    private List<JourneySegment> _drawnSegments = new ArrayList<> ();
+    private JourneySegment _selectedSegment;
+    private GoogleMap                           _map              = null;
+    private boolean                             _drawn            = false;
+    private MarkerClickListener                 _markerListener   = new MarkerClickListener ();
+    private MapClickListener                    _mapClickListener = new MapClickListener ();
+    private WeakHashMap<Marker, JourneySegment> _markerSegment    = new WeakHashMap<> ();
     private Context _ctx;
 
     public MapHelper (Context ctx)
@@ -73,27 +73,26 @@ public class MapHelper
     public void setMap (GoogleMap map)
     {
         _map = map;
-        _map.setInfoWindowAdapter (new TripSegmentMapInfoWindowAdapter (_ctx));
+        _map.setInfoWindowAdapter (new JourneySegmentMapInfoWindowAdapter (_ctx));
         _map.setOnMarkerClickListener (_markerListener);
         _map.setOnMapClickListener (_mapClickListener);
         _arrows.clear ();
         _drawnSegments.clear ();
     }
 
-    public void drawTrip (Trip trip, boolean isActiveTrip)
+    public void drawJourney (Journey journey, boolean isActive)
     {
         if (_map != null) {
-            drawSegmentList (trip.getSegments (), isActiveTrip);
+            drawSegmentList (journey.getSegments (), isActive);
         }
     }
 
-    private void drawSegmentList (List<TripSegment> segments, boolean isActiveTrip)
+    private void drawSegmentList (List<JourneySegment> segments, boolean isActive)
     {
-        drawSegmentList (segments, isActiveTrip, null);
+        drawSegmentList (segments, isActive, null);
     }
 
-    private void drawSegmentList (List<TripSegment> segments,
-                                  boolean isActiveTrip,
+    private void drawSegmentList (List<JourneySegment> segments, boolean isActive,
                                   MapListener listener)
     {
         LatLngBounds.Builder builder;
@@ -111,10 +110,10 @@ public class MapHelper
             currentIndex = 0;
             lastSegmentIndex = segments.size () - 1;
 
-            for (TripSegment s : segments) {
+            for (JourneySegment s : segments) {
                 boolean isActiveSegment;
 
-                isActiveSegment = (isActiveTrip) && (currentIndex == lastSegmentIndex);
+                isActiveSegment = (isActive) && (currentIndex == lastSegmentIndex);
                 privateDrawSegment (s, builder, isActiveSegment);
 
                 currentIndex++;
@@ -123,10 +122,9 @@ public class MapHelper
             }
 
             _map.setOnCameraChangeListener (new CameraListener (_map,
-                                                                builder,
-                                                                isActiveTrip,
+                                                                builder, isActive,
                                                                 listener));
-            if (hasPoints && !isActiveTrip) {
+            if (hasPoints && !isActive) {
                 if (_selectedSegment == null) {
                     _map.animateCamera (CameraUpdateFactory.newLatLngBounds (builder.build (),
                                                                              PADDING_DEFAULT));
@@ -139,11 +137,11 @@ public class MapHelper
         }
     }
 
-    private void privateDrawSegment (TripSegment segment,
+    private void privateDrawSegment (JourneySegment segment,
                                      LatLngBounds.Builder builder,
                                      boolean isActiveSegment)
     {
-        List<TripLocation> points;
+        List<Location> points;
         MarkerOptions      markerOptions;
         List<LatLng>       track;
         int     zIndex;
@@ -223,7 +221,7 @@ public class MapHelper
             int i = 0;
 
             includeInBuilder = (_selectedSegment == null || _selectedSegment.equals (segment));
-            for (TripLocation p : points) {
+            for (Location p : points) {
                 LatLng current;
 
                 current = p.toLatLng ();
@@ -273,7 +271,7 @@ public class MapHelper
         return MARKER_COLORS[0];
     }
 
-    public void drawSegment (TripSegment segment)
+    public void drawSegment (JourneySegment segment)
     {
         LatLngBounds.Builder builder;
 
@@ -310,9 +308,9 @@ public class MapHelper
 
             currentColor = 0;
 
-            for (TripSegment s : _drawnSegments) {
-                List<TripLocation> points;
-                ArrayList<TripLocation> validPoints;
+            for (JourneySegment s : _drawnSegments) {
+                List<Location> points;
+                ArrayList<Location> validPoints;
 
                 validPoints = new ArrayList<> ();
 
@@ -320,7 +318,7 @@ public class MapHelper
 
                 for (int i = 0 ; i < points.size () ; i++) {
                     if (i > 0 && i < (points.size () - 1)) {
-                        TripLocation p;
+                        Location p;
                         LatLng current;
 
                         p = points.get (i);
@@ -359,8 +357,7 @@ public class MapHelper
     }
 
     private void addArrow (Projection proj,
-                           List<PolylineOptions> arrowsLine,
-                           TripLocation location,
+                           List<PolylineOptions> arrowsLine, Location location,
                            int color)
     {
         LatLng p1;
@@ -471,18 +468,17 @@ public class MapHelper
     {
         private GoogleMap            _map;
         private LatLngBounds.Builder _builder;
-        private boolean _isActiveTrip;
-        private boolean _moved;
+        private boolean     _isActive;
+        private boolean     _moved;
         private MapListener _listener;
 
         public CameraListener (GoogleMap map,
-                               LatLngBounds.Builder builder,
-                               boolean isActiveTrip,
+                               LatLngBounds.Builder builder, boolean isActive,
                                MapListener listener)
         {
             _map = map;
             _builder = builder;
-            _isActiveTrip = isActiveTrip;
+            _isActive = isActive;
             _moved = false;
             _listener = listener;
         }
@@ -509,7 +505,7 @@ public class MapHelper
         @Override
         public boolean onMarkerClick (Marker marker)
         {
-            TripSegment segment;
+            JourneySegment segment;
 
             _selectedSegment = locateSegment (marker.getPosition ());
             drawSegmentList (_drawnSegments, false);
@@ -517,10 +513,10 @@ public class MapHelper
             return true;
         }
 
-        private TripSegment locateSegment (LatLng position)
+        private JourneySegment locateSegment (LatLng position)
         {
-            for (TripSegment s : _drawnSegments) {
-                List<TripLocation> locations;
+            for (JourneySegment s : _drawnSegments) {
+                List<Location> locations;
 
                 locations = s.getLocations ();
                 if (locations.get (0)
@@ -554,12 +550,12 @@ public class MapHelper
 
     //////////////////////////////////////////////////////////////////
 
-    public class TripSegmentMapInfoWindowAdapter
+    public class JourneySegmentMapInfoWindowAdapter
             implements GoogleMap.InfoWindowAdapter
     {
         private Context _ctx;
 
-        public TripSegmentMapInfoWindowAdapter (Context ctx)
+        public JourneySegmentMapInfoWindowAdapter (Context ctx)
         {
             _ctx = ctx;
         }
@@ -569,9 +565,9 @@ public class MapHelper
         {
             LayoutInflater inflater = (LayoutInflater) _ctx.getSystemService (Context.LAYOUT_INFLATER_SERVICE);
             View           result;
-            TripSegment    segment;
+            JourneySegment segment;
 
-            result = inflater.inflate (R.layout.trip_segment_map_info_window, null);
+            result = inflater.inflate (R.layout.journey_segment_map_info_window, null);
 
             segment = _markerSegment.get (marker);
 
@@ -580,12 +576,12 @@ public class MapHelper
             return result;
         }
 
-        private void bindData (View view, TripSegment segment)
+        private void bindData (View view, JourneySegment segment)
         {
-            TripLocation l;
+            Location l;
             StringBuilder timeInfo;
 
-            setText (view, R.id.tvTripSegmentMapInfoTitle, segment.getTitle (_ctx));
+            setText (view, R.id.tvJourneySegmentMapInfoTitle, segment.getTitle (_ctx));
 
             timeInfo = new StringBuilder ();
 
@@ -601,14 +597,12 @@ public class MapHelper
             }
 
             if (timeInfo.length () > 0) {
-                setText (view, R.id.tvTripSegmentMapInfoTimeInfo, timeInfo.toString ());
+                setText (view, R.id.tvJourneySegmentMapInfoTimeInfo, timeInfo.toString ());
             }
 
-            setText (view,
-                     R.id.tvTripSegmentMapInfoTotalDistance,
+            setText (view, R.id.tvJourneySegmentMapInfoTotalDistance,
                      FormatHelper.formatDistance (segment.computeTotalDistance ()));
-            setText (view,
-                     R.id.tvTripSegmentMapInfoTotalTime,
+            setText (view, R.id.tvJourneySegmentMapInfoTotalTime,
                      FormatHelper.formatDuration (segment.computeTotalTime ()));
         }
 

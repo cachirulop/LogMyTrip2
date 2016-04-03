@@ -13,19 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.adapter.TripStatisticsAdapter;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.adapter.JourneyStatisticsAdapter;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
-import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 
 
 public class TabStatisticsFragment
         extends Fragment
 {
-    private RecyclerView          _recyclerView;
-    private TripStatisticsAdapter _adapter;
-    private Trip                  _trip;
-    private Context               _ctx;
+    private RecyclerView             _recyclerView;
+    private JourneyStatisticsAdapter _adapter;
+    private Journey                  _journey;
+    private Context                  _ctx;
 
     private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
@@ -46,7 +46,7 @@ public class TabStatisticsFragment
     {
         super.onCreate (savedInstanceState);
 
-        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+        _journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class TabStatisticsFragment
 
         _recyclerView.setItemAnimator (new DefaultItemAnimator ());
 
-        _adapter = new TripStatisticsAdapter (_ctx, this, _trip);
+        _adapter = new JourneyStatisticsAdapter (_ctx, this, _journey);
         _recyclerView.setAdapter (_adapter);
     }
 

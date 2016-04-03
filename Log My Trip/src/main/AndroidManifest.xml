@@ -46,8 +46,8 @@
                 android:value="com.cachirulop.logmytrip.activity.MainActivity"/>
         </activity>
         <activity
-            android:name=".activity.TripDetailActivity"
-            android:label="@string/action_trip_detail"
+            android:name=".activity.JourneyDetailActivity"
+            android:label="@string/action_journey_detail"
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

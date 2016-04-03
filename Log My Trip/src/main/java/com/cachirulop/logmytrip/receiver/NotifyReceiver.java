@@ -22,10 +22,10 @@ public class NotifyReceiver
     public void onReceive (Context context, Intent intent)
     {
         if (ACTION_STOP_LOG.equals (intent.getAction ())) {
-            ServiceManager.stopTripLog (context);
+            ServiceManager.stopLog (context);
         }
         else if (ACTION_START_LOG.equals (intent.getAction ())) {
-            ServiceManager.startTripLog (context);
+            ServiceManager.startLog (context);
         }
         else if (ACTION_STOP_BLUETOOTH.equals (intent.getAction ())) {
             ServiceManager.stopBluetooth (context);

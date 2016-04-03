@@ -34,7 +34,7 @@ public class LogMyTripDataHelper
     /**
      * Current version
      */
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 14;
 
     /**
      * Context where the object is created

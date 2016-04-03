@@ -42,7 +42,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentLocationFromTitle"
+                        android:id="@+id/tvJourneySegmentLocationFromTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
@@ -51,7 +51,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentLocationFrom"
+                        android:id="@+id/tvJourneySegmentLocationFrom"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
@@ -69,7 +69,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentLocationToTitle"
+                        android:id="@+id/tvJourneySegmentLocationToTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
@@ -78,7 +78,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentLocationTo"
+                        android:id="@+id/tvJourneySegmentLocationTo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="left"
@@ -98,11 +98,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentStartDateTitle"
+                        android:id="@+id/tvJourneySegmentStartDateTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -111,7 +111,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentStartDate"
+                        android:id="@+id/tvJourneySegmentStartDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -123,11 +123,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentStartTimeTitle"
+                        android:id="@+id/tvJourneySegmentStartTimeTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -136,7 +136,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentStartTime"
+                        android:id="@+id/tvJourneySegmentStartTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -155,11 +155,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentEndDateTitle"
+                        android:id="@+id/tvJourneySegmentEndDateTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -169,7 +169,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentEndDate"
+                        android:id="@+id/tvJourneySegmentEndDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -182,11 +182,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentEndTimeTitle"
+                        android:id="@+id/tvJourneySegmentEndTimeTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
@@ -197,7 +197,7 @@
 
 
                     <TextView
-                        android:id="@+id/tvTripSegmentEndTime"
+                        android:id="@+id/tvJourneySegmentEndTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
@@ -218,11 +218,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentTotalDistanceTitle"
+                        android:id="@+id/tvJourneySegmentTotalDistanceTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -232,7 +232,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentTotalDistance"
+                        android:id="@+id/tvJourneySegmentTotalDistance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -245,11 +245,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentTotalTimeTitle"
+                        android:id="@+id/tvJourneySegmentTotalTimeTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
@@ -259,7 +259,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentTotalTime"
+                        android:id="@+id/tvJourneySegmentTotalTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
@@ -278,11 +278,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentMaxSpeedTitle"
+                        android:id="@+id/tvJourneySegmentMaxSpeedTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -292,7 +292,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentMaxSpeed"
+                        android:id="@+id/tvJourneySegmentMaxSpeed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="0"
@@ -305,11 +305,11 @@
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:background="@drawable/trip_cell_border"
+                    android:background="@drawable/cell_border"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/tvTripSegmentMediumTitle"
+                        android:id="@+id/tvJourneySegmentMediumTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"
@@ -319,7 +319,7 @@
                         android:textColor="@color/default_background_dark"/>
 
                     <TextView
-                        android:id="@+id/tvTripSegmentMediumSpeed"
+                        android:id="@+id/tvJourneySegmentMediumSpeed"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_column="1"

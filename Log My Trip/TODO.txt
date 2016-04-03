@@ -7,20 +7,20 @@
 * Export track fails: folder not found 'Log My Trip'
 * Export database to google drive
 
-* Group trips:
-    - Rename trips to journey and make new trip table with from/to dates and automatically
-group journeys in the correspondent trip
-    - Add interface to change between trips and journals
+* Group journeys:
+    - Rename journeys to journey and make new journey table with from/to dates and automatically
+group journeys in the correspondent journey
+    - Add interface to change between journeys and journals
 
-* Add navigation transition from main activity to trip detail
+* Add navigation transition from main activity to journey detail
     (https://www.google.com/design/spec/patterns/navigational-transitions.html#), is nice
 
 * Export to drive fails when export the first time (connect to new google drive account)
 * Save configuration and data to google drive
 * Sync with drive
-* Update statistics on trip list when saving trip
+* Update statistics on journey list when saving journey
 
-* Manage multiple accounts
+* Manage multiple google accounts
 
 - Services uses a lot of memory. Could be because the Context reference in receivers. Try to
   optimize the size. -> testing
@@ -28,32 +28,32 @@ group journeys in the correspondent trip
 - Draw arrow direction on tracks -> improve code
 
 X Change the bluetooth icon
-X Make trip segments
+X Make journey segments
 X When go to the map and return produces an exception:
-    Activity com.cachirulop.logmytrip.activity.TripDetailActivity has leaked ServiceConnection
+    Activity com.cachirulop.logmytrip.activity.JourneyDetailActivity has leaked ServiceConnection
     com.cachirulop.logmytrip.fragment.TabMapFragment$2@b13eb178 that was originally bound here
-X Broadcast messages on start and stop trip log
-X Change the currenttrip algorithm
+X Broadcast messages on start and stop journey log
+X Change the currentjourney algorithm
 X Autostart on boot
 X Add autolog menu option in main activity
-X Ask when delete a trip
-X Make trip statistics tab
+X Ask when delete a journey
+X Make journey statistics tab
 X Don't get all the location request, sometimes the accuracy is very bad
-X Change trip detail title with the trip description
-X Allow to change the trip description
+X Change journey detail title with the journey description
+X Allow to change the journey description
 X Add map type selector: normal, satellite, etc.
-X Show the new trip when click in start save button
+X Show the new journey when click in start save button
 X Allow to delete segments
 X Add a button in the map view to stop logging
 X Filter bluetooth device to start log
 X Change selection of segments with a menu in the cardview
 X Change segment start/end marks -> Drawing arrows not need to show differences between start and end
-X Go to the detail trip on start logging from MainActivity
+X Go to the detail journey on start logging from MainActivity
 X Make general method to paint map tracks
 X In statistics map allow to select a segment
 X Add actions to notification icon: stop autolog, stop log
 X Change the notification messages
-X Follow the current trip better in the map view
+X Follow the current journey better in the map view
 X Don't show static maps until it has been drawn -> I can't
 X Don't allow to click on static maps
 X Detail activity crash when rotate the phone
@@ -61,25 +61,25 @@ X Export database on lollipop and Marshmallow
 X Detail activity crash when rotate the phone -> on windows 8.1 it worked, test in Linux?
 X When select a segment in the map, center it on the screen
 X When select a segment and click another time in map, unselect the segment
-X Update trip title in the notification text
+X Update journey title in the notification text
 X Add button to force start/stop log in the bluetooth notification
-X Update distance, time, speeds in the statistics pane when follow the current trip
-X Update distance, time, speeds in the statistics pane when follow the current trip in the trip list
-X Update log trip notification every minute with distance and time
+X Update distance, time, speeds in the statistics pane when follow the current journey
+X Update distance, time, speeds in the statistics pane when follow the current journey in the journey list
+X Update log journey notification every minute with distance and time
 X Add select/deselect all option in action mode in the main fragment
 X Remove csv export options
 X Detail button don't change when moves with flip between map and statistics (back to the tabs interface)
 X If autostart on boot and autolog bluetooth is active and the bluetooth is connected,
-    then start logging trip -> I can't do it. There is no mode to know the connected bluetooth devices.
+    then start logging journey -> I can't do it. There is no mode to know the connected bluetooth devices.
 X New autostart option 'Always'
-X Export trips to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml,
+X Export journeys to gpx, kml -> show progress dialog, show dialog message on errors, export to folder, kml,
     export to Google drive
-X Save trip locations on timer to save battery
-X When saving trip only draw new points on map fragment -> too dificult
-X Try to load the trips fastest
+X Save journey locations on timer to save battery
+X When saving journey only draw new points on map fragment -> too dificult
+X Try to load the journeys fastest
 X When start and it was logging doesn't start the logging service
-X In the map fragment when it is logging a trip always follow the trip, although if the loaded
-  trip is not the active. In statistics tab do the same.
+X In the map fragment when it is logging a journey always follow the journey, although if the loaded
+  journey is not the active. In statistics tab do the same.
 X When launch from notification starts a new instance and need to press back twice to exit the
     application -> I don't know how to solve it
 X Trip to Santa Cruz de la Zarza on september is very very slow

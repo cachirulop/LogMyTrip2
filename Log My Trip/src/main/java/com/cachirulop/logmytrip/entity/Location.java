@@ -1,18 +1,15 @@
 package com.cachirulop.logmytrip.entity;
 
-import android.location.Location;
-
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TripLocation
+public class Location
         implements Serializable
 {
     private long  _id;
-    private long  _idTrip;
     private long  _locationTime;
     private double _latitude;
     private double _longitude;
@@ -22,14 +19,12 @@ public class TripLocation
     private float  _bearing;
     private String _provider;
 
-    public TripLocation ()
+    public Location ()
     {
     }
 
-    public TripLocation (Trip trip, Location loc)
+    public Location (android.location.Location loc)
     {
-        setIdTrip (trip.getId ());
-
         if (loc.getTime () == 0L) {
             // Some devices don't set the time field
             setLocationTime (System.currentTimeMillis ());
@@ -81,22 +76,6 @@ public class TripLocation
     public void setId (long id)
     {
         this._id = id;
-    }
-
-    /**
-     * @return the tripId
-     */
-    public long getIdTrip ()
-    {
-        return _idTrip;
-    }
-
-    /**
-     * @param idTrip the tripId to set
-     */
-    public void setIdTrip (long idTrip)
-    {
-        this._idTrip = idTrip;
     }
 
     /**
@@ -213,11 +192,11 @@ public class TripLocation
         this._longitude = longitude;
     }
 
-    public Location toLocation ()
+    public android.location.Location toLocation ()
     {
-        Location result;
+        android.location.Location result;
 
-        result = new Location (_provider);
+        result = new android.location.Location (_provider);
         result.setAccuracy (_accuracy);
         result.setAltitude (_altitude);
         result.setBearing (_bearing);
@@ -241,16 +220,13 @@ public class TripLocation
         if (this == o) {
             return true;
         }
-        if (!(o instanceof TripLocation)) {
+        if (!(o instanceof Location)) {
             return false;
         }
 
-        TripLocation that = (TripLocation) o;
+        Location that = (Location) o;
 
         if (_id != that._id) {
-            return false;
-        }
-        if (_idTrip != that._idTrip) {
             return false;
         }
         if (_locationTime != that._locationTime) {
@@ -286,7 +262,6 @@ public class TripLocation
         int  result;
         long temp;
         result = (int) (_id ^ (_id >>> 32));
-        result = 31 * result + (int) (_idTrip ^ (_idTrip >>> 32));
         result = 31 * result + (int) (_locationTime ^ (_locationTime >>> 32));
         temp = Double.doubleToLongBits (_latitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));

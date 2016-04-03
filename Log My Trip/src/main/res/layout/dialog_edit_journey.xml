@@ -5,7 +5,7 @@
               android:orientation="vertical">
 
     <EditText
-        android:id="@+id/etEditTripTitle"
+        android:id="@+id/etEditJourneyTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
@@ -14,7 +14,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     <EditText
-        android:id="@+id/etEditTripDescription"
+        android:id="@+id/etEditJourneyDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"

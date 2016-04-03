@@ -3,7 +3,7 @@ package com.cachirulop.logmytrip.entity;
 import android.content.Context;
 
 import com.cachirulop.logmytrip.helper.FormatHelper;
-import com.cachirulop.logmytrip.manager.TripManager;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,19 +13,19 @@ import java.util.List;
 /**
  * @author david
  */
-public class Trip
+public class Journey
         implements Serializable
 {
     private long _id;
-    private Date _tripDate;
+    private Date _jouneyDate;
     private String _title;
     private String _description;
     private double _totalDistance = -1;
     private long   _totalTime     = -1;
 
-    private List<TripSegment> _segments = null;
+    private List<JourneySegment> _segments = null;
 
-    public Trip ()
+    public Journey ()
     {
     }
 
@@ -46,19 +46,19 @@ public class Trip
     }
 
     /**
-     * @return the tripDate
+     * @return the journey Date
      */
-    public Date getTripDate ()
+    public Date getJouneyDate ()
     {
-        return _tripDate;
+        return _jouneyDate;
     }
 
     /**
-     * @param tripDate the tripDate to set
+     * @param jouneyDate the jouneyDate to set
      */
-    public void setTripDate (Date tripDate)
+    public void setJouneyDate (Date jouneyDate)
     {
-        this._tripDate = tripDate;
+        this._jouneyDate = jouneyDate;
     }
 
     public String getTitle ()
@@ -107,12 +107,12 @@ public class Trip
         _totalTime = totalTime;
     }
 
-    public List<TripSegment> getSegments ()
+    public List<JourneySegment> getSegments ()
     {
         return _segments;
     }
 
-    public void setSegments (List<TripSegment> segments)
+    public void setSegments (List<JourneySegment> segments)
     {
         _segments = segments;
     }
@@ -122,13 +122,13 @@ public class Trip
         if (_totalTime == -1) {
             computeTotalTime (ctx);
 
-            TripManager.updateTrip (ctx, this);
+            JourneyManager.updateJourney (ctx, this);
         }
 
         if (_totalDistance == -1) {
             computeTotalDistance (ctx);
 
-            TripManager.updateTrip (ctx, this);
+            JourneyManager.updateJourney (ctx, this);
         }
 
         return String.format ("%s - %s",
@@ -137,19 +137,19 @@ public class Trip
     }
 
     /**
-     * Total time of the trip in milliseconds
+     * Total time of the journey in milliseconds
      *
      * @return All segments duration time in milliseconds
      */
     public long computeTotalTime (Context ctx)
     {
         if (_segments == null) {
-            TripManager.loadTripSegments (ctx, this);
+            JourneyManager.loadJourneySegments (ctx, this);
         }
 
         _totalTime = 0;
 
-        for (TripSegment s : _segments) {
+        for (JourneySegment s : _segments) {
             _totalTime += s.computeTotalTime ();
         }
 
@@ -159,12 +159,12 @@ public class Trip
     public double computeTotalDistance (Context ctx)
     {
         if (_segments == null) {
-            TripManager.loadTripSegments (ctx, this);
+            JourneyManager.loadJourneySegments (ctx, this);
         }
 
         _totalDistance = 0;
 
-        for (TripSegment s : _segments) {
+        for (JourneySegment s : _segments) {
             _totalDistance += s.computeTotalDistance ();
         }
 
@@ -181,7 +181,7 @@ public class Trip
 
         result = 0;
 
-        for (TripSegment s : _segments) {
+        for (JourneySegment s : _segments) {
             float current;
 
             current = s.computeMaxSpeed ();
@@ -203,14 +203,14 @@ public class Trip
 
         result = 0;
 
-        for (TripSegment s : _segments) {
+        for (JourneySegment s : _segments) {
             result += s.computeMediumSpeed ();
         }
 
         return result / _segments.size ();
     }
 
-    public TripLocation getStartLocation ()
+    public Location getStartLocation ()
     {
         if (_segments != null && _segments.size () > 0) {
             return _segments.get (0).getStartLocation ();
@@ -220,7 +220,7 @@ public class Trip
         }
     }
 
-    public TripLocation getEndLocation ()
+    public Location getEndLocation ()
     {
         if (_segments != null && _segments.size () > 0) {
             return _segments.get (_segments.size () - 1).getEndLocation ();
@@ -230,11 +230,11 @@ public class Trip
         }
     }
 
-    public void addLocation (TripLocation location)
+    public void addLocation (Location location)
     {
         if (_segments == null || _segments.size () == 0) {
             _segments = new ArrayList<> ();
-            _segments.add (new TripSegment (this));
+            _segments.add (new JourneySegment (this));
         }
 
         _segments.get (_segments.size () - 1).addLocation (location);
@@ -250,20 +250,20 @@ public class Trip
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Trip)) {
+        if (!(o instanceof Journey)) {
             return false;
         }
 
-        Trip trip = (Trip) o;
+        Journey journey = (Journey) o;
 
-        return this.hashCode () == trip.hashCode ();
+        return this.hashCode () == journey.hashCode ();
     }
 
     @Override
     public int hashCode ()
     {
         int result = (int) (_id ^ (_id >>> 32));
-        result = 31 * result + _tripDate.hashCode ();
+        result = 31 * result + _jouneyDate.hashCode ();
         result = 31 * result + _title.hashCode ();
 
         return result;
@@ -273,8 +273,8 @@ public class Trip
     {
         _segments = null;
 
-        TripManager.loadTripSegments (ctx, this);
-        TripManager.mergePendingLocations (this);
+        JourneyManager.loadJourneySegments (ctx, this);
+        JourneyManager.mergePendingLocations (this);
 
         this.computeTotalDistance (ctx);
         this.computeTotalTime (ctx);

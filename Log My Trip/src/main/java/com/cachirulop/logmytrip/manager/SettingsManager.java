@@ -20,8 +20,8 @@ public class SettingsManager
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL    = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY             = "pref_gpsAccuracy";
 
-    public static final String KEY_PREF_STATUS_LOG_TRIP             = "pref_autoLogTrip";
-    public static final String KEY_PREF_STATUS_CURRENT_TRIP_ID      = "pref_currentTripId";
+    public static final String KEY_PREF_STATUS_LOG_JOURNEY        = "pref_autoLogJourney";
+    public static final String KEY_PREF_STATUS_CURRENT_JOURNEY_ID = "pref_currentJourneyId";
     public static final String KEY_PREF_STATUS_IS_WAITING_BLUETOOTH = "pref_isWaitingBluetooth";
 
     public static boolean isAutoStartLogBluetooth (Context ctx)
@@ -43,9 +43,9 @@ public class SettingsManager
         editor.commit ();
     }
 
-    public static boolean isLogTrip (Context ctx)
+    public static boolean isLogJourney (Context ctx)
     {
-        return getSharedStatusPrefs (ctx).getBoolean (KEY_PREF_STATUS_LOG_TRIP, false);
+        return getSharedStatusPrefs (ctx).getBoolean (KEY_PREF_STATUS_LOG_JOURNEY, false);
     }
 
     private static SharedPreferences getSharedStatusPrefs (Context ctx)
@@ -62,26 +62,26 @@ public class SettingsManager
         return (mode == 0);
     }
 
-    public static void setLogTrip (Context ctx, boolean value)
+    public static void setLogJourney (Context ctx, boolean value)
     {
         SharedPreferences.Editor editor;
 
         editor = getSharedStatusPrefs (ctx).edit ();
-        editor.putBoolean (KEY_PREF_STATUS_LOG_TRIP, value);
+        editor.putBoolean (KEY_PREF_STATUS_LOG_JOURNEY, value);
         editor.commit ();
     }
 
-    public static long getCurrentTripId (Context ctx)
+    public static long getCurrentJourneyId (Context ctx)
     {
-        return getSharedStatusPrefs (ctx).getLong (KEY_PREF_STATUS_CURRENT_TRIP_ID, 0);
+        return getSharedStatusPrefs (ctx).getLong (KEY_PREF_STATUS_CURRENT_JOURNEY_ID, 0);
     }
 
-    public static void setCurrentTripId (Context ctx, long id)
+    public static void setCurrentJourneyId (Context ctx, long id)
     {
         SharedPreferences.Editor editor;
 
         editor = getSharedStatusPrefs (ctx).edit ();
-        editor.putLong (KEY_PREF_STATUS_CURRENT_TRIP_ID, id);
+        editor.putLong (KEY_PREF_STATUS_CURRENT_JOURNEY_ID, id);
         editor.commit ();
     }
 

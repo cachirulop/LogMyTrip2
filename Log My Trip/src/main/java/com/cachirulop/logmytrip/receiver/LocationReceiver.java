@@ -3,14 +3,13 @@ package com.cachirulop.logmytrip.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.location.LocationManager;
 
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.entity.TripLocation;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.entity.Location;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 
 /**
  * Created by dmagro on 07/10/2015.
@@ -34,19 +33,19 @@ public class LocationReceiver
 
     private void onLocationChanged (Context context, Intent intent)
     {
-        Location loc;
+        android.location.Location loc;
 
         loc = intent.getParcelableExtra (LocationManager.KEY_LOCATION_CHANGED);
         if (loc != null && isValidLocation (context, loc)) {
-            Trip trip;
+            Journey journey;
 
-            trip = TripManager.getActiveTrip (context);
-            if (trip != null) {
-                TripLocation tl;
+            journey = JourneyManager.getActiveJourney (context);
+            if (journey != null) {
+                Location tl;
 
-                tl = new TripLocation (trip, loc);
+                tl = new Location (loc);
 
-                TripManager.saveTripLocation (context, tl);
+                JourneyManager.saveLocation (context, tl);
 
                 LogMyTripBroadcastManager.sendNewLocationMessage (context, loc);
             }
@@ -72,7 +71,7 @@ public class LocationReceiver
         }
     }
 
-    private boolean isValidLocation (Context ctx, Location location)
+    private boolean isValidLocation (Context ctx, android.location.Location location)
     {
         return location != null &&
                 (location.hasAccuracy () && location.getAccuracy () <= SettingsManager.getGpsAccuracy (

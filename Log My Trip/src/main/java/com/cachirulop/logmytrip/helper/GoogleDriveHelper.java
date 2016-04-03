@@ -3,7 +3,7 @@ package com.cachirulop.logmytrip.helper;
 import android.content.Context;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -208,7 +208,8 @@ public class GoogleDriveHelper
     public static void saveFile (final GoogleApiClient client,
                                  final Context ctx,
                                  final String filePath,
-                                 final Trip trip, final IGoogleDriveWriterListener listener)
+                                 final Journey journey,
+                                 final IGoogleDriveWriterListener listener)
     {
         Thread t;
 
@@ -218,7 +219,7 @@ public class GoogleDriveHelper
             public void run ()
             {
                 try {
-                    realSaveFile (client, ctx, filePath, trip, listener);
+                    realSaveFile (client, ctx, filePath, journey, listener);
                 }
                 catch (GoogleDriveHelperException e) {
                     listener.onSaveFileFails (e.getMessageId (), e.getFormatArgs ());
@@ -242,7 +243,8 @@ public class GoogleDriveHelper
     private static void realSaveFile (final GoogleApiClient client,
                                       final Context ctx,
                                       final String filePath,
-                                      final Trip trip, final IGoogleDriveWriterListener listener)
+                                      final Journey journey,
+                                      final IGoogleDriveWriterListener listener)
             throws GoogleDriveHelperException
     {
         DriveFolder folder;
@@ -251,14 +253,15 @@ public class GoogleDriveHelper
         file = new File (filePath);
         folder = getFolder (client, file.getParent ());
 
-        createFile (client, ctx, folder, file.getName (), trip, listener);
+        createFile (client, ctx, folder, file.getName (), journey, listener);
     }
 
     private static void createFile (GoogleApiClient client,
                                     Context ctx,
                                     DriveFolder folder,
                                     String name,
-                                    Trip trip, IGoogleDriveWriterListener listener)
+                                    Journey journey,
+                                    IGoogleDriveWriterListener listener)
             throws GoogleDriveHelperException
     {
         // If file exists, remove it

@@ -3,9 +3,9 @@ package com.cachirulop.logmytrip.service;
 import android.content.Context;
 
 import com.cachirulop.logmytrip.LogMyTripApplication;
-import com.cachirulop.logmytrip.entity.Trip;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 
 import java.util.TimerTask;
 
@@ -29,17 +29,19 @@ public class LogMyTripServiceUpdaterTask
         {
             public void run ()
             {
-                Trip t;
+                Journey t;
 
                 // Flush the pending locations
-                TripManager.flushLocations (_ctx);
+                JourneyManager.flushLocations (_ctx);
 
-                t = TripManager.getActiveTrip (_ctx);
+                t = JourneyManager.getActiveJourney (_ctx);
 
-                TripManager.updateTripStatistics (_ctx, t);
+                if (t != null) {
+                    JourneyManager.updateJourneyStatistics (_ctx, t);
 
-                // Update the notification information
-                LogMyTripNotificationManager.updateTripLogging (_ctx, t);
+                    // Update the notification information
+                    LogMyTripNotificationManager.updateLogging (_ctx, t);
+                }
             }
         });
     }

@@ -12,24 +12,24 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cachirulop.logmytrip.R;
-import com.cachirulop.logmytrip.adapter.TripDetailViewPagerAdapter;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.adapter.JourneyDetailViewPagerAdapter;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.google.android.gms.maps.GoogleMap;
 
 /**
  * Created by david on 14/09/15.
  */
-public class TripDetailFragment
+public class JourneyDetailFragment
         extends Fragment
 {
-    private ViewPager                  _vpDetailPager;
-    private TripDetailViewPagerAdapter _adapter;
-    private int                        _mapType;
-    private Toolbar _toolbar;
-    private TabLayout _tabs;
+    private ViewPager                     _vpDetailPager;
+    private JourneyDetailViewPagerAdapter _adapter;
+    private int                           _mapType;
+    private Toolbar                       _toolbar;
+    private TabLayout                     _tabs;
 
-    public TripDetailFragment ()
+    public JourneyDetailFragment ()
     {
         _mapType = GoogleMap.MAP_TYPE_NORMAL;
     }
@@ -39,7 +39,7 @@ public class TripDetailFragment
                               ViewGroup container,
                               Bundle savedInstanceState)
     {
-        return inflater.inflate (R.layout.fragment_trip_detail, container, false);
+        return inflater.inflate (R.layout.fragment_journey_detail, container, false);
     }
 
     @Override
@@ -49,28 +49,28 @@ public class TripDetailFragment
 
         ActionBar         ab;
         AppCompatActivity app;
-        Trip trip;
+        Journey journey;
 
-        trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+        journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
         app = (AppCompatActivity) getActivity ();
 
         // Toolbar and back button
-        _toolbar = (Toolbar) view.findViewById (R.id.trip_detail_toolbar);
-        setToolbarTitle (trip.getTitle ());
+        _toolbar = (Toolbar) view.findViewById (R.id.journey_detail_toolbar);
+        setToolbarTitle (journey.getTitle ());
 
         app.setSupportActionBar (_toolbar);
         ab = app.getSupportActionBar ();
         ab.setDisplayHomeAsUpEnabled (true);
 
         // Adapter
-        _adapter = new TripDetailViewPagerAdapter (getActivity (), trip);
+        _adapter = new JourneyDetailViewPagerAdapter (getActivity (), journey);
 
         // ViewPager
         _vpDetailPager = (ViewPager) view.findViewById (R.id.vpDetailPager);
         _vpDetailPager.setAdapter (_adapter);
 
         // Tabs
-        _tabs = (TabLayout) view.findViewById (R.id.trip_detail_tablayout);
+        _tabs = (TabLayout) view.findViewById (R.id.journey_detail_tablayout);
         _tabs.setupWithViewPager (_vpDetailPager);
     }
 

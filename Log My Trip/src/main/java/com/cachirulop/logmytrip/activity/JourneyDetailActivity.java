@@ -13,24 +13,24 @@ import android.widget.EditText;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.dialog.ListDialog;
-import com.cachirulop.logmytrip.entity.Trip;
-import com.cachirulop.logmytrip.fragment.TripDetailFragment;
+import com.cachirulop.logmytrip.entity.Journey;
+import com.cachirulop.logmytrip.fragment.JourneyDetailFragment;
+import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
-import com.cachirulop.logmytrip.manager.SelectedTripHolder;
+import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.TripManager;
 import com.google.android.gms.maps.GoogleMap;
 
-public class TripDetailActivity
+public class JourneyDetailActivity
         extends AppCompatActivity
 {
-    private TripDetailFragment _detailFragment;
-    private Trip               _trip;
-    private MenuItem           _menuStartStopLog;
+    private JourneyDetailFragment _detailFragment;
+    private Journey               _journey;
+    private MenuItem              _menuStartStopLog;
 
-    private BroadcastReceiver _onTripLogStopReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onLogStopReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
@@ -39,7 +39,7 @@ public class TripDetailActivity
         }
     };
 
-    private BroadcastReceiver _onTripLogStartReceiver = new BroadcastReceiver ()
+    private BroadcastReceiver _onLogStartReceiver = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
@@ -55,20 +55,20 @@ public class TripDetailActivity
         super.onCreate (savedInstanceState);
 
         // Inflate the view
-        setContentView (R.layout.activity_trip_detail);
+        setContentView (R.layout.activity_journey_detail);
 
-        _trip = SelectedTripHolder.getInstance ().getSelectedTrip ();
+        _journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
 
         // Set the fragment content
-        if (findViewById (R.id.tripDetailActivityContainer) != null) {
+        if (findViewById (R.id.journeyDetailActivityContainer) != null) {
             if (savedInstanceState == null) {
-                if (_trip != null) {
-                    _detailFragment = new TripDetailFragment ();
+                if (_journey != null) {
+                    _detailFragment = new JourneyDetailFragment ();
 
                     _detailFragment.setArguments (getIntent ().getExtras ());
 
                     getSupportFragmentManager ().beginTransaction ()
-                                                .add (R.id.tripDetailActivityContainer,
+                                                .add (R.id.journeyDetailActivityContainer,
                                                       _detailFragment)
                                                 .commit ();
                 }
@@ -81,8 +81,8 @@ public class TripDetailActivity
     {
         super.onResume ();
 
-        LogMyTripBroadcastManager.registerTripLogStartReceiver (this, _onTripLogStartReceiver);
-        LogMyTripBroadcastManager.registerTripLogStopReceiver (this, _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.registerLogStartReceiver (this, _onLogStartReceiver);
+        LogMyTripBroadcastManager.registerLogStopReceiver (this, _onLogStopReceiver);
     }
 
     @Override
@@ -90,20 +90,21 @@ public class TripDetailActivity
     {
         super.onPause ();
 
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogStartReceiver);
-        LogMyTripBroadcastManager.unregisterReceiver (this, _onTripLogStopReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onLogStartReceiver);
+        LogMyTripBroadcastManager.unregisterReceiver (this, _onLogStopReceiver);
     }
 
     @Override
     public boolean onCreateOptionsMenu (Menu menu)
     {
-        Trip     todayTrip;
+        Journey todayJourney;
 
-        getMenuInflater ().inflate (R.menu.menu_trip_detail, menu);
+        getMenuInflater ().inflate (R.menu.menu_journey_detail, menu);
 
-        todayTrip = TripManager.getTodayTrip (this);
+        todayJourney = JourneyManager.getTodayJourney (this);
         _menuStartStopLog = menu.findItem (R.id.action_start_stop_log);
-        if ((SettingsManager.getCurrentTripId (this) == _trip.getId ()) || (_trip.equals (todayTrip))) {
+        if ((SettingsManager.getCurrentJourneyId (this) == _journey.getId ()) || (_journey.equals (
+                todayJourney))) {
             _menuStartStopLog.setVisible (true);
 
             updateMenuItemState ();
@@ -118,7 +119,7 @@ public class TripDetailActivity
     private void updateMenuItemState ()
     {
         if (_menuStartStopLog != null) {
-            if (SettingsManager.isLogTrip (this)) {
+            if (SettingsManager.isLogJourney (this)) {
                 _menuStartStopLog.setTitle (R.string.action_stop_log);
                 _menuStartStopLog.setIcon (android.R.drawable.ic_media_pause);
             }
@@ -134,7 +135,7 @@ public class TripDetailActivity
     {
         switch (item.getItemId ()) {
             case R.id.action_start_stop_log:
-                startStopLogTrip ();
+                startStopLogJourney ();
 
                 return true;
 
@@ -144,7 +145,7 @@ public class TripDetailActivity
                 return true;
 
             case R.id.action_edit:
-                editTrip ();
+                editJourney ();
 
                 return true;
 
@@ -153,13 +154,13 @@ public class TripDetailActivity
         }
     }
 
-    private void startStopLogTrip ()
+    private void startStopLogJourney ()
     {
-        if (SettingsManager.isLogTrip (this)) {
-            ServiceManager.stopTripLog (this);
+        if (SettingsManager.isLogJourney (this)) {
+            ServiceManager.stopLog (this);
         }
         else {
-            ServiceManager.startTripLog (this);
+            ServiceManager.startLog (this);
         }
 
         updateMenuItemState ();
@@ -206,22 +207,22 @@ public class TripDetailActivity
         dlg.show (getSupportFragmentManager (), "selectMapType");
     }
 
-    private void editTrip ()
+    private void editJourney ()
     {
         CustomViewDialog dlg;
 
-        dlg = new CustomViewDialog (R.string.title_edit_trip, R.layout.dialog_edit_trip)
+        dlg = new CustomViewDialog (R.string.title_edit_journey, R.layout.dialog_edit_journey)
         {
             @Override
             public void bindData (View view)
             {
                 EditText txt;
 
-                txt = (EditText) view.findViewById (R.id.etEditTripTitle);
-                txt.setText (_trip.getTitle ());
+                txt = (EditText) view.findViewById (R.id.etEditJourneyTitle);
+                txt.setText (_journey.getTitle ());
 
-                txt = (EditText) view.findViewById (R.id.etEditTripDescription);
-                txt.setText (_trip.getDescription ());
+                txt = (EditText) view.findViewById (R.id.etEditJourneyDescription);
+                txt.setText (_journey.getDescription ());
             }
 
             @Override
@@ -229,23 +230,24 @@ public class TripDetailActivity
             {
                 EditText txt;
 
-                txt = (EditText) view.findViewById (R.id.etEditTripTitle);
-                _trip.setTitle (txt.getText ().toString ());
+                txt = (EditText) view.findViewById (R.id.etEditJourneyTitle);
+                _journey.setTitle (txt.getText ().toString ());
 
-                txt = (EditText) view.findViewById (R.id.etEditTripDescription);
-                _trip.setDescription (txt.getText ().toString ());
+                txt = (EditText) view.findViewById (R.id.etEditJourneyDescription);
+                _journey.setDescription (txt.getText ().toString ());
 
-                TripManager.updateTrip (TripDetailActivity.this, _trip);
+                JourneyManager.updateJourney (JourneyDetailActivity.this, _journey);
 
-                _detailFragment.setToolbarTitle (_trip.getTitle ());
+                _detailFragment.setToolbarTitle (_journey.getTitle ());
 
-                if (SettingsManager.isLogTrip (TripDetailActivity.this) && (SettingsManager.getCurrentTripId (
-                        TripDetailActivity.this) == _trip.getId ())) {
-                    LogMyTripNotificationManager.updateTripLogging (TripDetailActivity.this, _trip);
+                if (SettingsManager.isLogJourney (JourneyDetailActivity.this) && (SettingsManager.getCurrentJourneyId (
+                        JourneyDetailActivity.this) == _journey.getId ())) {
+                    LogMyTripNotificationManager.updateLogging (JourneyDetailActivity.this,
+                                                                _journey);
                 }
             }
         };
 
-        dlg.show (getSupportFragmentManager (), "editTrip");
+        dlg.show (getSupportFragmentManager (), "editJourney");
     }
 }

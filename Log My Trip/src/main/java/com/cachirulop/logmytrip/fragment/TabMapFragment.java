@@ -38,6 +38,9 @@ public class TabMapFragment
     private GoogleMap _map;
     private MapHelper _mapHelper;
     private Journey   _journey;
+    private boolean _zoomin = false;
+
+    private static final int ZOOM_LEVEL = 16;
 
     private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
@@ -52,9 +55,20 @@ public class TabMapFragment
 
             _journey.addLocation (tl);
 
-            _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
-                                                                               l.getLongitude ()),
-                                                                   18));
+            if (_map.getCameraPosition ().zoom == ZOOM_LEVEL) {
+                _zoomin = false;
+
+                _map.animateCamera (CameraUpdateFactory.newLatLng (new LatLng (l.getLatitude (),
+                                                                               l.getLongitude ())));
+            }
+            else {
+                if (!_zoomin) {
+                    _zoomin = true;
+                    _map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (l.getLatitude (),
+                                                                                       l.getLongitude ()),
+                                                                           ZOOM_LEVEL));
+                }
+            }
 
             drawTrackMainThread ();
         }
@@ -128,7 +142,6 @@ public class TabMapFragment
                               ViewGroup container,
                               Bundle savedInstanceState)
     {
-        // Inflate the layout for this fragment
         return inflater.inflate (R.layout.fragment_tab_map, container, false);
     }
 
@@ -142,12 +155,13 @@ public class TabMapFragment
 
     private void setUpMap ()
     {
-        FragmentManager fm;
+        SupportMapFragment fragment;
+        FragmentManager    manager;
 
-        fm = getFragmentManager ();
+        manager = getChildFragmentManager ();
+        fragment = (SupportMapFragment) manager.findFragmentById (R.id.gmJourneyDetail);
 
-        ((SupportMapFragment) getChildFragmentManager ().findFragmentById (R.id.gmJourneyDetail)).getMapAsync (
-                this);
+        fragment.getMapAsync (this);
     }
 
     @Override
@@ -208,6 +222,9 @@ public class TabMapFragment
 
         _map = googleMap;
         _map.setMyLocationEnabled (true);
+        _map.animateCamera (CameraUpdateFactory.zoomTo (ZOOM_LEVEL));
+
+        LogHelper.d ("*** Map loaded");
 
         _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);

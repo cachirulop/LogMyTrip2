@@ -42,7 +42,7 @@
     <!-- Preferences -->
     <string name="pref_autoStartLogCategoryTitle">Auto log</string>
     <string name="pref_autoStartLogAlwaysTitle">Auto log journey always</string>
-    <string name="pref_autoStartLogAlwaysSummary">Start journey logging when power on phone</string>
+    <string name="pref_autoStartLogAlwaysSummary">Start journey logging when power on device</string>
     <string name="pref_autoStartLogTitle">Auto log journey</string>
     <string name="pref_autoStartLogSummary">Start journey logging when connect or disconnect to a bluetooth device</string>
     <string name="pref_autoStartLogModeTitle">Auto log mode</string>
@@ -152,13 +152,13 @@
     <string name="pref_bluetoothNotFound">Bluetooth adapter not found</string>
 
     <!-- Notification -->
-    <string name="notif_Title">Log my journey</string>
-    <string name="notif_Tricker">Starting Log my journey service</string>
+    <string name="notif_Title">Log my trip</string>
+    <string name="notif_Tricker">Starting Log my trip service</string>
     <string name="notif_ContentWaitingBluetooth">Waiting bluetooth %1$s to %2$s log</string>
-    <string name="notif_ContentWaitingBluetooth_mode_connect">connection</string>
-    <string name="notif_ContentWaitingBluetooth_mode_disconnect">disconnection</string>
-    <string name="notif_ContentWaitingBluetooth_action_start">start</string>
-    <string name="notif_ContentWaitingBluetooth_action_stop">stop</string>
+    <string name="notif_ContentWaitingBluetooth_mode_connect" translatable="false">connection</string>
+    <string name="notif_ContentWaitingBluetooth_mode_disconnect" translatable="false">disconnection</string>
+    <string name="notif_ContentWaitingBluetooth_action_start" translatable="false">start</string>
+    <string name="notif_ContentWaitingBluetooth_action_stop" translatable="false">stop</string>
     <string name="notif_ContentLogging">Logging journey</string>
     <string name="notif_configured_devices">Bluetooth devices</string>
 
@@ -208,8 +208,8 @@
     <string name="title_export_location">Export location</string>
 
     <!-- Generic text -->
-    <string name="text_gpx">GPX</string>
-    <string name="text_kml">KML</string>
+    <string name="text_gpx" translatable="false">GPX</string>
+    <string name="text_kml" translatable="false">KML</string>
     <string name="text_local_file">Local file</string>
     <string name="text_google_drive">Google Drive</string>
     <string name="title_export_to_google_drive">Exporting to google drive</string>
@@ -223,7 +223,7 @@
     <string name="text_export_successful">Exported successful</string>
     <string name="pref_autosyncGoogleDriveCategoryTitle">Auto sync</string>
     <string name="pref_autoSyncGoogleDriveSummary">Auto sync journeys with Google Drive</string>
-    <string name="pref_autoSyncGoogleDriveTitle">Auto sync with Drive</string>
+    <string name="pref_autoSyncGoogleDriveTitle">Auto sync with Google Drive</string>
     <string name="pref_autoSyncGoogleDriveAccountTitle">Google drive account</string>
     <string name="pref_autoSyncGoogleDriveAccountSummary">Sync journeys with account: %1$s</string>
     <string name="msg_error_gd_reading_folder">Can\'t read folder</string>

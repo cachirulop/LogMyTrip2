@@ -82,7 +82,7 @@
     </string>
 
     
-    <string name="SQL_get_last_active_journey">
+    <string name="SQL_get_last_active_journey" translatable="false">
         <![CDATA[
             SELECT *
             FROM journey
@@ -90,13 +90,13 @@
         ]]>
     </string>
 
-    <string name="SQL_get_all_journeys">
+    <string name="SQL_get_all_journeys" translatable="false">
         <![CDATA[
             SELECT * FROM journey ORDER BY journey_date DESC
         ]]>
     </string>
 
-    <string name="SQL_get_journey_locations">
+    <string name="SQL_get_journey_locations" translatable="false">
         <![CDATA[
             SELECT *
             FROM location l
@@ -105,7 +105,7 @@
         ]]>
     </string>
 
-    <string name="SQL_delete_journey_locations">
+    <string name="SQL_delete_journey_locations" translatable="false">
         <![CDATA[
             DELETE
             FROM location

@@ -1,5 +1,6 @@
 package com.cachirulop.logmytrip.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -37,7 +38,6 @@ public class LogMyTripService
     public void onCreate ()
     {
         super.onCreate ();
-        LogHelper.d ("*** onCreate");
 
         _started = false;
     }
@@ -45,16 +45,12 @@ public class LogMyTripService
     @Override
     public int onStartCommand (Intent intent, int flags, int startId)
     {
-        LogHelper.d ("*** onStartCommand");
-
         Journey current;
 
         super.onStartCommand (intent, flags, startId);
 
         current = startLog ();
         if (current != null) {
-            LogHelper.d ("*** onStartCommand: current != null");
-
             startForegroundService (current);
 
             _notificationTimer = new Timer ();
@@ -63,9 +59,6 @@ public class LogMyTripService
             _notificationTimer.schedule (_updaterTask, 0, 60000);
 
             _started = true;
-        }
-        else {
-            LogHelper.d ("*** onStartCommand: current == null");
         }
 
         return START_STICKY;
@@ -94,6 +87,7 @@ public class LogMyTripService
         super.onDestroy ();
     }
 
+    @SuppressLint ("MissingPermission")
     private Journey startLog ()
     {
         LocationManager locationMgr;

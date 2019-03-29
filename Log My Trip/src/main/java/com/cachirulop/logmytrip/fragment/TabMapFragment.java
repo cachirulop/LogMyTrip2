@@ -1,6 +1,7 @@
 package com.cachirulop.logmytrip.fragment;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -142,7 +143,22 @@ public class TabMapFragment
                               ViewGroup container,
                               Bundle savedInstanceState)
     {
-        return inflater.inflate (R.layout.fragment_tab_map, container, false);
+        try {
+            View v;
+
+            LogHelper.d ("TabMapFragment.onCreateView: Inflando el mapa");
+
+            v = inflater.inflate (R.layout.fragment_tab_map, container, false);
+
+            LogHelper.d ("TabMapFragment.onCreateView: Se ha inflado el mapa con éxito");
+
+            return v;
+        }
+        catch (Exception e) {
+            LogHelper.e ("Error loading map layout: " + e.getLocalizedMessage (), e);
+
+            throw e;
+        }
     }
 
     @Override
@@ -213,10 +229,13 @@ public class TabMapFragment
         }
     }
 
+    @SuppressLint ("MissingPermission")
     @Override
     public void onMapReady (GoogleMap googleMap)
     {
         boolean isActiveJourney;
+
+        LogHelper.d ("*** Getting map");
 
         isActiveJourney = (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ()));
 
@@ -224,7 +243,7 @@ public class TabMapFragment
         _map.setMyLocationEnabled (true);
         _map.animateCamera (CameraUpdateFactory.zoomTo (ZOOM_LEVEL));
 
-        LogHelper.d ("*** Map loaded");
+        LogHelper.d ("*** Map assigned");
 
         _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);

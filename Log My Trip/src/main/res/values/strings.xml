@@ -152,6 +152,10 @@
     <string name="pref_bluetoothNotFound">Bluetooth adapter not found</string>
 
     <!-- Notification -->
+    <string name="notif_ChannelID">Log my trip</string>
+    <string name="notif_Channel_Name">Log my trip</string>
+    <string name="notif_Channel_Description">Log my trip notifications</string>
+
     <string name="notif_Title">Log my trip</string>
     <string name="notif_Tricker">Starting Log my trip service</string>
     <string name="notif_ContentWaitingBluetooth">Waiting bluetooth %1$s to %2$s log</string>

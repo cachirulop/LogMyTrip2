@@ -1,21 +1,26 @@
 package com.cachirulop.logmytrip.activity;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +38,7 @@ import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
+import com.cachirulop.logmytrip.manager.SyncManager;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -40,11 +46,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class MainActivity
         extends AppCompatActivity
 {
     private final int REQUEST_CODE_GOOGLE_SIGN_API = 1001;
+    private final int REQUEST_PERSMISSIONS = 1002;
 
     private DrawerLayout          _drawer;
     private ActionBarDrawerToggle _drawerToggle;
@@ -136,9 +144,12 @@ public class MainActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-        //        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-        //            SyncManager.syncDatabase (this);
-        //        }
+/*
+        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
+            SyncManager.syncDatabase (this);
+        }
+*/
+        initPermissions ();
 
         // Inflate the view
         super.onCreate (savedInstanceState);
@@ -364,6 +375,40 @@ public class MainActivity
         startActivity (new Intent (this, SettingsActivity.class));
     }
 
+    private void initPermissions ()
+    {
+        ArrayList<String> permissions;
+
+        permissions = new ArrayList<> ();
+
+        fillPermissionList (permissions, Manifest.permission.BLUETOOTH);
+        fillPermissionList (permissions, Manifest.permission.INTERNET);
+        fillPermissionList (permissions, Manifest.permission.ACCESS_NETWORK_STATE);
+        fillPermissionList (permissions, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        fillPermissionList (permissions, Manifest.permission.ACCESS_COARSE_LOCATION);
+        fillPermissionList (permissions, Manifest.permission.ACCESS_FINE_LOCATION);
+        fillPermissionList (permissions, Manifest.permission.GET_ACCOUNTS);
+        fillPermissionList (permissions, Manifest.permission.RECEIVE_BOOT_COMPLETED);
+        fillPermissionList (permissions, Manifest.permission.FOREGROUND_SERVICE);
+
+        if (permissions.size () > 0) {
+            String [] ps;
+
+            ps = new String[permissions.size ()];
+
+            ActivityCompat.requestPermissions (this,
+                                               permissions.toArray (ps),
+                                               REQUEST_PERSMISSIONS);
+        }
+    }
+
+    private void fillPermissionList (ArrayList<String> permissions, String permission)
+    {
+        if (ContextCompat.checkSelfPermission (this, permission) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add (permission);
+        }
+    }
+
     private class DownloadImageTask
             extends AsyncTask<String, Void, Bitmap>
     {
@@ -386,7 +431,7 @@ public class MainActivity
                 bmp = BitmapFactory.decodeStream (in);
             }
             catch (Exception e) {
-                LogHelper.e ("Can't load image: " + e.getMessage ());
+                LogHelper.e ("Can't load image: " + e.getMessage (), e);
             }
 
             return bmp;

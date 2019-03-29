@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.receiver.BluetoothBroadcastReceiver;
@@ -57,9 +58,7 @@ public class BluetoothService
         if (_btReceiver == null) {
             _btReceiver = new BluetoothBroadcastReceiver ();
 
-            registerReceiver (_btReceiver,
-                              new IntentFilter (BluetoothDevice.ACTION_ACL_DISCONNECTED));
-
+            registerReceiver (_btReceiver, new IntentFilter (BluetoothDevice.ACTION_ACL_DISCONNECTED));
             registerReceiver (_btReceiver, new IntentFilter (BluetoothDevice.ACTION_ACL_CONNECTED));
         }
     }
@@ -68,9 +67,14 @@ public class BluetoothService
     {
         Notification note;
 
-        note = LogMyTripNotificationManager.createWaitingBluetooth (this);
+        try {
+            note = LogMyTripNotificationManager.createWaitingBluetooth (this);
 
-        startForeground (LogMyTripNotificationManager.NOTIFICATION_WAITING_BLUETOOTH, note);
+            startForeground (LogMyTripNotificationManager.NOTIFICATION_WAITING_BLUETOOTH, note);
+        }
+        catch (Exception e) {
+            LogHelper.e ("Error on startForegroundService: " + e.getLocalizedMessage (), e);
+        }
     }
 
     @Override

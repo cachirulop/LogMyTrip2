@@ -1,20 +1,21 @@
 package com.cachirulop.logmytrip.fragment;
 
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import com.cachirulop.logmytrip.helper.LogHelper;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,16 +34,12 @@ import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
-import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
 import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.service.LogMyTripService;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -53,11 +50,8 @@ public class MainFragment
         extends Fragment
         implements RecyclerViewItemClickListener,
                    ActionMode.Callback,
-                   GoogleApiClient.ConnectionCallbacks,
-                   GoogleApiClient.OnConnectionFailedListener,
                    IMainFragment
 {
-    private GoogleApiClient      _client;
     private boolean              _journeysLoaded;
     private boolean              _startLog;
     private RecyclerView         _recyclerView;
@@ -73,6 +67,7 @@ public class MainFragment
             refreshFabLog ();
         }
     };
+
     private boolean _exportFormatIsGPX;
     private BroadcastReceiver _onLogStartReceiver    = new BroadcastReceiver ()
     {
@@ -87,6 +82,7 @@ public class MainFragment
             }
         }
     };
+
     private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -117,11 +113,6 @@ public class MainFragment
         if (_actionMode == null) {
             _adapter.reloadItems ();
         }
-    }
-
-    public RecyclerView getRecyclerView ()
-    {
-        return _recyclerView;
     }
 
     @Override
@@ -212,23 +203,59 @@ public class MainFragment
     {
         ConfirmDialog dlg;
 
-        dlg = new ConfirmDialog (R.string.title_delete, R.string.msg_delete_confirm)
-        {
-            @Override
-            public void onOkClicked ()
-            {
-                List<Journey> selectedItems = _adapter.getSelectedItems ();
+        try {
 
-                for (Journey t : selectedItems) {
-                    JourneyManager.deleteJourney (getContext (), t);
-                    _adapter.removeItem (t);
+            dlg = new ConfirmDialog ();
+            dlg.setTitleId (R.string.title_delete);
+            dlg.setMessageId (R.string.msg_delete_confirm);
+            dlg.setListener (new ConfirmDialog.OnConfirmDialogListener ()
+            {
+                @Override
+                public void onPositiveButtonClick ()
+                {
+                    List<Journey> selectedItems = _adapter.getSelectedItems ();
+
+                    for (Journey t : selectedItems) {
+                        JourneyManager.deleteJourney (getContext (), t);
+                        _adapter.removeItem (t);
+                    }
+
+                    _actionMode.finish ();
                 }
 
-                _actionMode.finish ();
-            }
-        };
+                @Override
+                public void onNegativeButtonClick ()
+                {
+                    // Do nothing
+                }
+            });
+/*
+            dlg.setOnOkClickListener (new DialogInterface.OnClickListener ()
+            {
+                @Override
+                public void onClick (DialogInterface dialog, int which)
+                {
+                    List<Journey> selectedItems = _adapter.getSelectedItems ();
 
-        dlg.show (getActivity ().getSupportFragmentManager (), "deleteJourneys");
+                    LogHelper.d ("Borrando el journey");
+
+                    for (Journey t : selectedItems) {
+                        JourneyManager.deleteJourney (getContext (), t);
+                        _adapter.removeItem (t);
+                    }
+
+                    _actionMode.finish ();
+
+                    LogHelper.d ("Borrando el journey HECHO");
+                }
+            });
+*/
+
+            dlg.show (getActivity ().getSupportFragmentManager (), "deleteJourneys");
+        }
+        catch (Exception e) {
+            LogHelper.d ("Error showing ConfirmDialog: " + e.getLocalizedMessage ());
+        }
     }
 
     private void selectAllJourneys ()
@@ -243,47 +270,45 @@ public class MainFragment
 
     private void exportJourneysDialog ()
     {
-        CustomViewDialog dlg;
+        final CustomViewDialog dlg;
 
-        dlg = new CustomViewDialog (R.string.title_export, R.layout.dialog_export)
+        dlg = new CustomViewDialog ();
+
+        dlg.setTitleId (R.string.title_export);
+        dlg.setMessageId (R.layout.dialog_export);
+        dlg.setListener (new CustomViewDialog.OnCustomDialogListener ()
         {
             @Override
-            public void onOkClicked (View view)
+            public void onPositiveButtonClick ()
             {
                 RadioButton rb;
-                boolean     locationLocal;
 
-                rb = (RadioButton) view.findViewById (R.id.rbExportGPX);
+                rb = (RadioButton) dlg.getCustomView ().findViewById (R.id.rbExportGPX);
                 _exportFormatIsGPX = rb.isChecked ();
 
-                rb = (RadioButton) view.findViewById (R.id.rbExportLocalFile);
-                locationLocal = rb.isChecked ();
-
-                if (locationLocal) {
-                    exportJourneys (locationLocal);
-                }
-                else {
-                    startGoogleDriveActivity ();
-                }
+                exportJourneys ();
             }
 
             @Override
-            public void bindData (View view)
+            public void onNegativeButtonClick ()
+            {
+                // do nothing
+            }
+
+            @Override
+            public void bindData (View v)
             {
                 RadioButton rb;
 
-                rb = (RadioButton) view.findViewById (R.id.rbExportGPX);
-                rb.setChecked (true);
-
-                rb = (RadioButton) view.findViewById (R.id.rbExportLocalFile);
+                rb = (RadioButton) dlg.getCustomView ().findViewById (R.id.rbExportGPX);
                 rb.setChecked (true);
             }
-        };
+        });
 
         dlg.show (getActivity ().getSupportFragmentManager (), "exportJourneys");
     }
 
-    private void exportJourneys (final boolean locationLocal)
+    private void exportJourneys ()
     {
         final ProgressDialog progDialog;
         final Context        ctx;
@@ -339,12 +364,7 @@ public class MainFragment
                         fileName = getTrackFileName (t.getJouneyDate (), "kml");
                     }
 
-                    if (locationLocal) {
-                        ExportHelper.exportToFile (ctx, t, fileName, listener);
-                    }
-                    else {
-                        ExportHelper.exportToGoogleDrive (ctx, t, fileName, _client, listener);
-                    }
+                    ExportHelper.exportToFile (ctx, t, fileName, listener);
                 }
 
                 LogMyTripApplication.runInMainThread (ctx, new Runnable ()
@@ -357,19 +377,8 @@ public class MainFragment
                 });
 
                 progDialog.dismiss ();
-
-                if (!locationLocal) {
-                    _client.disconnect ();
-                    _client = null;
-                }
             }
         }.start ();
-    }
-
-    private void startGoogleDriveActivity ()
-    {
-        _client = GoogleDriveHelper.createClient (getContext (), this, this);
-        _client.connect ();
     }
 
     private String getTrackFileName (Date trackDate, String extension)
@@ -403,26 +412,6 @@ public class MainFragment
         bar = ((AppCompatActivity) getActivity ()).getSupportActionBar ();
         bar.setSubtitle (getContext ().getString (R.string.main_activity_subtitle,
                                                   _adapter.getItemCount ()));
-    }
-
-    @Override
-    public void onActivityResult (int requestCode, int resultCode, Intent data)
-    {
-        if (requestCode == GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                //                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-                //                if (result.isSuccess()) {
-                //                    GoogleSignInAccount acct = result.getSignInAccount();
-                //
-                //                    LogHelper.d ("*** " + acct.getDisplayName () + "-.-" + acct.getEmail () + "-.-" + acct
-                //                            .getPhotoUrl ());
-                //                }
-                //                else {
-                //                    LogHelper.d ("*** not success");
-                //                }
-                exportJourneys (false);
-            }
-        }
     }
 
     @Override
@@ -564,35 +553,6 @@ public class MainFragment
     {
         _adapter.startLog ();
         startDetailActivity (_adapter.getItem (0));
-    }
-
-    @Override
-    public void onConnected (Bundle bundle)
-    {
-        exportJourneys (false);
-    }
-
-    @Override
-    public void onConnectionSuspended (int i)
-    {
-    }
-
-    @Override
-    public void onConnectionFailed (ConnectionResult connectionResult)
-    {
-        if (connectionResult.hasResolution ()) {
-            try {
-                connectionResult.startResolutionForResult (getActivity (),
-                                                           GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE);
-            }
-            catch (IntentSender.SendIntentException e) {
-            }
-        }
-        else {
-            GooglePlayServicesUtil.getErrorDialog (connectionResult.getErrorCode (),
-                                                   getActivity (),
-                                                   0).show ();
-        }
     }
 
     @Override

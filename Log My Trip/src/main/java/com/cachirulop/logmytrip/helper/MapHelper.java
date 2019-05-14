@@ -190,7 +190,6 @@ public class MapHelper
             markerOptions.icon (BitmapDescriptorFactory.defaultMarker (getMarkerColor (color)));
             markerOptions.alpha (alpha);
             markerOptions.title (segment.getTitle (_ctx));
-
             if (segment.getStartLocation () != null) {
                 markerOptions.snippet (String.format ("%s\n%s",
                                                       FormatHelper.formatDateTime (_ctx,
@@ -200,6 +199,7 @@ public class MapHelper
             }
 
             marker = _map.addMarker (markerOptions);
+
             _markerSegment.put (marker, segment);
             if (showInfo) {
                 marker.showInfoWindow ();

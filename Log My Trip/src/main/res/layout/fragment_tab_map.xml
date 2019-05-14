@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     android:id="@+id/main_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment
+    <com.google.android.gms.maps.MapView
         android:id="@+id/gmJourneyDetail"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -25,4 +23,4 @@
         android:layout_gravity="top"
         android:inflatedId="@+id/vGPSStatus"
         android:layout="@layout/view_gps_status"/>
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

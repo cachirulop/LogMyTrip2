@@ -6,57 +6,43 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import androidx.annotation.NonNull;
+
+import com.cachirulop.logmytrip.helper.LogHelper;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.Switch;
-import android.widget.TextView;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.data.LogMyTripDataHelper;
 import com.cachirulop.logmytrip.fragment.IMainFragment;
 import com.cachirulop.logmytrip.fragment.MainFragment;
-import com.cachirulop.logmytrip.helper.GoogleDriveHelper;
-import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.manager.SyncManager;
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MainActivity
         extends AppCompatActivity
 {
-    private final int REQUEST_CODE_GOOGLE_SIGN_API = 1001;
-    private final int REQUEST_PERSMISSIONS = 1002;
+    private static final int REQUEST_PERMISSIONS = 1002;
 
     private DrawerLayout          _drawer;
     private ActionBarDrawerToggle _drawerToggle;
-    private Toolbar               _toolbar;
     private NavigationView        _nvDrawer;
     private Switch                _swAutoStartLog;
 
@@ -79,25 +65,6 @@ public class MainActivity
             updateAutoStartLogSwitch ();
         }
     };
-
-    @Override
-    protected void onActivityResult (int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult (requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case GoogleDriveHelper.RESOLVE_CONNECTION_REQUEST_CODE:
-                _mainFragment.onMainActivityResult (requestCode, resultCode, data);
-                break;
-
-            case REQUEST_CODE_GOOGLE_SIGN_API:
-                GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent (data);
-
-                loadUserInfo (result);
-
-                break;
-        }
-    }
 
     @Override
     protected void onPause ()
@@ -144,43 +111,46 @@ public class MainActivity
     @Override
     protected void onCreate (Bundle savedInstanceState)
     {
-/*
-        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-            SyncManager.syncDatabase (this);
+        try {
+            initPermissions ();
+
+            // Inflate the view
+            super.onCreate (savedInstanceState);
+            setContentView (R.layout.activity_main);
+
+            if (SettingsManager.isAutoStartLogBluetooth (this)) {
+                ServiceManager.startBluetooth (this);
+            }
+
+            // Set a Toolbar to replace the ActionBar.
+            Toolbar toolbar;
+
+            toolbar = findViewById (R.id.toolbar);
+            setSupportActionBar (toolbar);
+
+            toolbar.setLogo (R.mipmap.ic_launcher);
+            toolbar.setTitle (R.string.app_name);
+
+            // Drawer
+            _drawer = findViewById (R.id.drawer_layout);
+            _drawerToggle = new ActionBarDrawerToggle (this,
+                                                       _drawer,
+                                                       toolbar,
+                                                       R.string.drawer_open,
+                                                       R.string.drawer_close);
+            _drawer.addDrawerListener (_drawerToggle);
+
+            _nvDrawer = findViewById (R.id.nvDrawer);
+
+            setupDrawerContent ();
+
+            loadFragment (R.id.action_journeys);
         }
-*/
-        initPermissions ();
+        catch (RuntimeException e) {
+            LogHelper.d ("Exception onCreate: " + e.getLocalizedMessage ());
 
-        // Inflate the view
-        super.onCreate (savedInstanceState);
-        setContentView (R.layout.activity_main);
-
-        if (SettingsManager.isAutoStartLogBluetooth (this)) {
-            ServiceManager.startBluetooth (this);
+            throw e;
         }
-
-        // Set a Toolbar to replace the ActionBar.
-        _toolbar = (Toolbar) findViewById (R.id.toolbar);
-        setSupportActionBar (_toolbar);
-
-        _toolbar.setLogo (R.mipmap.ic_launcher);
-        _toolbar.setTitle (R.string.app_name);
-
-        // Drawer
-        _drawer = (DrawerLayout) findViewById (R.id.drawer_layout);
-        _drawerToggle = new ActionBarDrawerToggle (this,
-                                                   _drawer,
-                                                   _toolbar,
-                                                   R.string.drawer_open,
-                                                   R.string.drawer_close);
-        _drawer.setDrawerListener (_drawerToggle);
-
-        _nvDrawer = (NavigationView) findViewById (R.id.nvDrawer);
-
-        setupDrawerContent ();
-        loadFragment (R.id.action_journeys);
-
-        requestUserInfo ();
     }
 
     @Override
@@ -208,8 +178,7 @@ public class MainActivity
         if (mnu != null) {
             autoStartLog = mnu.findItem (R.id.action_auto_start_log);
             if (autoStartLog != null) {
-                _swAutoStartLog = (Switch) autoStartLog.getActionView ()
-                                                       .findViewById (R.id.switch1);
+                _swAutoStartLog = autoStartLog.getActionView ().findViewById (R.id.switch1);
                 enableAutoStartLogSwitchEvent ();
             }
         }
@@ -217,7 +186,7 @@ public class MainActivity
         _nvDrawer.setNavigationItemSelectedListener (new NavigationView.OnNavigationItemSelectedListener ()
         {
             @Override
-            public boolean onNavigationItemSelected (MenuItem menuItem)
+            public boolean onNavigationItemSelected (@NonNull MenuItem menuItem)
             {
                 onDrawerMenuOptionsItemSelected (menuItem);
                 return true;
@@ -254,7 +223,7 @@ public class MainActivity
 
     private void loadFragment (int itemId)
     {
-        Fragment fragment      = null;
+        Fragment fragment;
         Class    fragmentClass = null;
 
         switch (itemId) {
@@ -283,46 +252,6 @@ public class MainActivity
             catch (Exception e) {
                 e.printStackTrace ();
             }
-        }
-    }
-
-    private void requestUserInfo ()
-    {
-        if (SettingsManager.isAutoSyncGoogleDrive (this)) {
-            GoogleApiClient client;
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder (GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestEmail ()
-                    .setAccountName (SettingsManager.getAutoSyncGoogleDriveAccount (this))
-                    .build ();
-
-            client = new GoogleApiClient.Builder (this).enableAutoManage (this, null)
-                                                       .addApi (Auth.GOOGLE_SIGN_IN_API, gso)
-                                                       .build ();
-
-
-            Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent (client);
-            startActivityForResult (signInIntent, REQUEST_CODE_GOOGLE_SIGN_API);
-        }
-    }
-
-    private void loadUserInfo (GoogleSignInResult result)
-    {
-        if (result.isSuccess ()) {
-            GoogleSignInAccount acct = result.getSignInAccount ();
-            DownloadImageTask task;
-            ImageView photo;
-            TextView txt;
-
-            photo = (ImageView) findViewById (R.id.iv_profile);
-
-            task = new DownloadImageTask (photo);
-            task.execute (acct.getPhotoUrl ().toString ());
-
-            txt = (TextView) findViewById (R.id.tv_display_name);
-            txt.setText (acct.getDisplayName ());
-
-            txt = (TextView) findViewById (R.id.tv_email);
-            txt.setText (acct.getEmail ());
         }
     }
 
@@ -397,8 +326,7 @@ public class MainActivity
             ps = new String[permissions.size ()];
 
             ActivityCompat.requestPermissions (this,
-                                               permissions.toArray (ps),
-                                               REQUEST_PERSMISSIONS);
+                                               permissions.toArray (ps), REQUEST_PERMISSIONS);
         }
     }
 
@@ -406,40 +334,6 @@ public class MainActivity
     {
         if (ContextCompat.checkSelfPermission (this, permission) != PackageManager.PERMISSION_GRANTED) {
             permissions.add (permission);
-        }
-    }
-
-    private class DownloadImageTask
-            extends AsyncTask<String, Void, Bitmap>
-    {
-        ImageView _image;
-
-        public DownloadImageTask (ImageView bmImage)
-        {
-            _image = bmImage;
-        }
-
-        protected Bitmap doInBackground (String... urls)
-        {
-            Bitmap bmp = null;
-
-            try {
-                InputStream in;
-
-                in = new java.net.URL (urls[0]).openStream ();
-
-                bmp = BitmapFactory.decodeStream (in);
-            }
-            catch (Exception e) {
-                LogHelper.e ("Can't load image: " + e.getMessage (), e);
-            }
-
-            return bmp;
-        }
-
-        protected void onPostExecute (Bitmap result)
-        {
-            _image.setImageBitmap (result);
         }
     }
 }

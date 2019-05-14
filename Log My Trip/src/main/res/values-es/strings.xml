@@ -23,7 +23,7 @@
     <string name="drawer_open">Abrir cajon</string>
     <string name="error_cant_read_file">No se puede leer el fichero</string>
     <string name="error_cant_write_file">No se puede escribir el fichero</string>
-    <string name="main_activity_subtitle">Trayectos guardados (%1$s)</string>
+    <string name="main_activity_subtitle">Trayectos guardados (%1$d)</string>
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services no disponible, no se puede continuar</string>
     <string name="msg_configure_gps">Configurar</string>
     <string name="msg_database_exported">Base de datos exportada</string>
@@ -78,7 +78,7 @@
     <string name="pref_bluetoothNotFound">No se ha encontrado el adaptador Bluetooth</string>
     <string name="notif_Channel_Description">Notificaciones de Guarda mi viaje</string>
     <string name="title_delete">Borrar</string>
-    <string name="title_selected_count">%1$s seleccionados</string>
+    <string name="title_selected_count">%1$d seleccionados</string>
     <string name="title_activity_maps">Mapa</string>
     <string name="title_description">Descripción</string>
     <string name="title_start">Iniciar</string>

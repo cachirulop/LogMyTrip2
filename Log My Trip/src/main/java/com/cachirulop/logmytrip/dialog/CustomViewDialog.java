@@ -4,37 +4,47 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 
 /**
  * Created by dmagro on 19/10/2015.
  */
-public abstract class CustomViewDialog
+public class CustomViewDialog
         extends DialogFragment
 {
     private int  _titleId;
     private int  _messageId;
     private int  _viewId;
-    private View _customView;
+    private View                   _customView;
+    private OnCustomDialogListener _listener;
 
-    public CustomViewDialog (int titleId, int viewId)
-    {
-        super ();
+    public interface OnCustomDialogListener {
+        void onPositiveButtonClick ();
+        void onNegativeButtonClick ();
 
-        _titleId = titleId;
-        _messageId = -1;
-        _viewId = viewId;
+        void bindData (View v);
     }
 
-    public CustomViewDialog (int titleId, int messageId, int viewId)
+    public OnCustomDialogListener getListener ()
     {
-        super ();
+        return _listener;
+    }
 
-        _titleId = titleId;
-        _messageId = messageId;
-        _viewId = viewId;
+    public void setListener (OnCustomDialogListener listener)
+    {
+        _listener = listener;
+    }
+
+    public View getCustomView ()
+    {
+        return _customView;
+    }
+
+    public void setCustomView (View customView)
+    {
+        _customView = customView;
     }
 
     @Override
@@ -44,35 +54,75 @@ public abstract class CustomViewDialog
         LayoutInflater      inflater;
 
         builder = new AlertDialog.Builder (getActivity ());
-        builder.setTitle (_titleId);
+        builder.setTitle (getTitleId ());
 
-        if (_messageId != -1) {
-            builder.setMessage (_messageId);
+        if (getMessageId () != -1) {
+            builder.setMessage (getMessageId ());
         }
 
         inflater = getActivity ().getLayoutInflater ();
 
-        _customView = inflater.inflate (_viewId, null);
+        _customView = inflater.inflate (getViewId (), null);
         builder.setView (_customView);
 
         builder.setPositiveButton (android.R.string.ok, new DialogInterface.OnClickListener ()
         {
             public void onClick (DialogInterface dialog, int which)
             {
-                onOkClicked (_customView);
+                if (_listener != null) {
+                    _listener.onPositiveButtonClick ();
+                }
 
                 dialog.dismiss ();
             }
         });
 
-        builder.setNegativeButton (android.R.string.cancel, null);
+        builder.setNegativeButton (android.R.string.cancel, new DialogInterface.OnClickListener ()
+        {
+            public void onClick (DialogInterface dialog, int which)
+            {
+                if (_listener != null) {
+                    _listener.onNegativeButtonClick ();
+                }
 
-        bindData (_customView);
+                dialog.dismiss ();
+            }
+        });
+
+        if (_listener != null) {
+            _listener.bindData (_customView);
+        }
 
         return builder.create ();
     }
 
-    abstract public void onOkClicked (View view);
+    public int getTitleId ()
+    {
+        return _titleId;
+    }
 
-    abstract public void bindData (View view);
+    public void setTitleId (int titleId)
+    {
+        _titleId = titleId;
+    }
+
+    public int getMessageId ()
+    {
+        return _messageId;
+    }
+
+    public void setMessageId (int messageId)
+    {
+        _messageId = messageId;
+    }
+
+    public int getViewId ()
+    {
+        return _viewId;
+    }
+
+    public void setViewId (int viewId)
+    {
+        _viewId = viewId;
+    }
 }

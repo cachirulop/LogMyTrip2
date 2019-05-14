@@ -10,7 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.MainActivity;
@@ -47,6 +47,11 @@ public class LogMyTripNotificationManager
             builder.setContentTitle (ctx.getText (R.string.notif_Title));
             builder.setTicker (ctx.getText (R.string.notif_Tricker));
             builder.setContentText (t.getTitle ());
+
+            builder.setOngoing (false);
+            builder.setAutoCancel (false);
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             notificationIntent = new Intent (ctx, MainActivity.class);
             pi = PendingIntent.getActivity (ctx, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -116,6 +121,11 @@ public class LogMyTripNotificationManager
             builder.setContentTitle (ctx.getText (R.string.notif_Title));
             builder.setTicker (ctx.getText (R.string.notif_Tricker));
             builder.setContentText (getWaitingBluetoothText (ctx));
+
+            builder.setOngoing (false);
+            builder.setAutoCancel (false);
+            builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
             notificationIntent = new Intent (ctx, MainActivity.class);
             pi = PendingIntent.getActivity (ctx, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);

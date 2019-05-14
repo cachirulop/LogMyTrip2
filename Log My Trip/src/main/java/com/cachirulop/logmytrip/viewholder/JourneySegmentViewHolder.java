@@ -1,10 +1,11 @@
 package com.cachirulop.logmytrip.viewholder;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -114,15 +115,24 @@ public class JourneySegmentViewHolder
                     case R.id.action_delete_segment:
                         ConfirmDialog dlg;
 
-                        dlg = new ConfirmDialog (R.string.title_delete, R.string.msg_delete_confirm)
+                        dlg = new ConfirmDialog ();
+                        dlg.setTitleId (R.string.title_delete);
+                        dlg.setMessageId (R.string.msg_delete_confirm);
+                        dlg.setListener (new ConfirmDialog.OnConfirmDialogListener ()
                         {
                             @Override
-                            public void onOkClicked ()
+                            public void onPositiveButtonClick ()
                             {
                                 _adapter.removeItem (journeySegment);
                                 JourneyManager.deleteSegment (_ctx, journeySegment);
                             }
-                        };
+
+                            @Override
+                            public void onNegativeButtonClick ()
+                            {
+                                // Do nothing
+                            }
+                        });
 
                         dlg.show (((FragmentActivity) _ctx).getSupportFragmentManager (),
                                   "deleteJourney");

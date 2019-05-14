@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -170,9 +170,19 @@ public class JourneyDetailActivity
     {
         ListDialog dlg;
 
-        dlg = new ListDialog (R.string.title_map_type, R.array.map_types,
-                              _detailFragment.getMapType ())
+        dlg = new ListDialog ();
+        dlg.setTitleId (R.string.title_map_type);
+        dlg.setArrayId (R.array.map_types);
+        dlg.setDefaultItem (_detailFragment.getMapType ());
+        dlg.setSingleChoice (true);
+        dlg.setListener (new ListDialog.OnListDialogListener ()
         {
+            @Override
+            public void onNegativeButtonClick ()
+            {
+                // do nothing
+            }
+
             @Override
             public void onSingleItemSelected (int selectedItem)
             {
@@ -202,33 +212,33 @@ public class JourneyDetailActivity
 
                 _detailFragment.setMapType (selectedItem);
             }
-        };
+
+            @Override
+            public void onMultipleItemSelected (boolean[] selectedItems)
+            {
+                // Do nothing, is single choice
+            }
+        });
 
         dlg.show (getSupportFragmentManager (), "selectMapType");
     }
 
     private void editJourney ()
     {
-        CustomViewDialog dlg;
+        final CustomViewDialog dlg;
 
-        dlg = new CustomViewDialog (R.string.title_edit_journey, R.layout.dialog_edit_journey)
+        dlg = new CustomViewDialog ();
+        dlg.setTitleId (R.string.title_edit_journey);
+        dlg.setMessageId (R.layout.dialog_edit_journey);
+        dlg.setListener (new CustomViewDialog.OnCustomDialogListener ()
         {
             @Override
-            public void bindData (View view)
+            public void onPositiveButtonClick ()
             {
                 EditText txt;
+                View view;
 
-                txt = (EditText) view.findViewById (R.id.etEditJourneyTitle);
-                txt.setText (_journey.getTitle ());
-
-                txt = (EditText) view.findViewById (R.id.etEditJourneyDescription);
-                txt.setText (_journey.getDescription ());
-            }
-
-            @Override
-            public void onOkClicked (View view)
-            {
-                EditText txt;
+                view = dlg.getCustomView ();
 
                 txt = (EditText) view.findViewById (R.id.etEditJourneyTitle);
                 _journey.setTitle (txt.getText ().toString ());
@@ -246,7 +256,25 @@ public class JourneyDetailActivity
                                                                 _journey);
                 }
             }
-        };
+
+            @Override
+            public void onNegativeButtonClick ()
+            {
+                // do nothing
+            }
+
+            @Override
+            public void bindData (View v)
+            {
+                EditText txt;
+
+                txt = (EditText) v.findViewById (R.id.etEditJourneyTitle);
+                txt.setText (_journey.getTitle ());
+
+                txt = (EditText) v.findViewById (R.id.etEditJourneyDescription);
+                txt.setText (_journey.getDescription ());
+            }
+        });
 
         dlg.show (getSupportFragmentManager (), "editJourney");
     }

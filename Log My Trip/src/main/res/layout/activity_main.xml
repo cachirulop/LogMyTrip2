@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v4.widget.DrawerLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:fitsSystemWindows="false"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context="com.cachirulop.logmytrip.activity.MainActivity">
 
     <!-- This LinearLayout represents the contents of the screen  -->
     <LinearLayout
@@ -31,7 +31,7 @@
 
     <!-- The navigation drawer that comes from the left -->
     <!-- Note that `android:layout_gravity` needs to be set to 'start' -->
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/nvDrawer"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -41,4 +41,4 @@
         app:itemTextColor="@color/default_background_dark"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/menu_drawer"/>
-</android.support.v4.widget.DrawerLayout>
+</androidx.drawerlayout.widget.DrawerLayout>

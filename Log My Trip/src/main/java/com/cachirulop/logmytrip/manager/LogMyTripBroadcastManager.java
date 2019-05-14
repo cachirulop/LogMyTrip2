@@ -6,11 +6,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Parcelable;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.cachirulop.logmytrip.entity.Journey;
 
 import java.util.HashMap;
+
+import static androidx.localbroadcastmanager.content.LocalBroadcastManager.*;
 
 /**
  * Created by david on 9/10/15.
@@ -66,7 +67,7 @@ public class LogMyTripBroadcastManager
             }
         }
 
-        LocalBroadcastManager.getInstance (ctx).sendBroadcast (intent);
+        getInstance (ctx).sendBroadcast (intent);
     }
 
     public static void sendStartLogMessage (Context ctx)
@@ -126,51 +127,44 @@ public class LogMyTripBroadcastManager
 
     public static void registerLogStartReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_LOG_START));
+        getInstance (ctx).registerReceiver (receiver, new IntentFilter (ACTION_LOG_START));
     }
 
     public static void registerLogStopReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_LOG_STOP));
+        getInstance (ctx).registerReceiver (receiver, new IntentFilter (ACTION_LOG_STOP));
     }
 
     public static void registerNewLocationReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_NEW_LOCATION));
+        getInstance (ctx).registerReceiver (receiver, new IntentFilter (ACTION_NEW_LOCATION));
     }
 
     public static void registerProviderEnableChange (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver,
+        getInstance (ctx).registerReceiver (receiver,
                                                 new IntentFilter (ACTION_PROVIDER_ENABLE_CHANGE));
     }
 
     public static void registerStatusChange (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_STATUS_CHANGE));
+        getInstance (ctx).registerReceiver (receiver, new IntentFilter (ACTION_STATUS_CHANGE));
     }
 
     public static void registerBluetoothStartReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver,
+        getInstance (ctx).registerReceiver (receiver,
                                                 new IntentFilter (ACTION_BLUETOOTH_START));
     }
 
     public static void registerBluetoothStopReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx)
-                             .registerReceiver (receiver, new IntentFilter (ACTION_BLUETOOTH_STOP));
+        getInstance (ctx).registerReceiver (receiver, new IntentFilter (ACTION_BLUETOOTH_STOP));
     }
 
     public static void unregisterReceiver (Context ctx, BroadcastReceiver receiver)
     {
-        LocalBroadcastManager.getInstance (ctx).unregisterReceiver (receiver);
+        getInstance (ctx).unregisterReceiver (receiver);
     }
 
     public static boolean hasJourney (Intent intent)

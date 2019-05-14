@@ -16,31 +16,36 @@ public class LogHelper
 {
     public static final String LOG_CATEGORY = "com.cachirulop.LOG";
 
-    private static final boolean LOG_TO_FILE = true;
+    private static final boolean LOG_TO_FILE = false;
 
     private static final String NEW_LINE =  System.getProperty("line.separator") ;
     final static         File   _logFile;
 
     static {
-        _logFile = new File ("/sdcard/LogMyTrip/", "logs.log" );
-        if (!_logFile.exists()) {
-            try {
-                _logFile.createNewFile();
-            }
-            catch (final IOException e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            if (_logFile.length () > (10 * 1024 * 1024)) {
+        if (LOG_TO_FILE) {
+            _logFile = new File ("/sdcard/LogMyTrip/", "logs.log");
+            if (!_logFile.exists ()) {
                 try {
-                    _logFile.delete ();
                     _logFile.createNewFile ();
                 }
-                catch (Exception e) {
+                catch (final IOException e) {
                     e.printStackTrace ();
                 }
             }
+            else {
+                if (_logFile.length () > (10 * 1024 * 1024)) {
+                    try {
+                        _logFile.delete ();
+                        _logFile.createNewFile ();
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace ();
+                    }
+                }
+            }
+        }
+        else {
+            _logFile = null;
         }
     }
 

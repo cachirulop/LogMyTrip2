@@ -4,27 +4,27 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import androidx.fragment.app.DialogFragment;
 import android.view.View;
 import android.widget.Button;
+
+import com.cachirulop.logmytrip.helper.LogHelper;
 
 /**
  * helper for Confirm-Dialog creation
  */
-public abstract class ConfirmDialog
+public class ConfirmDialog
         extends DialogFragment
-        implements View.OnClickListener
 {
     private int _titleId;
     private int _messageId;
 
-    public ConfirmDialog (int titleId, int messageId)
-    {
-        super ();
-
-        _titleId = titleId;
-        _messageId = messageId;
+    public interface OnConfirmDialogListener {
+        void onPositiveButtonClick ();
+        void onNegativeButtonClick ();
     }
+
+    private OnConfirmDialogListener _listener;
 
     @Override
     public Dialog onCreateDialog (Bundle savedInstanceState)
@@ -32,34 +32,52 @@ public abstract class ConfirmDialog
         AlertDialog.Builder builder;
 
         builder = new AlertDialog.Builder (getActivity ());
-        builder.setTitle (_titleId);
-        builder.setMessage (_messageId);
+        builder.setTitle (getTitleId ());
+        builder.setMessage (getMessageId ());
 
         builder.setPositiveButton (android.R.string.ok, new DialogInterface.OnClickListener ()
         {
             public void onClick (DialogInterface dialog, int which)
             {
-                // Do nothing here because we
-                // override this button later to
-                // change the close behaviour.
-                // However, we still need this
-                // because on older versions of
-                // Android unless we
-                // pass a handler the button doesn't
-                // get instantiated
+                if (_listener != null) {
+                    _listener.onPositiveButtonClick ();
+                }
+
+                getDialog ().dismiss ();
             }
         });
 
-        builder.setNegativeButton (android.R.string.cancel, null);
+        builder.setNegativeButton (android.R.string.cancel, new DialogInterface.OnClickListener ()
+        {
+            @Override
+            public void onClick (DialogInterface dialog, int which)
+            {
+                if (_listener != null) {
+                    _listener.onNegativeButtonClick ();
+                }
+
+                getDialog ().dismiss ();
+            }
+        });
 
         return builder.create ();
+    }
+
+    public void setListener (OnConfirmDialogListener listener)
+    {
+        _listener = listener;
+    }
+
+    public OnConfirmDialogListener getListener ()
+    {
+        return _listener;
     }
 
     @Override
     public void onStart ()
     {
         super.onStart ();
-
+/*
         AlertDialog dialog;
 
         dialog = (AlertDialog) getDialog ();
@@ -70,16 +88,32 @@ public abstract class ConfirmDialog
 
             positive.setOnClickListener (this);
         }
+*/
     }
 
     public void onClick (View v)
     {
-        onOkClicked ();
         getDialog ().dismiss ();
     }
 
-    /**
-     * Called when "ok" pressed.
-     */
-    abstract public void onOkClicked ();
+
+    public int getTitleId ()
+    {
+        return _titleId;
+    }
+
+    public void setTitleId (int titleId)
+    {
+        _titleId = titleId;
+    }
+
+    public int getMessageId ()
+    {
+        return _messageId;
+    }
+
+    public void setMessageId (int messageId)
+    {
+        _messageId = messageId;
+    }
 }

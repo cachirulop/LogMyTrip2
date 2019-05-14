@@ -23,7 +23,7 @@
 
 
     <!-- Activity subtitles -->
-    <string name="main_activity_subtitle">Logged journeys (%1$s)</string>
+    <string name="main_activity_subtitle">Logged journeys (%1$d)</string>
 
     <!-- Main activity -->
     <string name="tbLogJourneysText">Log journey</string>
@@ -185,7 +185,7 @@
 
     <!-- Titles -->
     <string name="title_delete">Delete</string>
-    <string name="title_selected_count">%1$s selected</string>
+    <string name="title_selected_count">%1$d selected</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_description">Description</string>
     <string name="title_start">Start</string>

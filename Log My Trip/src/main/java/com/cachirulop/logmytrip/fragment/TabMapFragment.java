@@ -8,9 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,21 +25,27 @@ import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class TabMapFragment
         extends Fragment
         implements OnMapReadyCallback
 {
+    private static final int ZOOM_LEVEL = 16;
+    private MapView   _mapView;
     private GoogleMap _map;
     private MapHelper _mapHelper;
     private Journey   _journey;
-    private boolean _zoomin = false;
-
-    private static final int ZOOM_LEVEL = 16;
-
+    private boolean   _zoomin = false;
     private BroadcastReceiver _onNewLocationReceiver = new BroadcastReceiver ()
     {
         @Override
@@ -81,32 +84,34 @@ public class TabMapFragment
         public void onReceive (Context context, Intent intent)
         {
             if (LogMyTripBroadcastManager.hasProviderEnable (intent)) {
-                boolean enabled;
+                if (LogMyTripBroadcastManager.hasProviderEnable (intent)) {
+                    boolean enabled;
 
-                enabled = LogMyTripBroadcastManager.getProviderEnable (intent);
+                    enabled = LogMyTripBroadcastManager.getProviderEnable (intent);
 
-                LogHelper.d ("ProviderEnabled change");
-                if (!enabled) {
-                    Snackbar msg;
+                    if (!enabled) {
+                        Snackbar msg;
 
-                    msg = Snackbar.make (getView (),
-                                         R.string.msg_gps_disabled,
-                                         Snackbar.LENGTH_LONG);
-                    msg.setAction (R.string.msg_configure_gps, new View.OnClickListener ()
-                    {
-                        @Override
-                        public void onClick (View v)
+                        msg = Snackbar.make (getView (),
+                                             R.string.msg_gps_disabled,
+                                             Snackbar.LENGTH_LONG);
+                        msg.setAction (R.string.msg_configure_gps, new View.OnClickListener ()
                         {
-                            startActivity (new Intent (Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        }
-                    });
+                            @Override
+                            public void onClick (View v)
+                            {
+                                startActivity (new Intent (Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                            }
+                        });
 
-                    msg.show ();
+                        msg.show ();
+                    }
                 }
             }
         }
     };
-    private BroadcastReceiver _onProviderStatusChange  = new BroadcastReceiver ()
+
+    private BroadcastReceiver _onProviderStatusChange = new BroadcastReceiver ()
     {
         @Override
         public void onReceive (Context context, Intent intent)
@@ -121,12 +126,6 @@ public class TabMapFragment
     public TabMapFragment ()
     {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onDestroyView ()
-    {
-        super.onDestroyView ();
     }
 
     @Override
@@ -146,11 +145,9 @@ public class TabMapFragment
         try {
             View v;
 
-            LogHelper.d ("TabMapFragment.onCreateView: Inflando el mapa");
-
             v = inflater.inflate (R.layout.fragment_tab_map, container, false);
 
-            LogHelper.d ("TabMapFragment.onCreateView: Se ha inflado el mapa con éxito");
+            _mapView = v.findViewById (R.id.gmJourneyDetail);
 
             return v;
         }
@@ -162,22 +159,56 @@ public class TabMapFragment
     }
 
     @Override
+    public void onStart ()
+    {
+        super.onStart ();
+        _mapView.onStart ();
+    }
+
+    @Override
+    public void onSaveInstanceState (@NonNull Bundle outState)
+    {
+        super.onSaveInstanceState (outState);
+        _mapView.onSaveInstanceState (outState);
+    }
+
+    @Override
+    public void onStop ()
+    {
+        super.onStop ();
+        _mapView.onStop ();
+    }
+
+    @Override
+    public void onLowMemory ()
+    {
+        super.onLowMemory ();
+        _mapView.onLowMemory ();
+    }
+
+    @Override
+    public void onDestroy ()
+    {
+        super.onDestroy ();
+        _mapView.onDestroy ();
+    }
+
+    @Override
     public void onViewCreated (View view, Bundle savedInstanceState)
     {
         super.onViewCreated (view, savedInstanceState);
 
-        setUpMap ();
-    }
+        _mapView.onCreate (savedInstanceState);
+        _mapView.onResume ();
 
-    private void setUpMap ()
-    {
-        SupportMapFragment fragment;
-        FragmentManager    manager;
+        try {
+            MapsInitializer.initialize (getActivity ().getApplicationContext ());
+        }
+        catch (Exception e) {
+            LogHelper.d ("Error initializing map: " + e.getLocalizedMessage ());
+        }
 
-        manager = getChildFragmentManager ();
-        fragment = (SupportMapFragment) manager.findFragmentById (R.id.gmJourneyDetail);
-
-        fragment.getMapAsync (this);
+        _mapView.getMapAsync (this);
     }
 
     @Override
@@ -190,6 +221,7 @@ public class TabMapFragment
     public void onResume ()
     {
         super.onResume ();
+        _mapView.onResume ();
 
         if (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ())) {
             LogMyTripBroadcastManager.registerNewLocationReceiver (getContext (),
@@ -204,12 +236,19 @@ public class TabMapFragment
     public void onPause ()
     {
         super.onPause ();
+        _mapView.onPause ();
 
         if (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ())) {
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onNewLocationReceiver);
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderEnabledChange);
             LogMyTripBroadcastManager.unregisterReceiver (getContext (), _onProviderStatusChange);
         }
+    }
+
+    @Override
+    public void onDestroyView ()
+    {
+        super.onDestroyView ();
     }
 
     private void drawTrackMainThread ()
@@ -235,15 +274,11 @@ public class TabMapFragment
     {
         boolean isActiveJourney;
 
-        LogHelper.d ("*** Getting map");
-
         isActiveJourney = (_journey.getId () == SettingsManager.getCurrentJourneyId (getContext ()));
 
         _map = googleMap;
         _map.setMyLocationEnabled (true);
         _map.animateCamera (CameraUpdateFactory.zoomTo (ZOOM_LEVEL));
-
-        LogHelper.d ("*** Map assigned");
 
         _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);

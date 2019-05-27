@@ -229,7 +229,7 @@ public class JourneyDetailActivity
 
         dlg = new CustomViewDialog ();
         dlg.setTitleId (R.string.title_edit_journey);
-        dlg.setMessageId (R.layout.dialog_edit_journey);
+        dlg.setViewId (R.layout.dialog_edit_journey);
         dlg.setListener (new CustomViewDialog.OnCustomDialogListener ()
         {
             @Override

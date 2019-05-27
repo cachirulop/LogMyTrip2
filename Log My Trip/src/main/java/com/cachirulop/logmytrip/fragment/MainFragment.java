@@ -275,7 +275,7 @@ public class MainFragment
         dlg = new CustomViewDialog ();
 
         dlg.setTitleId (R.string.title_export);
-        dlg.setMessageId (R.layout.dialog_export);
+        dlg.setViewId (R.layout.dialog_export);
         dlg.setListener (new CustomViewDialog.OnCustomDialogListener ()
         {
             @Override

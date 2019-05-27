@@ -15,7 +15,7 @@ public class CustomViewDialog
         extends DialogFragment
 {
     private int  _titleId;
-    private int  _messageId;
+    private int  _messageId = -1;
     private int  _viewId;
     private View                   _customView;
     private OnCustomDialogListener _listener;

@@ -37,10 +37,10 @@ public class LocationReceiver
 
         loc = intent.getParcelableExtra (LocationManager.KEY_LOCATION_CHANGED);
         if (loc != null && isValidLocation (context, loc)) {
-            Journey journey;
+            //Journey journey;
 
-            journey = JourneyManager.getActiveJourney (context);
-            if (journey != null) {
+            // journey = JourneyManager.getActiveJourney (context);
+            // if (journey != null) {
                 Location tl;
 
                 tl = new Location (loc);
@@ -48,7 +48,7 @@ public class LocationReceiver
                 JourneyManager.saveLocation (context, tl);
 
                 LogMyTripBroadcastManager.sendNewLocationMessage (context, loc);
-            }
+            // }
         }
     }
 

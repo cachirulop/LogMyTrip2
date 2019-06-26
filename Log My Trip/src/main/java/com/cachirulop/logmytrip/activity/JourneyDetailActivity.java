@@ -249,12 +249,6 @@ public class JourneyDetailActivity
                 JourneyManager.updateJourney (JourneyDetailActivity.this, _journey);
 
                 _detailFragment.setToolbarTitle (_journey.getTitle ());
-
-                if (SettingsManager.isLogJourney (JourneyDetailActivity.this) && (SettingsManager.getCurrentJourneyId (
-                        JourneyDetailActivity.this) == _journey.getId ())) {
-                    LogMyTripNotificationManager.updateLogging (JourneyDetailActivity.this,
-                                                                _journey);
-                }
             }
 
             @Override

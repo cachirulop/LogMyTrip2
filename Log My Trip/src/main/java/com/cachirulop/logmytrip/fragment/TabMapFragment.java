@@ -132,9 +132,6 @@ public class TabMapFragment
     public void onCreate (Bundle savedInstanceState)
     {
         super.onCreate (savedInstanceState);
-
-        _journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
-        JourneyManager.loadJourneySegments (getContext (), _journey);
     }
 
     @Override
@@ -161,6 +158,8 @@ public class TabMapFragment
     @Override
     public void onStart ()
     {
+        loadMapData ();
+
         super.onStart ();
         _mapView.onStart ();
     }
@@ -175,6 +174,8 @@ public class TabMapFragment
     @Override
     public void onStop ()
     {
+        _journey = null;
+
         super.onStop ();
         _mapView.onStop ();
     }
@@ -182,6 +183,8 @@ public class TabMapFragment
     @Override
     public void onLowMemory ()
     {
+        _journey = null;
+
         super.onLowMemory ();
         _mapView.onLowMemory ();
     }
@@ -189,6 +192,8 @@ public class TabMapFragment
     @Override
     public void onDestroy ()
     {
+        _journey = null;
+
         super.onDestroy ();
         _mapView.onDestroy ();
     }
@@ -283,6 +288,14 @@ public class TabMapFragment
         _mapHelper = new MapHelper (getContext ());
         _mapHelper.setMap (_map);
         _mapHelper.drawJourney (_journey, isActiveJourney);
+    }
+
+    private void loadMapData ()
+    {
+        if (_journey == null) {
+            _journey = SelectedJourneyHolder.getInstance ().getSelectedJourney ();
+            JourneyManager.loadJourneySegments (getContext (), _journey);
+        }
     }
 
     public void setMapType (int mapType)

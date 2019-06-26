@@ -14,12 +14,12 @@ import androidx.core.app.NotificationCompat;
 
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.activity.MainActivity;
-import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.entity.JourneySegment;
 import com.cachirulop.logmytrip.helper.FormatHelper;
 import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.receiver.NotifyReceiver;
 
+import java.util.Date;
 import java.util.Set;
 
 public class LogMyTripNotificationManager
@@ -27,26 +27,26 @@ public class LogMyTripNotificationManager
     public static final int NOTIFICATION_LOGGING = 1133;
     public static final int NOTIFICATION_WAITING_BLUETOOTH = 1134;
 
-    public static Notification createLogging (Context ctx, Journey t)
+    public static Notification createLogging (Context ctx)
     {
-        return createLoggingNotification (ctx, t);
+        return createLoggingNotification (ctx);
     }
 
-    private static Notification createLoggingNotification (Context ctx, Journey t)
+    private static Notification createLoggingNotification (Context ctx)
     {
         NotificationCompat.Builder builder;
         Intent                     notificationIntent;
         PendingIntent              pi;
-        NotificationCompat.InboxStyle    style;
+        //NotificationCompat.InboxStyle    style;
         JourneySegment             currentSegment;
 
         try {
             initNotificationChannel (ctx);
 
             builder = new NotificationCompat.Builder (ctx, ctx.getText (R.string.notif_Title).toString ());
-            builder.setContentTitle (ctx.getText (R.string.notif_Title));
-            builder.setTicker (ctx.getText (R.string.notif_Tricker));
-            builder.setContentText (t.getTitle ());
+            builder.setContentTitle (ctx.getText (R.string.notif_logging_title));
+            builder.setTicker (ctx.getString (R.string.notif_logging_content, FormatHelper.formatTime (ctx, new Date ())));
+            builder.setContentText (ctx.getString (R.string.notif_logging_content, FormatHelper.formatTime (ctx, new Date ())));
 
             builder.setOngoing (false);
             builder.setAutoCancel (false);
@@ -64,28 +64,10 @@ public class LogMyTripNotificationManager
                        R.string.action_stop_log);
 
 
-            style = new NotificationCompat.InboxStyle ();
-            style.setBigContentTitle (ctx.getText (R.string.notif_Title));
-            style.addLine (t.getTitle ());
-            if (!"".equals (t.getDescription ())) {
-                style.addLine (t.getDescription ());
-            }
+            //style = new NotificationCompat.InboxStyle ();
+            //style.setBigContentTitle (ctx.getText (R.string.notif_logging_title));
 
-            if (t.getSegments () != null && t.getSegments ().size () > 0) {
-                currentSegment = t.getSegments ().get (t.getSegments ().size () - 1);
-
-                style.addLine (String.format ("%s: %s",
-                                              ctx.getText (R.string.title_start),
-                                              FormatHelper.formatDateTime (ctx, currentSegment.getStartDate ())));
-                style.addLine (String.format ("%s: %s",
-                                              ctx.getText (R.string.title_total_time),
-                                              FormatHelper.formatDuration (currentSegment.computeTotalTime ())));
-                style.addLine (String.format ("%s: %s",
-                                              ctx.getText (R.string.title_total_distance),
-                                              FormatHelper.formatDistance (currentSegment.computeTotalDistance ())));
-            }
-
-            builder.setStyle (style);
+            // builder.setStyle (style);
 
             builder.setSmallIcon (R.drawable.ic_loggin_notify);
             builder.setLargeIcon (BitmapFactory.decodeResource (ctx.getResources (), R.mipmap.ic_status_logging));
@@ -210,15 +192,6 @@ public class LogMyTripNotificationManager
         pi = PendingIntent.getBroadcast (ctx, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
         builder.addAction (icon, ctx.getString (title), pi);
-    }
-
-    public static void updateLogging (Context ctx, Journey t)
-    {
-        Notification note;
-
-        note = createLoggingNotification (ctx, t);
-
-        getManager (ctx).notify (NOTIFICATION_LOGGING, note);
     }
 
     private static NotificationManager getManager (Context ctx)

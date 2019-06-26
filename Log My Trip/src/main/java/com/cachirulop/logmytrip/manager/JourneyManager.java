@@ -26,37 +26,29 @@ public class JourneyManager
     private static final String CONST_JOURNEY_TABLE_NAME  = "journey";
     private static final String CONST_LOCATION_TABLE_NAME = "location";
 
-    private static ArrayList<Location> _LocationsPool = new ArrayList<> ();
+    //private static ArrayList<Location> _LocationsPool = new ArrayList<> ();
 
     public static Location saveLocation (Context ctx, Location tl)
     {
+/*
         synchronized (_LocationsPool) {
             _LocationsPool.add (tl);
         }
+*/
+        SQLiteDatabase db = null;
 
-        return tl;
-    }
+        try {
+            db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
 
-    public static void flushLocations (Context ctx)
-    {
-        synchronized (_LocationsPool) {
-            SQLiteDatabase db = null;
-
-            try {
-                db = new LogMyTripDataHelper (ctx).getWritableDatabase ();
-
-                for (Location tl : _LocationsPool) {
-                    insertLocation (ctx, db, tl);
-                }
-
-                _LocationsPool.clear ();
-            }
-            finally {
-                if (db != null) {
-                    db.close ();
-                }
+            insertLocation (ctx, db, tl);
+        }
+        finally {
+            if (db != null) {
+                db.close ();
             }
         }
+
+        return tl;
     }
 
     private static Location insertLocation (Context ctx, SQLiteDatabase db, Location tl)
@@ -88,11 +80,13 @@ public class JourneyManager
 
     public static void mergePendingLocations (Journey journey)
     {
+/*
         synchronized (_LocationsPool) {
             for (Location tl : _LocationsPool) {
                 journey.addLocation (tl);
             }
         }
+*/
     }
 
     public static List<Journey> loadJourneys (Context ctx)

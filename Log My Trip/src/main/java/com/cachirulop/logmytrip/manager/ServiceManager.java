@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.cachirulop.logmytrip.service.BluetoothService;
-import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.cachirulop.logmytrip.service.LogMyTripServiceGooglePlayServices;
 
 public class ServiceManager
 {
@@ -12,7 +12,7 @@ public class ServiceManager
     {
         SettingsManager.setLogJourney (ctx, true);
 
-        ctx.startService (new Intent (ctx, LogMyTripService.class));
+        ctx.startService (new Intent (ctx, LogMyTripServiceGooglePlayServices.class));
     }
 
     public static void stopLog (Context ctx)
@@ -20,7 +20,7 @@ public class ServiceManager
         if (SettingsManager.isLogJourney (ctx)) {
             SettingsManager.setLogJourney (ctx, false);
 
-            ctx.stopService (new Intent (ctx, LogMyTripService.class));
+            ctx.stopService (new Intent (ctx, LogMyTripServiceGooglePlayServices.class));
         }
     }
 

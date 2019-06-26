@@ -18,9 +18,11 @@ public class SettingsManager
     public static final String KEY_PREF_GPS_DISTANCE_INTERVAL    = "pref_gpsDistanceInterval";
     public static final String KEY_PREF_GPS_ACCURACY             = "pref_gpsAccuracy";
 
-    public static final String KEY_PREF_STATUS_LOG_JOURNEY        = "pref_autoLogJourney";
-    public static final String KEY_PREF_STATUS_CURRENT_JOURNEY_ID = "pref_currentJourneyId";
-    public static final String KEY_PREF_STATUS_IS_WAITING_BLUETOOTH = "pref_isWaitingBluetooth";
+    public static final String KEY_STATUS_LOG_JOURNEY = "status_logJourney";
+    public static final String KEY_STATUS_CURRENT_JOURNEY_ID = "status_currentJourneyId";
+    public static final String KEY_STATUS_IS_WAITING_BLUETOOTH = "status_isWaitingBluetooth";
+
+    public static final String KEY_STATUS_IS_LOGGING = "status_isLogging";
 
     public static boolean isAutoStartLogBluetooth (Context ctx)
     {
@@ -43,7 +45,7 @@ public class SettingsManager
 
     public static boolean isLogJourney (Context ctx)
     {
-        return getSharedStatusPrefs (ctx).getBoolean (KEY_PREF_STATUS_LOG_JOURNEY, false);
+        return getSharedStatusPrefs (ctx).getBoolean (KEY_STATUS_LOG_JOURNEY, false);
     }
 
     private static SharedPreferences getSharedStatusPrefs (Context ctx)
@@ -65,13 +67,13 @@ public class SettingsManager
         SharedPreferences.Editor editor;
 
         editor = getSharedStatusPrefs (ctx).edit ();
-        editor.putBoolean (KEY_PREF_STATUS_LOG_JOURNEY, value);
+        editor.putBoolean (KEY_STATUS_LOG_JOURNEY, value);
         editor.commit ();
     }
 
     public static long getCurrentJourneyId (Context ctx)
     {
-        return getSharedStatusPrefs (ctx).getLong (KEY_PREF_STATUS_CURRENT_JOURNEY_ID, 0);
+        return getSharedStatusPrefs (ctx).getLong (KEY_STATUS_CURRENT_JOURNEY_ID, 0);
     }
 
     public static void setCurrentJourneyId (Context ctx, long id)
@@ -79,7 +81,7 @@ public class SettingsManager
         SharedPreferences.Editor editor;
 
         editor = getSharedStatusPrefs (ctx).edit ();
-        editor.putLong (KEY_PREF_STATUS_CURRENT_JOURNEY_ID, id);
+        editor.putLong (KEY_STATUS_CURRENT_JOURNEY_ID, id);
         editor.commit ();
     }
 
@@ -113,13 +115,13 @@ public class SettingsManager
         SharedPreferences.Editor editor;
 
         editor = getSharedStatusPrefs (ctx).edit ();
-        editor.putBoolean (KEY_PREF_STATUS_IS_WAITING_BLUETOOTH, value);
+        editor.putBoolean (KEY_STATUS_IS_WAITING_BLUETOOTH, value);
         editor.commit ();
     }
 
     public static boolean isWaitingBluetooth (Context ctx)
     {
-        return getSharedStatusPrefs (ctx).getBoolean (KEY_PREF_STATUS_IS_WAITING_BLUETOOTH, false);
+        return getSharedStatusPrefs (ctx).getBoolean (KEY_STATUS_IS_WAITING_BLUETOOTH, false);
     }
 
     public static boolean isAutoStartLogAlways (Context ctx)

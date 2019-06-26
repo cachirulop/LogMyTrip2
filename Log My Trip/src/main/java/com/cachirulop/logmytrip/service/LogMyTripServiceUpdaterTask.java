@@ -32,15 +32,12 @@ public class LogMyTripServiceUpdaterTask
                 Journey t;
 
                 // Flush the pending locations
-                JourneyManager.flushLocations (_ctx);
+                //JourneyManager.flushLocations (_ctx);
 
                 t = JourneyManager.getActiveJourney (_ctx);
 
                 if (t != null) {
                     JourneyManager.updateJourneyStatistics (_ctx, t);
-
-                    // Update the notification information
-                    LogMyTripNotificationManager.updateLogging (_ctx, t);
                 }
             }
         });

@@ -10,7 +10,6 @@ import android.os.Binder;
 import android.os.IBinder;
 
 import com.cachirulop.logmytrip.entity.Journey;
-import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.helper.ToastHelper;
 import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
@@ -18,16 +17,12 @@ import com.cachirulop.logmytrip.manager.LogMyTripNotificationManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.receiver.LocationReceiver;
 
-import java.util.Timer;
-
 
 public class LogMyTripService
         extends Service
 {
     private static boolean _started;
     private LogMyTripServiceBinder _binder = null;
-    private Timer                       _notificationTimer;
-    private LogMyTripServiceUpdaterTask _updaterTask;
 
     public static boolean isRunning ()
     {
@@ -51,13 +46,7 @@ public class LogMyTripService
 
         current = startLog ();
         if (current != null) {
-            startForegroundService (current);
-
-            _notificationTimer = new Timer ();
-            _updaterTask = new LogMyTripServiceUpdaterTask (this);
-
-            _notificationTimer.schedule (_updaterTask, 0, 60000);
-
+            startForegroundService ();
             _started = true;
         }
 
@@ -80,7 +69,6 @@ public class LogMyTripService
             stopLog ();
             stopForegroundService ();
 
-            _notificationTimer.cancel ();
             _started = false;
         }
 
@@ -112,11 +100,11 @@ public class LogMyTripService
         return result;
     }
 
-    private void startForegroundService (Journey t)
+    private void startForegroundService ()
     {
         Notification note;
 
-        note = LogMyTripNotificationManager.createLogging (this, t);
+        note = LogMyTripNotificationManager.createLogging (this);
 
         startForeground (LogMyTripNotificationManager.NOTIFICATION_LOGGING, note);
     }
@@ -138,7 +126,7 @@ public class LogMyTripService
         Journey journey;
         LocationManager locationMgr;
 
-        JourneyManager.flushLocations (this);
+        // JourneyManager.flushLocations (this);
 
         journey = JourneyManager.getActiveJourney (this);
         if (journey != null) {
@@ -151,7 +139,6 @@ public class LogMyTripService
         locationMgr.removeUpdates (getLocationIntent ());
 
         JourneyManager.unsetActiveJourney (this);
-
 
         _started = false;
     }

@@ -23,12 +23,12 @@
 
 
     <!-- Activity subtitles -->
-    <string name="main_activity_subtitle">Logged journeys (%1$d)</string>
+    <string name="main_activity_subtitle">Loged journeys (%1$d)</string>
 
     <!-- Main activity -->
     <string name="tbLogJourneysText">Log journey</string>
     <string name="tvLogJourneyDescText">Start/Stop logging the current journey</string>
-    <string name="tvLoggedJourneysDescText">Logged journeys</string>
+    <string name="tvLogedJourneysDescText">Loged journeys</string>
 
     <!-- General values -->
     <string-array name="map_types">
@@ -159,12 +159,15 @@
     <string name="notif_Title">Log my trip</string>
     <string name="notif_Tricker">Starting Log my trip service</string>
     <string name="notif_ContentWaitingBluetooth">Waiting bluetooth %1$s to %2$s log</string>
-    <string name="notif_ContentWaitingBluetooth_mode_connect" translatable="false">connection</string>
-    <string name="notif_ContentWaitingBluetooth_mode_disconnect" translatable="false">disconnection</string>
-    <string name="notif_ContentWaitingBluetooth_action_start" translatable="false">start</string>
-    <string name="notif_ContentWaitingBluetooth_action_stop" translatable="false">stop</string>
+    <string name="notif_ContentWaitingBluetooth_mode_connect">connection</string>
+    <string name="notif_ContentWaitingBluetooth_mode_disconnect">disconnection</string>
+    <string name="notif_ContentWaitingBluetooth_action_start">start</string>
+    <string name="notif_ContentWaitingBluetooth_action_stop">stop</string>
     <string name="notif_ContentLogging">Logging journey</string>
     <string name="notif_configured_devices">Bluetooth devices</string>
+
+    <string name="notif_logging_title">Logging trip</string>
+    <string name="notif_logging_content">Start time: %1$s</string>
 
     <!-- Messages -->
     <string name="msg_GooglePlayServicesUnavailable">Google Play Services unavailable, can not continue</string>
@@ -239,5 +242,7 @@
     <string name="action_trips">Trips</string>
     <string name="text_no_user">No user</string>
     <string name="text_no_email">No email</string>
+
+    <string name="msg_not_enough_permissions">Not enough permissions</string>
 
 </resources>

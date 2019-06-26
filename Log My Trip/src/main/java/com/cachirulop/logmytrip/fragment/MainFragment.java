@@ -4,18 +4,8 @@ package com.cachirulop.logmytrip.fragment;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
-import com.cachirulop.logmytrip.helper.LogHelper;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,17 +24,25 @@ import com.cachirulop.logmytrip.dialog.CustomViewDialog;
 import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.helper.DialogHelper;
 import com.cachirulop.logmytrip.helper.ExportHelper;
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.LogMyTripBroadcastManager;
 import com.cachirulop.logmytrip.manager.SelectedJourneyHolder;
 import com.cachirulop.logmytrip.manager.ServiceManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
-import com.cachirulop.logmytrip.service.LogMyTripService;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class MainFragment
         extends Fragment
@@ -456,9 +454,9 @@ public class MainFragment
 
             if (SettingsManager.isLogJourney (getContext ())) {
                 // Ensure to start log service
-                if (!LogMyTripService.isRunning ()) {
+                // if (!LogMyTripService.isRunning ()) {
                     ServiceManager.startLog (getContext ());
-                }
+                // }
             }
 
             refreshFabLog ();
@@ -536,6 +534,7 @@ public class MainFragment
         }
         else {
             ServiceManager.startLog (getContext ());
+            _fabLog.setImageResource (android.R.drawable.ic_media_pause);
         }
     }
 

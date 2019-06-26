@@ -45,8 +45,8 @@
     <string name="notif_ChannelID">Guarda mi viaje</string>
     <string name="notif_Channel_Name">Guarda mi viaje</string>
     <string name="notif_ContentLogging">Guardando trayecto</string>
-    <string name="notif_ContentWaitingBluetooth">Esperando el dispositivo bluetooth %1$s para %2$s</string>
-    <string name="notif_ContentWaitingBluetooth_mode_connect"></string>
+    <string name="notif_ContentWaitingBluetooth">Esperando la %1$s del dispositivo bluetooth para %2$s</string>
+    <string name="notif_ContentWaitingBluetooth_mode_connect">conexión</string>
     <string name="notif_Title">Guarda mi viaje</string>
     <string name="notif_Tricker">Iniciando el servicio de Guarda mi viaje</string>
     <string name="notif_configured_devices">Dispositivos Bluetooth</string>
@@ -65,7 +65,7 @@
     <string name="pref_bluetoothDeviceListTitle">Dispositivos bluetooth conocidos</string>
     <string name="tbLogJourneysText">Grabar jornada</string>
     <string name="tvLogJourneyDescText">Iniciar/Detener la jornada actual</string>
-    <string name="tvLoggedJourneysDescText">Jornadas guardadas</string>
+    <string name="tvLogedJourneysDescText">Jornadas guardadas</string>
     <string name="pref_gpsCategoryTitle">GPS</string>
     <string name="pref_gpsTimeIntervalTitle">Intervalo de tiempo</string>
     <string name="pref_gpsTimeIntervalSummary">Intervalo de tiempo entre señales GPS</string>
@@ -112,4 +112,10 @@
     <string name="text_export_successful">Exportado con éxito</string>
     <string name="text_no_user">Sin usuario</string>
     <string name="text_no_email">Sin email</string>
+    <string name="msg_not_enough_permissions">No tiene permisos para utilizar el GPS</string>
+    <string name="notif_ContentWaitingBluetooth_action_start">empezar</string>
+    <string name="notif_ContentWaitingBluetooth_action_stop">terminar</string>
+    <string name="notif_ContentWaitingBluetooth_mode_disconnect">desconexión</string>
+    <string name="notif_logging_content">Hora de inicio: %1$s</string>
+    <string name="notif_logging_title">Guardando el viaje</string>
 </resources>

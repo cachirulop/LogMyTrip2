@@ -89,13 +89,13 @@ public class MainFragment
             if (_journeysLoaded) {
                 // _adapter.setItem (0, JourneyManager.getActiveJourney (getContext ()));
                 // TODO: Refresh the statistics
-                //                Journey current;
-                //
-                //                current = _adapter.getItem (0);
-                //
-                //                current.computeLiveStatistics (getContext ());
-                //
-                //                _adapter.notifyItemChanged (0);
+                                Journey current;
+
+                                current = _adapter.getItem (0);
+
+                                current.computeLiveStatistics (getContext ());
+
+                                _adapter.notifyItemChanged (0);
             }
         }
     };

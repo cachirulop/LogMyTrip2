@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import com.cachirulop.logmytrip.R;
 import com.cachirulop.logmytrip.entity.Journey;
 import com.cachirulop.logmytrip.fragment.RecyclerViewItemClickListener;
+import com.cachirulop.logmytrip.helper.LogHelper;
 import com.cachirulop.logmytrip.manager.JourneyManager;
 import com.cachirulop.logmytrip.manager.SettingsManager;
 import com.cachirulop.logmytrip.viewholder.JourneyItemViewHolder;
